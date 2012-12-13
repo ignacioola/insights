@@ -1,0 +1,30 @@
+<!doctype html>
+
+<head>
+  <title>Insights graph demo</title>
+  <link rel="stylesheet" href="../src/css/default.css" />
+</head>
+
+<body>
+
+  <div id="parent"></div>
+
+  <!--
+  <script src="../lib/underscore.js"></script>
+  <script src="../lib/d3.v2.js"></script>
+  <script src="../lib/mustache.js"></script>
+  -->
+  <script src="../dist/insights.packaged.js"></script>
+
+  <script>
+    !function() {
+      d3.json("data.json", function(data) {
+        var nodes = data[0],
+        links = data[1],
+        el = document.getElementById("parent");
+
+        var graph = new InsightsGraph(el, nodes, links);
+      });
+    }();
+  </script>
+</body>
