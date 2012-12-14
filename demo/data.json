@@ -4,7 +4,7 @@
             "children": null, 
             "cluster": 18, 
             "id": 315, 
-            "ntweets": 77, 
+            "count": 77, 
             "size": 0.0, 
             "text": "duerm"
         }, 
@@ -12,7 +12,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 104, 
-            "ntweets": 908, 
+            "count": 908, 
             "size": 0.0, 
             "text": "roj"
         }, 
@@ -20,7 +20,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 3, 
-            "ntweets": 1349, 
+            "count": 1349, 
             "size": 4.5, 
             "text": "negr"
         }, 
@@ -28,7 +28,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 291, 
-            "ntweets": 257, 
+            "count": 257, 
             "size": 0.0, 
             "text": "esper"
         }, 
@@ -36,7 +36,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 274, 
-            "ntweets": 65, 
+            "count": 65, 
             "size": 0.0, 
             "text": "ningun"
         }, 
@@ -44,7 +44,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 204, 
-            "ntweets": 156, 
+            "count": 156, 
             "size": 0.0, 
             "text": "distint"
         }, 
@@ -52,7 +52,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 272, 
-            "ntweets": 102, 
+            "count": 102, 
             "size": 0.0, 
             "text": "encontr"
         }, 
@@ -60,7 +60,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 244, 
-            "ntweets": 148, 
+            "count": 148, 
             "size": 0.0, 
             "text": "zapat"
         }, 
@@ -68,7 +68,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 256, 
-            "ntweets": 209, 
+            "count": 209, 
             "size": 0.0, 
             "text": "punt"
         }, 
@@ -76,7 +76,7 @@
             "children": null, 
             "cluster": 14, 
             "id": 316, 
-            "ntweets": 47, 
+            "count": 47, 
             "size": 396.0, 
             "text": "robar"
         }, 
@@ -84,7 +84,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 80, 
-            "ntweets": 282, 
+            "count": 282, 
             "size": 378.99999999999994, 
             "text": "rop"
         }, 
@@ -92,7 +92,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 58, 
-            "ntweets": 222, 
+            "count": 222, 
             "size": 0.0, 
             "text": "te\u00f1"
         }, 
@@ -100,7 +100,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 49, 
-            "ntweets": 945, 
+            "count": 945, 
             "size": 0.8333333333333333, 
             "text": "ros"
         }, 
@@ -108,7 +108,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 117, 
-            "ntweets": 294, 
+            "count": 294, 
             "size": 0.7833333333333333, 
             "text": "vari"
         }, 
@@ -116,7 +116,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 301, 
-            "ntweets": 89, 
+            "count": 89, 
             "size": 0.0, 
             "text": "luz"
         }, 
@@ -124,7 +124,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 111, 
-            "ntweets": 123, 
+            "count": 123, 
             "size": 0.0, 
             "text": "cabez"
         }, 
@@ -132,7 +132,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 169, 
-            "ntweets": 106, 
+            "count": 106, 
             "size": 0.0, 
             "text": "perfect"
         }, 
@@ -140,7 +140,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 17, 
-            "ntweets": 727, 
+            "count": 727, 
             "size": 0.5, 
             "text": "lind"
         }, 
@@ -148,7 +148,7 @@
             "children": null, 
             "cluster": 6, 
             "id": 11, 
-            "ntweets": 563, 
+            "count": 563, 
             "size": 0.0, 
             "text": "ver"
         }, 
@@ -156,7 +156,7 @@
             "children": null, 
             "cluster": 7, 
             "id": 209, 
-            "ntweets": 93, 
+            "count": 93, 
             "size": 3.333333333333333, 
             "text": "religion"
         }, 
@@ -164,7 +164,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 197, 
-            "ntweets": 290, 
+            "count": 290, 
             "size": 0.0, 
             "text": "siempr"
         }, 
@@ -172,7 +172,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 280, 
-            "ntweets": 147, 
+            "count": 147, 
             "size": 0.0, 
             "text": "much"
         }, 
@@ -180,7 +180,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 190, 
-            "ntweets": 51, 
+            "count": 51, 
             "size": 0.0, 
             "text": "crer"
         }, 
@@ -188,7 +188,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 14, 
-            "ntweets": 989, 
+            "count": 989, 
             "size": 3.5166666666666666, 
             "text": "hac"
         }, 
@@ -196,7 +196,7 @@
             "children": null, 
             "cluster": 4, 
             "id": 15, 
-            "ntweets": 616, 
+            "count": 616, 
             "size": 1.3333333333333333, 
             "text": "vez"
         }, 
@@ -204,7 +204,7 @@
             "children": null, 
             "cluster": 8, 
             "id": 207, 
-            "ntweets": 132, 
+            "count": 132, 
             "size": 2.583333333333333, 
             "text": "siend"
         }, 
@@ -212,7 +212,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 71, 
-            "ntweets": 297, 
+            "count": 297, 
             "size": 0.0, 
             "text": "igual"
         }, 
@@ -220,7 +220,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 164, 
-            "ntweets": 118, 
+            "count": 118, 
             "size": 0.0, 
             "text": "twit"
         }, 
@@ -228,7 +228,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 153, 
-            "ntweets": 60, 
+            "count": 60, 
             "size": 0.0, 
             "text": "comun"
         }, 
@@ -236,7 +236,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 160, 
-            "ntweets": 293, 
+            "count": 293, 
             "size": 0.0, 
             "text": "encant"
         }, 
@@ -244,7 +244,7 @@
             "children": null, 
             "cluster": 1, 
             "id": 76, 
-            "ntweets": 130, 
+            "count": 130, 
             "size": 0.0, 
             "text": "ayer"
         }, 
@@ -252,7 +252,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 108, 
-            "ntweets": 105, 
+            "count": 105, 
             "size": 0.0, 
             "text": "regal"
         }, 
@@ -260,7 +260,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 85, 
-            "ntweets": 126, 
+            "count": 126, 
             "size": 0.0, 
             "text": "hombr"
         }, 
@@ -268,7 +268,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 173, 
-            "ntweets": 145, 
+            "count": 145, 
             "size": 0.0, 
             "text": "nos"
         }, 
@@ -276,7 +276,7 @@
             "children": null, 
             "cluster": 14, 
             "id": 168, 
-            "ntweets": 51, 
+            "count": 51, 
             "size": 4.583333333333333, 
             "text": "apel"
         }, 
@@ -284,7 +284,7 @@
             "children": null, 
             "cluster": 14, 
             "id": 162, 
-            "ntweets": 35, 
+            "count": 35, 
             "size": 0.0, 
             "text": "tuti"
         }, 
@@ -292,7 +292,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 269, 
-            "ntweets": 141, 
+            "count": 141, 
             "size": 510.494047619047, 
             "text": "algodon"
         }, 
@@ -300,7 +300,7 @@
             "children": null, 
             "cluster": 8, 
             "id": 178, 
-            "ntweets": 446, 
+            "count": 446, 
             "size": 3.0, 
             "text": "piel"
         }, 
@@ -308,7 +308,7 @@
             "children": null, 
             "cluster": 4, 
             "id": 77, 
-            "ntweets": 365, 
+            "count": 365, 
             "size": 0.0, 
             "text": "anim"
         }, 
@@ -316,7 +316,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 136, 
-            "ntweets": 272, 
+            "count": 272, 
             "size": 0.0, 
             "text": "amo"
         }, 
@@ -324,7 +324,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 48, 
-            "ntweets": 306, 
+            "count": 306, 
             "size": 0.0, 
             "text": "mund"
         }, 
@@ -332,7 +332,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 237, 
-            "ntweets": 111, 
+            "count": 111, 
             "size": 0.0, 
             "text": "mor"
         }, 
@@ -340,7 +340,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 271, 
-            "ntweets": 158, 
+            "count": 158, 
             "size": 0.0, 
             "text": "falt"
         }, 
@@ -348,7 +348,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 293, 
-            "ntweets": 42, 
+            "count": 42, 
             "size": 0.0, 
             "text": "print"
         }, 
@@ -356,7 +356,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 97, 
-            "ntweets": 121, 
+            "count": 121, 
             "size": 0.0, 
             "text": "hic"
         }, 
@@ -364,7 +364,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 306, 
-            "ntweets": 83, 
+            "count": 83, 
             "size": 0.0, 
             "text": "piez"
         }, 
@@ -372,7 +372,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 82, 
-            "ntweets": 1010, 
+            "count": 1010, 
             "size": 378.99999999999994, 
             "text": "verd"
         }, 
@@ -380,7 +380,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 123, 
-            "ntweets": 43, 
+            "count": 43, 
             "size": 0.0, 
             "text": "maravil"
         }, 
@@ -388,7 +388,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 243, 
-            "ntweets": 108, 
+            "count": 108, 
             "size": 0.0, 
             "text": "not"
         }, 
@@ -396,7 +396,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 310, 
-            "ntweets": 71, 
+            "count": 71, 
             "size": 0.0, 
             "text": "culot"
         }, 
@@ -404,7 +404,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 289, 
-            "ntweets": 136, 
+            "count": 136, 
             "size": 0.0, 
             "text": "part"
         }, 
@@ -412,7 +412,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 208, 
-            "ntweets": 144, 
+            "count": 144, 
             "size": 0.0, 
             "text": "enamor"
         }, 
@@ -420,7 +420,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 43, 
-            "ntweets": 160, 
+            "count": 160, 
             "size": 0.0, 
             "text": "mod"
         }, 
@@ -428,7 +428,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 226, 
-            "ntweets": 174, 
+            "count": 174, 
             "size": 0.0, 
             "text": "edad"
         }, 
@@ -436,7 +436,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 149, 
-            "ntweets": 166, 
+            "count": 166, 
             "size": 0.0, 
             "text": "viej"
         }, 
@@ -444,7 +444,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 146, 
-            "ntweets": 99, 
+            "count": 99, 
             "size": 0.0, 
             "text": "entiend"
         }, 
@@ -452,7 +452,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 228, 
-            "ntweets": 192, 
+            "count": 192, 
             "size": 0.0, 
             "text": "dij"
         }, 
@@ -460,7 +460,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 39, 
-            "ntweets": 268, 
+            "count": 268, 
             "size": 0.0, 
             "text": "vien"
         }, 
@@ -468,7 +468,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 125, 
-            "ntweets": 60, 
+            "count": 60, 
             "size": 187.44166666666663, 
             "text": "artist"
         }, 
@@ -476,7 +476,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 24, 
-            "ntweets": 832, 
+            "count": 832, 
             "size": 0.0, 
             "text": "gust"
         }, 
@@ -484,7 +484,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 165, 
-            "ntweets": 212, 
+            "count": 212, 
             "size": 0.0, 
             "text": "dig"
         }, 
@@ -492,7 +492,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 27, 
-            "ntweets": 577, 
+            "count": 577, 
             "size": 5.0, 
             "text": "dia"
         }, 
@@ -500,7 +500,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 275, 
-            "ntweets": 387, 
+            "count": 387, 
             "size": 0.0, 
             "text": "dic"
         }, 
@@ -508,7 +508,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 311, 
-            "ntweets": 28, 
+            "count": 28, 
             "size": 0.0, 
             "text": "vedetin"
         }, 
@@ -516,7 +516,7 @@
             "children": null, 
             "cluster": 11, 
             "id": 37, 
-            "ntweets": 47, 
+            "count": 47, 
             "size": 1.9, 
             "text": "alej"
         }, 
@@ -524,7 +524,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 113, 
-            "ntweets": 59, 
+            "count": 59, 
             "size": 0.0, 
             "text": "volvi"
         }, 
@@ -532,7 +532,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 175, 
-            "ntweets": 458, 
+            "count": 458, 
             "size": 187.83333333333331, 
             "text": "amor"
         }, 
@@ -540,7 +540,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 29, 
-            "ntweets": 506, 
+            "count": 506, 
             "size": 0.0, 
             "text": "hoy"
         }, 
@@ -548,7 +548,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 213, 
-            "ntweets": 241, 
+            "count": 241, 
             "size": 0.0, 
             "text": "clar"
         }, 
@@ -556,7 +556,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 268, 
-            "ntweets": 111, 
+            "count": 111, 
             "size": 8.142857142857142, 
             "text": "soft"
         }, 
@@ -564,7 +564,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 84, 
-            "ntweets": 291, 
+            "count": 291, 
             "size": 0.0, 
             "text": "celest"
         }, 
@@ -572,7 +572,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 245, 
-            "ntweets": 210, 
+            "count": 210, 
             "size": 901.3845238095234, 
             "text": "dispon"
         }, 
@@ -580,7 +580,7 @@
             "children": null, 
             "cluster": 9, 
             "id": 320, 
-            "ntweets": 21, 
+            "count": 21, 
             "size": 0.0, 
             "text": "destru"
         }, 
@@ -588,7 +588,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 247, 
-            "ntweets": 218, 
+            "count": 218, 
             "size": 153.6940476190481, 
             "text": "art"
         }, 
@@ -596,7 +596,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 1, 
-            "ntweets": 526, 
+            "count": 526, 
             "size": 378.99999999999994, 
             "text": "ser"
         }, 
@@ -604,7 +604,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 12, 
-            "ntweets": 777, 
+            "count": 777, 
             "size": 7.527777777777778, 
             "text": "ten"
         }, 
@@ -612,7 +612,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 112, 
-            "ntweets": 142, 
+            "count": 142, 
             "size": 0.0, 
             "text": "dise\u00f1"
         }, 
@@ -620,7 +620,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 143, 
-            "ntweets": 146, 
+            "count": 146, 
             "size": 0.0, 
             "text": "ahi"
         }, 
@@ -628,7 +628,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 141, 
-            "ntweets": 182, 
+            "count": 182, 
             "size": 0.0, 
             "text": "cualqui"
         }, 
@@ -636,7 +636,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 265, 
-            "ntweets": 186, 
+            "count": 186, 
             "size": 0.0, 
             "text": "quer"
         }, 
@@ -644,7 +644,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 296, 
-            "ntweets": 208, 
+            "count": 208, 
             "size": 517.2392857142851, 
             "text": "lycra"
         }, 
@@ -652,7 +652,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 144, 
-            "ntweets": 184, 
+            "count": 184, 
             "size": 0.0, 
             "text": "odi"
         }, 
@@ -660,7 +660,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 186, 
-            "ntweets": 146, 
+            "count": 146, 
             "size": 0.0, 
             "text": "cuent"
         }, 
@@ -668,7 +668,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 305, 
-            "ntweets": 73, 
+            "count": 73, 
             "size": 0.0, 
             "text": "bonit"
         }, 
@@ -676,7 +676,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 317, 
-            "ntweets": 72, 
+            "count": 72, 
             "size": 0.0, 
             "text": "alg"
         }, 
@@ -684,7 +684,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 107, 
-            "ntweets": 377, 
+            "count": 377, 
             "size": 0.0, 
             "text": "violet"
         }, 
@@ -692,7 +692,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 103, 
-            "ntweets": 311, 
+            "count": 311, 
             "size": 0.0, 
             "text": "amaril"
         }, 
@@ -700,7 +700,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 230, 
-            "ntweets": 283, 
+            "count": 283, 
             "size": 0.0, 
             "text": "cre"
         }, 
@@ -708,7 +708,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 92, 
-            "ntweets": 22, 
+            "count": 22, 
             "size": 0.0, 
             "text": "marley"
         }, 
@@ -716,7 +716,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 211, 
-            "ntweets": 96, 
+            "count": 96, 
             "size": 0.0, 
             "text": "ves"
         }, 
@@ -724,7 +724,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 118, 
-            "ntweets": 383, 
+            "count": 383, 
             "size": 1507.5, 
             "text": "fot"
         }, 
@@ -732,7 +732,7 @@
             "children": null, 
             "cluster": 12, 
             "id": 319, 
-            "ntweets": 39, 
+            "count": 39, 
             "size": 394.0, 
             "text": "sugier"
         }, 
@@ -740,7 +740,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 60, 
-            "ntweets": 310, 
+            "count": 310, 
             "size": 0.0, 
             "text": "teni"
         }, 
@@ -748,7 +748,7 @@
             "children": null, 
             "cluster": 14, 
             "id": 167, 
-            "ntweets": 186, 
+            "count": 186, 
             "size": 247.9607142857153, 
             "text": "nombr"
         }, 
@@ -756,7 +756,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 90, 
-            "ntweets": 47, 
+            "count": 47, 
             "size": 0.0, 
             "text": "miel"
         }, 
@@ -764,7 +764,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 295, 
-            "ntweets": 88, 
+            "count": 88, 
             "size": 0.0, 
             "text": "extra\u00f1"
         }, 
@@ -772,7 +772,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 133, 
-            "ntweets": 227, 
+            "count": 227, 
             "size": 0.0, 
             "text": "estan"
         }, 
@@ -780,7 +780,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 250, 
-            "ntweets": 36, 
+            "count": 36, 
             "size": 0.0, 
             "text": "satin"
         }, 
@@ -788,7 +788,7 @@
             "children": null, 
             "cluster": 7, 
             "id": 259, 
-            "ntweets": 78, 
+            "count": 78, 
             "size": 375.8452380952381, 
             "text": "exij"
         }, 
@@ -796,7 +796,7 @@
             "children": null, 
             "cluster": 4, 
             "id": 191, 
-            "ntweets": 903, 
+            "count": 903, 
             "size": 190.8333333333333, 
             "text": "medi"
         }, 
@@ -804,7 +804,7 @@
             "children": null, 
             "cluster": 14, 
             "id": 163, 
-            "ntweets": 41, 
+            "count": 41, 
             "size": 0.8928571428571428, 
             "text": "fruti"
         }, 
@@ -812,7 +812,7 @@
             "children": null, 
             "cluster": 12, 
             "id": 36, 
-            "ntweets": 188, 
+            "count": 188, 
             "size": 1.65, 
             "text": "ret"
         }, 
@@ -820,7 +820,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 224, 
-            "ntweets": 84, 
+            "count": 84, 
             "size": 0.0, 
             "text": "jueg"
         }, 
@@ -828,7 +828,7 @@
             "children": null, 
             "cluster": 1, 
             "id": 181, 
-            "ntweets": 102, 
+            "count": 102, 
             "size": 0.0, 
             "text": "numer"
         }, 
@@ -836,7 +836,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 16, 
-            "ntweets": 548, 
+            "count": 548, 
             "size": 0.0, 
             "text": "bien"
         }, 
@@ -844,7 +844,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 124, 
-            "ntweets": 38, 
+            "count": 38, 
             "size": 0.0, 
             "text": "meli"
         }, 
@@ -852,7 +852,7 @@
             "children": null, 
             "cluster": 1, 
             "id": 40, 
-            "ntweets": 585, 
+            "count": 585, 
             "size": 0.5, 
             "text": "primaver"
         }, 
@@ -860,7 +860,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 277, 
-            "ntweets": 93, 
+            "count": 93, 
             "size": 0.0, 
             "text": "sup"
         }, 
@@ -868,7 +868,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 254, 
-            "ntweets": 151, 
+            "count": 151, 
             "size": 0.0, 
             "text": "ped"
         }, 
@@ -876,7 +876,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 255, 
-            "ntweets": 290, 
+            "count": 290, 
             "size": 1.0, 
             "text": "vas"
         }, 
@@ -884,7 +884,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 281, 
-            "ntweets": 182, 
+            "count": 182, 
             "size": 0.0, 
             "text": "men"
         }, 
@@ -892,7 +892,7 @@
             "children": null, 
             "cluster": 2, 
             "id": 156, 
-            "ntweets": 111, 
+            "count": 111, 
             "size": 0.0, 
             "text": "gran"
         }, 
@@ -900,7 +900,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 276, 
-            "ntweets": 123, 
+            "count": 123, 
             "size": 0.0, 
             "text": "herm"
         }, 
@@ -908,7 +908,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 73, 
-            "ntweets": 286, 
+            "count": 286, 
             "size": 0.0, 
             "text": "leg"
         }, 
@@ -916,7 +916,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 137, 
-            "ntweets": 91, 
+            "count": 91, 
             "size": 0.0, 
             "text": "pud"
         }, 
@@ -924,7 +924,7 @@
             "children": null, 
             "cluster": 2, 
             "id": 260, 
-            "ntweets": 78, 
+            "count": 78, 
             "size": 0.0, 
             "text": "labi"
         }, 
@@ -932,7 +932,7 @@
             "children": null, 
             "cluster": 15, 
             "id": 219, 
-            "ntweets": 33, 
+            "count": 33, 
             "size": 0.0, 
             "text": "martin"
         }, 
@@ -940,7 +940,7 @@
             "children": null, 
             "cluster": 3, 
             "id": 232, 
-            "ntweets": 169, 
+            "count": 169, 
             "size": 439.04999999999825, 
             "text": "calz"
         }, 
@@ -948,7 +948,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 172, 
-            "ntweets": 290, 
+            "count": 290, 
             "size": 0.0, 
             "text": "len"
         }, 
@@ -956,7 +956,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 217, 
-            "ntweets": 194, 
+            "count": 194, 
             "size": 0.0, 
             "text": "cort"
         }, 
@@ -964,7 +964,7 @@
             "children": null, 
             "cluster": 4, 
             "id": 45, 
-            "ntweets": 363, 
+            "count": 363, 
             "size": 397.20000000000005, 
             "text": "ma\u00f1an"
         }, 
@@ -972,7 +972,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 312, 
-            "ntweets": 65, 
+            "count": 65, 
             "size": 0.0, 
             "text": "tul"
         }, 
@@ -980,7 +980,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 157, 
-            "ntweets": 109, 
+            "count": 109, 
             "size": 0.0, 
             "text": "busc"
         }, 
@@ -988,7 +988,7 @@
             "children": null, 
             "cluster": 13, 
             "id": 50, 
-            "ntweets": 162, 
+            "count": 162, 
             "size": 370.3988095238095, 
             "text": "habi"
         }, 
@@ -996,7 +996,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 188, 
-            "ntweets": 179, 
+            "count": 179, 
             "size": 0.0, 
             "text": "ven"
         }, 
@@ -1004,7 +1004,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 42, 
-            "ntweets": 174, 
+            "count": 174, 
             "size": 0.0, 
             "text": "usar"
         }, 
@@ -1012,7 +1012,7 @@
             "children": null, 
             "cluster": 4, 
             "id": 21, 
-            "ntweets": 888, 
+            "count": 888, 
             "size": 188.49999999999997, 
             "text": "asi"
         }, 
@@ -1020,7 +1020,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 120, 
-            "ntweets": 62, 
+            "count": 62, 
             "size": 0.0, 
             "text": "perfil"
         }, 
@@ -1028,7 +1028,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 78, 
-            "ntweets": 546, 
+            "count": 546, 
             "size": 0.0, 
             "text": "ahor"
         }, 
@@ -1036,7 +1036,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 264, 
-            "ntweets": 70, 
+            "count": 70, 
             "size": 0.0, 
             "text": "tres"
         }, 
@@ -1044,7 +1044,7 @@
             "children": null, 
             "cluster": 4, 
             "id": 23, 
-            "ntweets": 741, 
+            "count": 741, 
             "size": 0.0, 
             "text": "pus"
         }, 
@@ -1052,7 +1052,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 246, 
-            "ntweets": 74, 
+            "count": 74, 
             "size": 5.74047619047619, 
             "text": "box"
         }, 
@@ -1060,7 +1060,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 53, 
-            "ntweets": 97, 
+            "count": 97, 
             "size": 0.0, 
             "text": "cop"
         }, 
@@ -1068,7 +1068,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 122, 
-            "ntweets": 387, 
+            "count": 387, 
             "size": 692.5345238095191, 
             "text": "cos"
         }, 
@@ -1076,7 +1076,7 @@
             "children": null, 
             "cluster": 13, 
             "id": 51, 
-            "ntweets": 123, 
+            "count": 123, 
             "size": 5.833333333333334, 
             "text": "lapiz"
         }, 
@@ -1084,7 +1084,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 240, 
-            "ntweets": 78, 
+            "count": 78, 
             "size": 0.0, 
             "text": "sabor"
         }, 
@@ -1092,7 +1092,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 200, 
-            "ntweets": 235, 
+            "count": 235, 
             "size": 0.0, 
             "text": "tambi"
         }, 
@@ -1100,7 +1100,7 @@
             "children": null, 
             "cluster": 11, 
             "id": 239, 
-            "ntweets": 177, 
+            "count": 177, 
             "size": 120.93571428571488, 
             "text": "tiemp"
         }, 
@@ -1108,7 +1108,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 147, 
-            "ntweets": 243, 
+            "count": 243, 
             "size": 0.0, 
             "text": "gent"
         }, 
@@ -1116,7 +1116,7 @@
             "children": null, 
             "cluster": 1, 
             "id": 26, 
-            "ntweets": 960, 
+            "count": 960, 
             "size": 0.5, 
             "text": "quier"
         }, 
@@ -1124,7 +1124,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 166, 
-            "ntweets": 143, 
+            "count": 143, 
             "size": 0.0, 
             "text": "moment"
         }, 
@@ -1132,7 +1132,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 298, 
-            "ntweets": 170, 
+            "count": 170, 
             "size": 570.0444444444438, 
             "text": "estamp"
         }, 
@@ -1140,7 +1140,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 216, 
-            "ntweets": 70, 
+            "count": 70, 
             "size": 0.0, 
             "text": "uso"
         }, 
@@ -1148,7 +1148,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 62, 
-            "ntweets": 231, 
+            "count": 231, 
             "size": 0.0, 
             "text": "habl"
         }, 
@@ -1156,7 +1156,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 313, 
-            "ntweets": 122, 
+            "count": 122, 
             "size": 0.0, 
             "text": "mand"
         }, 
@@ -1164,7 +1164,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 199, 
-            "ntweets": 267, 
+            "count": 267, 
             "size": 0.0, 
             "text": "veo"
         }, 
@@ -1172,7 +1172,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 205, 
-            "ntweets": 443, 
+            "count": 443, 
             "size": 10.809523809523808, 
             "text": "sig"
         }, 
@@ -1180,7 +1180,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 214, 
-            "ntweets": 239, 
+            "count": 239, 
             "size": 0.0, 
             "text": "flu"
         }, 
@@ -1188,7 +1188,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 252, 
-            "ntweets": 232, 
+            "count": 232, 
             "size": 1329.8166666666664, 
             "text": "pack"
         }, 
@@ -1196,7 +1196,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 183, 
-            "ntweets": 227, 
+            "count": 227, 
             "size": 0.0, 
             "text": "com"
         }, 
@@ -1204,7 +1204,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 251, 
-            "ntweets": 292, 
+            "count": 292, 
             "size": 3744.515079365082, 
             "text": "col"
         }, 
@@ -1212,7 +1212,7 @@
             "children": null, 
             "cluster": 16, 
             "id": 121, 
-            "ntweets": 72, 
+            "count": 72, 
             "size": 0.5, 
             "text": "facebok"
         }, 
@@ -1220,7 +1220,7 @@
             "children": null, 
             "cluster": 3, 
             "id": 267, 
-            "ntweets": 64, 
+            "count": 64, 
             "size": 1.7333333333333334, 
             "text": "diabet"
         }, 
@@ -1228,7 +1228,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 202, 
-            "ntweets": 151, 
+            "count": 151, 
             "size": 0.0, 
             "text": "sue\u00f1"
         }, 
@@ -1236,7 +1236,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 304, 
-            "ntweets": 85, 
+            "count": 85, 
             "size": 0.0, 
             "text": "dient"
         }, 
@@ -1244,7 +1244,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 95, 
-            "ntweets": 475, 
+            "count": 475, 
             "size": 0.0, 
             "text": "mism"
         }, 
@@ -1252,7 +1252,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 218, 
-            "ntweets": 41, 
+            "count": 41, 
             "size": 0.0, 
             "text": "cabal"
         }, 
@@ -1260,7 +1260,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 201, 
-            "ntweets": 313, 
+            "count": 313, 
             "size": 0.0, 
             "text": "lev"
         }, 
@@ -1268,7 +1268,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 2, 
-            "ntweets": 691, 
+            "count": 691, 
             "size": 1.5, 
             "text": "vid"
         }, 
@@ -1276,7 +1276,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 56, 
-            "ntweets": 433, 
+            "count": 433, 
             "size": 389.5670634920634, 
             "text": "ciel"
         }, 
@@ -1284,7 +1284,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 0, 
-            "ntweets": 24396, 
+            "count": 24396, 
             "size": 71192.32499999994, 
             "text": "color"
         }, 
@@ -1292,7 +1292,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 115, 
-            "ntweets": 327, 
+            "count": 327, 
             "size": 217.30555555555557, 
             "text": "unic"
         }, 
@@ -1300,7 +1300,7 @@
             "children": null, 
             "cluster": 12, 
             "id": 145, 
-            "ntweets": 111, 
+            "count": 111, 
             "size": 0.0, 
             "text": "veng"
         }, 
@@ -1308,7 +1308,7 @@
             "children": null, 
             "cluster": 4, 
             "id": 132, 
-            "ntweets": 284, 
+            "count": 284, 
             "size": 0.0, 
             "text": "inspir"
         }, 
@@ -1316,7 +1316,7 @@
             "children": null, 
             "cluster": 6, 
             "id": 282, 
-            "ntweets": 463, 
+            "count": 463, 
             "size": 0.0, 
             "text": "vin"
         }, 
@@ -1324,7 +1324,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 5, 
-            "ntweets": 1043, 
+            "count": 1043, 
             "size": 126.24047619047671, 
             "text": "sol"
         }, 
@@ -1332,7 +1332,7 @@
             "children": null, 
             "cluster": 7, 
             "id": 176, 
-            "ntweets": 59, 
+            "count": 59, 
             "size": 0.0, 
             "text": "locur"
         }, 
@@ -1340,7 +1340,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 6, 
-            "ntweets": 555, 
+            "count": 555, 
             "size": 0.0, 
             "text": "pon"
         }, 
@@ -1348,7 +1348,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 223, 
-            "ntweets": 88, 
+            "count": 88, 
             "size": 0.0, 
             "text": "vend"
         }, 
@@ -1356,7 +1356,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 130, 
-            "ntweets": 280, 
+            "count": 280, 
             "size": 0.0, 
             "text": "sos"
         }, 
@@ -1364,7 +1364,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 148, 
-            "ntweets": 168, 
+            "count": 168, 
             "size": 0.0, 
             "text": "volv"
         }, 
@@ -1372,7 +1372,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 31, 
-            "ntweets": 264, 
+            "count": 264, 
             "size": 20.13690476190476, 
             "text": "vuelv"
         }, 
@@ -1380,7 +1380,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 206, 
-            "ntweets": 352, 
+            "count": 352, 
             "size": 566.9880952380953, 
             "text": "import"
         }, 
@@ -1388,7 +1388,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 138, 
-            "ntweets": 208, 
+            "count": 208, 
             "size": 0.0, 
             "text": "pod"
         }, 
@@ -1396,7 +1396,7 @@
             "children": null, 
             "cluster": 13, 
             "id": 52, 
-            "ntweets": 44, 
+            "count": 44, 
             "size": 0.5, 
             "text": "inutil"
         }, 
@@ -1404,7 +1404,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 100, 
-            "ntweets": 998, 
+            "count": 998, 
             "size": 950.2678571428571, 
             "text": "blanc"
         }, 
@@ -1412,7 +1412,7 @@
             "children": null, 
             "cluster": 4, 
             "id": 55, 
-            "ntweets": 1288, 
+            "count": 1288, 
             "size": 199.66666666666669, 
             "text": "loc"
         }, 
@@ -1420,7 +1420,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 66, 
-            "ntweets": 157, 
+            "count": 157, 
             "size": 0.5, 
             "text": "cuant"
         }, 
@@ -1428,7 +1428,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 114, 
-            "ntweets": 86, 
+            "count": 86, 
             "size": 0.0, 
             "text": "olvid"
         }, 
@@ -1436,7 +1436,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 63, 
-            "ntweets": 180, 
+            "count": 180, 
             "size": 0.0, 
             "text": "esmalt"
         }, 
@@ -1444,7 +1444,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 91, 
-            "ntweets": 206, 
+            "count": 206, 
             "size": 0.0, 
             "text": "maron"
         }, 
@@ -1452,7 +1452,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 242, 
-            "ntweets": 70, 
+            "count": 70, 
             "size": 0.0, 
             "text": "perd"
         }, 
@@ -1460,7 +1460,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 139, 
-            "ntweets": 48, 
+            "count": 48, 
             "size": 0.0, 
             "text": "union"
         }, 
@@ -1468,7 +1468,7 @@
             "children": null, 
             "cluster": 1, 
             "id": 83, 
-            "ntweets": 72, 
+            "count": 72, 
             "size": 0.0, 
             "text": "manzan"
         }, 
@@ -1476,7 +1476,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 262, 
-            "ntweets": 92, 
+            "count": 92, 
             "size": 0.0, 
             "text": "empez"
         }, 
@@ -1484,7 +1484,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 179, 
-            "ntweets": 135, 
+            "count": 135, 
             "size": 0.0, 
             "text": "ti\u00f1"
         }, 
@@ -1492,7 +1492,7 @@
             "children": null, 
             "cluster": 4, 
             "id": 231, 
-            "ntweets": 555, 
+            "count": 555, 
             "size": 561.2499999999999, 
             "text": "contam"
         }, 
@@ -1500,7 +1500,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 299, 
-            "ntweets": 40, 
+            "count": 40, 
             "size": 0.0, 
             "text": "puntil"
         }, 
@@ -1508,7 +1508,7 @@
             "children": null, 
             "cluster": 2, 
             "id": 155, 
-            "ntweets": 61, 
+            "count": 61, 
             "size": 1.0, 
             "text": "vay"
         }, 
@@ -1516,7 +1516,7 @@
             "children": null, 
             "cluster": 6, 
             "id": 221, 
-            "ntweets": 925, 
+            "count": 925, 
             "size": 129.63452380952407, 
             "text": "parec"
         }, 
@@ -1524,7 +1524,7 @@
             "children": null, 
             "cluster": 6, 
             "id": 140, 
-            "ntweets": 188, 
+            "count": 188, 
             "size": 0.0, 
             "text": "feliz"
         }, 
@@ -1532,7 +1532,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 235, 
-            "ntweets": 148, 
+            "count": 148, 
             "size": 0.0, 
             "text": "music"
         }, 
@@ -1540,7 +1540,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 59, 
-            "ntweets": 305, 
+            "count": 305, 
             "size": 0.0, 
             "text": "naranj"
         }, 
@@ -1548,7 +1548,7 @@
             "children": null, 
             "cluster": 4, 
             "id": 98, 
-            "ntweets": 53, 
+            "count": 53, 
             "size": 0.5067049808429118, 
             "text": "suspir"
         }, 
@@ -1556,7 +1556,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 68, 
-            "ntweets": 224, 
+            "count": 224, 
             "size": 1059.8238095238087, 
             "text": "form"
         }, 
@@ -1564,7 +1564,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 286, 
-            "ntweets": 94, 
+            "count": 94, 
             "size": 313.33333333333326, 
             "text": "seri"
         }, 
@@ -1572,7 +1572,7 @@
             "children": null, 
             "cluster": 16, 
             "id": 278, 
-            "ntweets": 67, 
+            "count": 67, 
             "size": 0.0, 
             "text": "public"
         }, 
@@ -1580,7 +1580,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 229, 
-            "ntweets": 337, 
+            "count": 337, 
             "size": 0.0, 
             "text": "tom"
         }, 
@@ -1588,7 +1588,7 @@
             "children": null, 
             "cluster": 4, 
             "id": 131, 
-            "ntweets": 549, 
+            "count": 549, 
             "size": 2.083333333333333, 
             "text": "aca"
         }, 
@@ -1596,7 +1596,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 192, 
-            "ntweets": 69, 
+            "count": 69, 
             "size": 0.0, 
             "text": "segun"
         }, 
@@ -1604,7 +1604,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 290, 
-            "ntweets": 58, 
+            "count": 58, 
             "size": 0.0, 
             "text": "pantal"
         }, 
@@ -1612,7 +1612,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 72, 
-            "ntweets": 301, 
+            "count": 301, 
             "size": 0.0, 
             "text": "graci"
         }, 
@@ -1620,7 +1620,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 32, 
-            "ntweets": 106, 
+            "count": 106, 
             "size": 0.5, 
             "text": "dulc"
         }, 
@@ -1628,7 +1628,7 @@
             "children": null, 
             "cluster": 16, 
             "id": 257, 
-            "ntweets": 82, 
+            "count": 82, 
             "size": 0.0, 
             "text": "seguir"
         }, 
@@ -1636,7 +1636,7 @@
             "children": null, 
             "cluster": 3, 
             "id": 151, 
-            "ntweets": 100, 
+            "count": 100, 
             "size": 2.0666666666666664, 
             "text": "gord"
         }, 
@@ -1644,7 +1644,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 101, 
-            "ntweets": 35, 
+            "count": 35, 
             "size": 0.0, 
             "text": "conoci"
         }, 
@@ -1652,7 +1652,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 22, 
-            "ntweets": 823, 
+            "count": 823, 
             "size": 0.0, 
             "text": "cambi"
         }, 
@@ -1660,7 +1660,7 @@
             "children": null, 
             "cluster": 10, 
             "id": 34, 
-            "ntweets": 42, 
+            "count": 42, 
             "size": 0.0, 
             "text": "pesta\u00f1"
         }, 
@@ -1668,7 +1668,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 96, 
-            "ntweets": 131, 
+            "count": 131, 
             "size": 0.0, 
             "text": "bel"
         }, 
@@ -1676,7 +1676,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 38, 
-            "ntweets": 252, 
+            "count": 252, 
             "size": 0.0, 
             "text": "cas"
         }, 
@@ -1684,7 +1684,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 47, 
-            "ntweets": 194, 
+            "count": 194, 
             "size": 0.0, 
             "text": "car"
         }, 
@@ -1692,7 +1692,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 263, 
-            "ntweets": 127, 
+            "count": 127, 
             "size": 0.0, 
             "text": "eleg"
         }, 
@@ -1700,7 +1700,7 @@
             "children": null, 
             "cluster": 14, 
             "id": 69, 
-            "ntweets": 139, 
+            "count": 139, 
             "size": 4.7857142857142865, 
             "text": "casi"
         }, 
@@ -1708,7 +1708,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 116, 
-            "ntweets": 247, 
+            "count": 247, 
             "size": 7.933333333333335, 
             "text": "preci"
         }, 
@@ -1716,7 +1716,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 171, 
-            "ntweets": 199, 
+            "count": 199, 
             "size": 441.5964285714262, 
             "text": "letr"
         }, 
@@ -1724,7 +1724,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 57, 
-            "ntweets": 364, 
+            "count": 364, 
             "size": 0.0, 
             "text": "dej"
         }, 
@@ -1732,7 +1732,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 28, 
-            "ntweets": 521, 
+            "count": 521, 
             "size": 0.0, 
             "text": "tod"
         }, 
@@ -1740,7 +1740,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 297, 
-            "ntweets": 43, 
+            "count": 43, 
             "size": 0.0, 
             "text": "colal"
         }, 
@@ -1748,7 +1748,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 158, 
-            "ntweets": 347, 
+            "count": 347, 
             "size": 0.5833333333333333, 
             "text": "bes"
         }, 
@@ -1756,7 +1756,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 185, 
-            "ntweets": 83, 
+            "count": 83, 
             "size": 0.0, 
             "text": "deb"
         }, 
@@ -1764,7 +1764,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 182, 
-            "ntweets": 188, 
+            "count": 188, 
             "size": 0.0, 
             "text": "dec"
         }, 
@@ -1772,7 +1772,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 88, 
-            "ntweets": 279, 
+            "count": 279, 
             "size": 0.0, 
             "text": "amig"
         }, 
@@ -1780,7 +1780,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 30, 
-            "ntweets": 682, 
+            "count": 682, 
             "size": 0.0, 
             "text": "buen"
         }, 
@@ -1788,7 +1788,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 65, 
-            "ntweets": 299, 
+            "count": 299, 
             "size": 0.5, 
             "text": "cad"
         }, 
@@ -1796,7 +1796,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 225, 
-            "ntweets": 65, 
+            "count": 65, 
             "size": 0.0, 
             "text": "real"
         }, 
@@ -1804,7 +1804,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 142, 
-            "ntweets": 314, 
+            "count": 314, 
             "size": 0.0, 
             "text": "vest"
         }, 
@@ -1812,7 +1812,7 @@
             "children": null, 
             "cluster": 15, 
             "id": 102, 
-            "ntweets": 82, 
+            "count": 82, 
             "size": 378.99999999999994, 
             "text": "san"
         }, 
@@ -1820,7 +1820,7 @@
             "children": null, 
             "cluster": 14, 
             "id": 70, 
-            "ntweets": 67, 
+            "count": 67, 
             "size": 3.2023809523809526, 
             "text": "angel"
         }, 
@@ -1828,7 +1828,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 215, 
-            "ntweets": 229, 
+            "count": 229, 
             "size": 0.0, 
             "text": "sal"
         }, 
@@ -1836,7 +1836,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 93, 
-            "ntweets": 229, 
+            "count": 229, 
             "size": 0.0, 
             "text": "sac"
         }, 
@@ -1844,7 +1844,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 4, 
-            "ntweets": 426, 
+            "count": 426, 
             "size": 0.0, 
             "text": "sab"
         }, 
@@ -1852,7 +1852,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 64, 
-            "ntweets": 179, 
+            "count": 179, 
             "size": 0.0, 
             "text": "necesit"
         }, 
@@ -1860,7 +1860,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 203, 
-            "ntweets": 116, 
+            "count": 116, 
             "size": 0.0, 
             "text": "fin"
         }, 
@@ -1868,7 +1868,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 248, 
-            "ntweets": 108, 
+            "count": 108, 
             "size": 1.4166666666666665, 
             "text": "taz"
         }, 
@@ -1876,7 +1876,7 @@
             "children": null, 
             "cluster": 9, 
             "id": 288, 
-            "ntweets": 41, 
+            "count": 41, 
             "size": 252.66666666666595, 
             "text": "destin"
         }, 
@@ -1884,7 +1884,7 @@
             "children": null, 
             "cluster": 6, 
             "id": 222, 
-            "ntweets": 418, 
+            "count": 418, 
             "size": 0.0, 
             "text": "explot"
         }, 
@@ -1892,7 +1892,7 @@
             "children": null, 
             "cluster": 2, 
             "id": 261, 
-            "ntweets": 36, 
+            "count": 36, 
             "size": 567.0, 
             "text": "carmin"
         }, 
@@ -1900,7 +1900,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 7, 
-            "ntweets": 1041, 
+            "count": 1041, 
             "size": 140.80833333333268, 
             "text": "azul"
         }, 
@@ -1908,7 +1908,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 129, 
-            "ntweets": 388, 
+            "count": 388, 
             "size": 0.5, 
             "text": "gris"
         }, 
@@ -1916,7 +1916,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 314, 
-            "ntweets": 85, 
+            "count": 85, 
             "size": 0.0, 
             "text": "exist"
         }, 
@@ -1924,7 +1924,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 87, 
-            "ntweets": 445, 
+            "count": 445, 
             "size": 0.0, 
             "text": "mejor"
         }, 
@@ -1932,7 +1932,7 @@
             "children": null, 
             "cluster": 1, 
             "id": 41, 
-            "ntweets": 263, 
+            "count": 263, 
             "size": 0.0, 
             "text": "veran"
         }, 
@@ -1940,7 +1940,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 8, 
-            "ntweets": 586, 
+            "count": 586, 
             "size": 1668.568253968254, 
             "text": "tal"
         }, 
@@ -1948,7 +1948,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 150, 
-            "ntweets": 353, 
+            "count": 353, 
             "size": 126.40000000000028, 
             "text": "chic"
         }, 
@@ -1956,7 +1956,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 109, 
-            "ntweets": 401, 
+            "count": 401, 
             "size": 0.5, 
             "text": "tan"
         }, 
@@ -1964,7 +1964,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 266, 
-            "ntweets": 188, 
+            "count": 188, 
             "size": 0.0, 
             "text": "despu"
         }, 
@@ -1972,7 +1972,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 128, 
-            "ntweets": 171, 
+            "count": 171, 
             "size": 0.0, 
             "text": "mierd"
         }, 
@@ -1980,7 +1980,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 9, 
-            "ntweets": 658, 
+            "count": 658, 
             "size": 4.25, 
             "text": "voy"
         }, 
@@ -1988,7 +1988,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 194, 
-            "ntweets": 100, 
+            "count": 100, 
             "size": 0.0, 
             "text": "pong"
         }, 
@@ -1996,7 +1996,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 193, 
-            "ntweets": 142, 
+            "count": 142, 
             "size": 0.0, 
             "text": "ray"
         }, 
@@ -2004,7 +2004,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 198, 
-            "ntweets": 241, 
+            "count": 241, 
             "size": 0.0, 
             "text": "corazon"
         }, 
@@ -2012,7 +2012,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 10, 
-            "ntweets": 617, 
+            "count": 617, 
             "size": 253.1817460317471, 
             "text": "pas"
         }, 
@@ -2020,7 +2020,7 @@
             "children": null, 
             "cluster": 8, 
             "id": 258, 
-            "ntweets": 74, 
+            "count": 74, 
             "size": 0.0, 
             "text": "guer"
         }, 
@@ -2028,7 +2028,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 99, 
-            "ntweets": 117, 
+            "count": 117, 
             "size": 0.0, 
             "text": "mil"
         }, 
@@ -2036,7 +2036,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 279, 
-            "ntweets": 81, 
+            "count": 81, 
             "size": 0.0, 
             "text": "tama\u00f1"
         }, 
@@ -2044,7 +2044,7 @@
             "children": null, 
             "cluster": 7, 
             "id": 210, 
-            "ntweets": 89, 
+            "count": 89, 
             "size": 0.0, 
             "text": "raz"
         }, 
@@ -2052,7 +2052,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 13, 
-            "ntweets": 784, 
+            "count": 784, 
             "size": 20.701190476190476, 
             "text": "hol"
         }, 
@@ -2060,7 +2060,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 227, 
-            "ntweets": 127, 
+            "count": 127, 
             "size": 0.0, 
             "text": "tip"
         }, 
@@ -2068,7 +2068,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 253, 
-            "ntweets": 116, 
+            "count": 116, 
             "size": 0.0, 
             "text": "tir"
         }, 
@@ -2076,7 +2076,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 285, 
-            "ntweets": 115, 
+            "count": 115, 
             "size": 0.0, 
             "text": "azuc"
         }, 
@@ -2084,7 +2084,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 154, 
-            "ntweets": 162, 
+            "count": 162, 
             "size": 0.0, 
             "text": "dal"
         }, 
@@ -2092,7 +2092,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 106, 
-            "ntweets": 191, 
+            "count": 191, 
             "size": 0.3333333333333333, 
             "text": "pasat"
         }, 
@@ -2100,7 +2100,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 159, 
-            "ntweets": 124, 
+            "count": 124, 
             "size": 0.0, 
             "text": "encim"
         }, 
@@ -2108,7 +2108,7 @@
             "children": null, 
             "cluster": 10, 
             "id": 33, 
-            "ntweets": 496, 
+            "count": 496, 
             "size": 756.0, 
             "text": "tintur"
         }, 
@@ -2116,7 +2116,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 220, 
-            "ntweets": 212, 
+            "count": 212, 
             "size": 0.0, 
             "text": "voz"
         }, 
@@ -2124,7 +2124,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 81, 
-            "ntweets": 49, 
+            "count": 49, 
             "size": 0.0, 
             "text": "interior"
         }, 
@@ -2132,7 +2132,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 236, 
-            "ntweets": 161, 
+            "count": 161, 
             "size": 0.0, 
             "text": "hag"
         }, 
@@ -2140,7 +2140,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 135, 
-            "ntweets": 406, 
+            "count": 406, 
             "size": 0.0, 
             "text": "nuev"
         }, 
@@ -2148,7 +2148,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 94, 
-            "ntweets": 422, 
+            "count": 422, 
             "size": 0.0, 
             "text": "mir"
         }, 
@@ -2156,7 +2156,7 @@
             "children": null, 
             "cluster": 1, 
             "id": 19, 
-            "ntweets": 1483, 
+            "count": 1483, 
             "size": 200.91666666666666, 
             "text": "pint"
         }, 
@@ -2164,7 +2164,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 249, 
-            "ntweets": 79, 
+            "count": 79, 
             "size": 1.4166666666666665, 
             "text": "conj"
         }, 
@@ -2172,7 +2172,7 @@
             "children": null, 
             "cluster": 16, 
             "id": 119, 
-            "ntweets": 59, 
+            "count": 59, 
             "size": 0.0, 
             "text": "album"
         }, 
@@ -2180,7 +2180,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 75, 
-            "ntweets": 392, 
+            "count": 392, 
             "size": 1.0, 
             "text": "tien"
         }, 
@@ -2188,7 +2188,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 86, 
-            "ntweets": 113, 
+            "count": 113, 
             "size": 0.0, 
             "text": "mat"
         }, 
@@ -2196,7 +2196,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 79, 
-            "ntweets": 206, 
+            "count": 206, 
             "size": 0.825, 
             "text": "vist"
         }, 
@@ -2204,7 +2204,7 @@
             "children": null, 
             "cluster": 11, 
             "id": 35, 
-            "ntweets": 134, 
+            "count": 134, 
             "size": 1.8666666666666665, 
             "text": "lad"
         }, 
@@ -2212,7 +2212,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 174, 
-            "ntweets": 183, 
+            "count": 183, 
             "size": 0.0, 
             "text": "pregunt"
         }, 
@@ -2220,7 +2220,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 302, 
-            "ntweets": 81, 
+            "count": 81, 
             "size": 0.0, 
             "text": "mezcl"
         }, 
@@ -2228,7 +2228,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 284, 
-            "ntweets": 79, 
+            "count": 79, 
             "size": 0.0, 
             "text": "toc"
         }, 
@@ -2236,7 +2236,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 20, 
-            "ntweets": 611, 
+            "count": 611, 
             "size": 1132.0, 
             "text": "compr"
         }, 
@@ -2244,7 +2244,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 126, 
-            "ntweets": 357, 
+            "count": 357, 
             "size": 312.76666666666705, 
             "text": "fluor"
         }, 
@@ -2252,7 +2252,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 134, 
-            "ntweets": 42, 
+            "count": 42, 
             "size": 0.0, 
             "text": "surt"
         }, 
@@ -2260,7 +2260,7 @@
             "children": null, 
             "cluster": 8, 
             "id": 177, 
-            "ntweets": 171, 
+            "count": 171, 
             "size": 756.0, 
             "text": "mientr"
         }, 
@@ -2268,7 +2268,7 @@
             "children": null, 
             "cluster": 1, 
             "id": 170, 
-            "ntweets": 219, 
+            "count": 219, 
             "size": 0.0, 
             "text": "remer"
         }, 
@@ -2276,7 +2276,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 308, 
-            "ntweets": 69, 
+            "count": 69, 
             "size": 378.99999999999994, 
             "text": "arco"
         }, 
@@ -2284,7 +2284,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 189, 
-            "ntweets": 68, 
+            "count": 68, 
             "size": 0.0, 
             "text": "obvi"
         }, 
@@ -2292,7 +2292,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 44, 
-            "ntweets": 307, 
+            "count": 307, 
             "size": 0.0, 
             "text": "mal"
         }, 
@@ -2300,7 +2300,7 @@
             "children": null, 
             "cluster": 5, 
             "id": 300, 
-            "ntweets": 88, 
+            "count": 88, 
             "size": 0.0, 
             "text": "microfibr"
         }, 
@@ -2308,7 +2308,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 283, 
-            "ntweets": 71, 
+            "count": 71, 
             "size": 0.0, 
             "text": "resalt"
         }, 
@@ -2316,7 +2316,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 303, 
-            "ntweets": 41, 
+            "count": 41, 
             "size": 0.0, 
             "text": "cepil"
         }, 
@@ -2324,7 +2324,7 @@
             "children": null, 
             "cluster": 1, 
             "id": 212, 
-            "ntweets": 444, 
+            "count": 444, 
             "size": 0.0, 
             "text": "gan"
         }, 
@@ -2332,7 +2332,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 180, 
-            "ntweets": 360, 
+            "count": 360, 
             "size": 0.75, 
             "text": "flor"
         }, 
@@ -2340,7 +2340,7 @@
             "children": null, 
             "cluster": 4, 
             "id": 25, 
-            "ntweets": 1661, 
+            "count": 1661, 
             "size": 190.91666666666663, 
             "text": "algun"
         }, 
@@ -2348,7 +2348,7 @@
             "children": null, 
             "cluster": 9, 
             "id": 307, 
-            "ntweets": 35, 
+            "count": 35, 
             "size": 125.83333333333297, 
             "text": "mur"
         }, 
@@ -2356,7 +2356,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 105, 
-            "ntweets": 1027, 
+            "count": 1027, 
             "size": 5.266666666666667, 
             "text": "favorit"
         }, 
@@ -2364,7 +2364,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 238, 
-            "ntweets": 137, 
+            "count": 137, 
             "size": 0.0, 
             "text": "person"
         }, 
@@ -2372,7 +2372,7 @@
             "children": null, 
             "cluster": 17, 
             "id": 196, 
-            "ntweets": 77, 
+            "count": 77, 
             "size": 0.0, 
             "text": "contact"
         }, 
@@ -2380,7 +2380,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 233, 
-            "ntweets": 145, 
+            "count": 145, 
             "size": 0.0, 
             "text": "combin"
         }, 
@@ -2388,7 +2388,7 @@
             "children": null, 
             "cluster": 17, 
             "id": 195, 
-            "ntweets": 102, 
+            "count": 102, 
             "size": 378.99999999999994, 
             "text": "lent"
         }, 
@@ -2396,7 +2396,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 187, 
-            "ntweets": 72, 
+            "count": 72, 
             "size": 0.0, 
             "text": "model"
         }, 
@@ -2404,7 +2404,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 241, 
-            "ntweets": 119, 
+            "count": 119, 
             "size": 0.0, 
             "text": "fiest"
         }, 
@@ -2412,7 +2412,7 @@
             "children": null, 
             "cluster": 0, 
             "id": 161, 
-            "ntweets": 74, 
+            "count": 74, 
             "size": 0.0, 
             "text": "zapatil"
         }
