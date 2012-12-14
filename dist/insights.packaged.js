@@ -8878,7 +8878,6 @@ function Tooltip(options) {
     this._data = {};
 
     this._createElement();
-
 }
 
 Tooltip.prototype = {
@@ -8890,6 +8889,7 @@ Tooltip.prototype = {
         this.el.id = "insights-tooltip";
         this.el.className = "insights-tooltip";
         this.el.style.position = "absolute";
+        this.el.style.display = "none";
         document.body.appendChild(this.el);
     },
 
@@ -9165,8 +9165,9 @@ Graph.prototype = {
 
             }
             if (!firstTime || force.alpha() < 0.05) {
-                // que no siga moviendose despues
+                // to prevent the chart from moving after
                 force.alpha(0)
+                // showing canvas after finished rendering
                 self.svg.style('display','block')
                 firstTime= false;
 
@@ -9184,7 +9185,7 @@ Graph.prototype = {
                     return "translate(" + d.x + "," + d.y + ")"; 
                 });
 
-                // linea curva entre nodos
+                // curve line between nods
                 path.attr("d", function(d) {
                     var dx = d.target.x - d.source.x,
                     dy = d.target.y - d.source.y,
@@ -9244,7 +9245,7 @@ Graph.prototype = {
     },
 
     isThereMatch: function() {
-        return !!this.currentMatchText;
+        return this.matching;
     },
 
     draw: function() {
@@ -9345,7 +9346,7 @@ Graph.prototype = {
 
         this.adjacentNodes = {};
         delete this.selectedNode;
-        delete this.currentMatchText;
+        delete this.matching;
 
         circle.style('fill', function(e) {
                 // reseting selection
@@ -9366,14 +9367,19 @@ Graph.prototype = {
     },
 
     setMatchs: function(fn) {
+        this.matching = true;
         this.d3Nodes.each(function(e) {
             e._matched = fn(e);
         });
     },
 
+    selectBy: function(fn) {
+        this.setMatchs(fn);
+        this.draw();
+    },
 
     selectByText: function(text) {
-        var matchText = this.currentMatchText = text.toLowerCase();
+        var matchText =  text.toLowerCase();
 
         this.setMatchs(function(e) {
             var nodeText = (e.text || "").toLowerCase();

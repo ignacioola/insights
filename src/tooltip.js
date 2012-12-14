@@ -5,7 +5,6 @@ function Tooltip(options) {
     this._data = {};
 
     this._createElement();
-
 }
 
 Tooltip.prototype = {
@@ -17,6 +16,7 @@ Tooltip.prototype = {
         this.el.id = "insights-tooltip";
         this.el.className = "insights-tooltip";
         this.el.style.position = "absolute";
+        this.el.style.display = "none";
         document.body.appendChild(this.el);
     },
 

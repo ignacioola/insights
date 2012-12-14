@@ -314,7 +314,7 @@ Graph.prototype = {
     },
 
     isThereMatch: function() {
-        return !!this.currentMatchText;
+        return this.matching;
     },
 
     draw: function() {
@@ -415,7 +415,7 @@ Graph.prototype = {
 
         this.adjacentNodes = {};
         delete this.selectedNode;
-        delete this.currentMatchText;
+        delete this.matching;
 
         circle.style('fill', function(e) {
                 // reseting selection
@@ -436,14 +436,19 @@ Graph.prototype = {
     },
 
     setMatchs: function(fn) {
+        this.matching = true;
         this.d3Nodes.each(function(e) {
             e._matched = fn(e);
         });
     },
 
+    selectBy: function(fn) {
+        this.setMatchs(fn);
+        this.draw();
+    },
 
     selectByText: function(text) {
-        var matchText = this.currentMatchText = text.toLowerCase();
+        var matchText =  text.toLowerCase();
 
         this.setMatchs(function(e) {
             var nodeText = (e.text || "").toLowerCase();
