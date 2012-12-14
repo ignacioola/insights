@@ -18,10 +18,10 @@
       !function() {
         d3.json("data.json", function(data) {
           var nodes = data[0],
-          links = data[1],
-          el = document.getElementById("parent");
+              links = data[1],
+              el = document.getElementById("parent");
 
-          var graph = new InsightsGraph(el, nodes, links);
+          graph = new InsightsGraph(el, nodes, links);
         });
       }();
     </script>

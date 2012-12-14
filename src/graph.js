@@ -1,5 +1,4 @@
-
-var UNSELECTED_COLOR = "#EFEFEF";
+var UNSELECTED_COLOR = "transparent"; //"#EFEFEF";
 var DEFAULT_PATH_STROKE_WIDTH = .3;
 var SELECTED_PATH_STROKE_WIDTH = 1.5;
 var DEFAULT_CIRCLE_STROKE = "#FFF";
@@ -21,13 +20,13 @@ function Graph(el, nodes, links, options) {
     this.height = options.height ||DEFAULT_HEIGHT;
     this.color = d3.scale.category20();
 
-    this.selectedNodes = {};
+    this.adjacentNodes = {};
     this.processData();
     this.processScales();
     this.init();
 
     this.tooltip = new Tooltip({
-        template: options.template ||TOOLTIP_TEMPLATE
+        template: options.tooltipTemplate ||TOOLTIP_TEMPLATE
     }); 
 
     this.render();
@@ -103,7 +102,7 @@ Graph.prototype = {
                 .attr("width", this.width)
                 .attr("height", this.height)
                 .attr("pointer-events", "all")
-                .call(this.zoom.on("zoom", _(this.redraw).bind(this))
+                .call(this.zoom.on("zoom", _(this.onZoom).bind(this))
                                .scaleExtent(ZOOM_SCALE_EXTENT))
                 .append('svg:g')
                     .style('display','none');
@@ -111,7 +110,7 @@ Graph.prototype = {
         this.$el.on("click", function() { self.reset() });
     },
 
-    redraw: function() {
+    onZoom: function() {
         var trans = this.getTranslation();
         var scale = this.getScale();
 
@@ -124,25 +123,39 @@ Graph.prototype = {
             "translate(" + [x, y] + ")" + " scale(" + scale + ")");
     },
 
-    displayTitle: function() {
+    isTitleDisplayable: function(d) {
         var scale = this.getScale();
-        var selectedNodes = this.selectedNodes;
-        var hasSelection = !!_(selectedNodes).size();
+        var res = Math.LOG10E * Math.log(d.size + 1) / 2;
+        if (scale > 2 ||scale * res > 2) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
+    displayTitle: function() {
+        var self = this;
+        var scale = this.getScale();
+        var adjacentNodes = this.adjacentNodes;
+        var hasSelection = !!_(adjacentNodes).size();
+        var isThereMatch = this.isThereMatch();
 
         this.d3TitleNodes.style("display", function(d) {
+            var isDisplayable = self.isTitleDisplayable(d);
 
-            if (hasSelection && !selectedNodes[d.id]) {
+            if (hasSelection && !adjacentNodes[d.id]) {
                 return "none"
             }
 
-            var res = Math.LOG10E * Math.log(d.size + 1) / 2;
-
-            if (scale > 2 ||scale * res > 2) {
-                return "";
-            }else {
+            if (isThereMatch && !isMatched(d)) {
                 return "none";
             }
 
+            if (isDisplayable) {
+                return "";
+            } else {
+                return "none";
+            }
         });
     },
 
@@ -163,7 +176,6 @@ Graph.prototype = {
         var maxSize = 0;
         var maxWeight = 0;
         var nodes = this.nodes;
-
 
         function circleFill(d) { return self.color(d.cluster); }
         function circleRadius(d) { return self.radiusScale(d.size ||1); }
@@ -222,8 +234,9 @@ Graph.prototype = {
 
             }
             if (!firstTime || force.alpha() < 0.05) {
-                // que no siga moviendose despues
+                // to prevent the chart from moving after
                 force.alpha(0)
+                // showing canvas after finished rendering
                 self.svg.style('display','block')
                 firstTime= false;
 
@@ -241,7 +254,7 @@ Graph.prototype = {
                     return "translate(" + d.x + "," + d.y + ")"; 
                 });
 
-                // linea curva entre nodos
+                // curve line between nods
                 path.attr("d", function(d) {
                     var dx = d.target.x - d.source.x,
                     dy = d.target.y - d.source.y,
@@ -249,13 +262,11 @@ Graph.prototype = {
                     return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
                 });
 
-                self.redraw();
+                self.onZoom();
                 self.onRendered();
             }
          
         }
-
-
 
         function onMouseOver(d) {
             var offset = { 
@@ -275,45 +286,123 @@ Graph.prototype = {
         var self = this;
         var circle = this.d3Circles;
         var path = this.d3Path;
+        var adjacentNodes;
+
+        // In this case we want no match data, just the clicked circle data
+        if (this.isThereMatch()) {
+            this.reset();
+        }
+
+        this.selectedNode = d;
 
         d3.event.preventDefault();
         d3.event.stopPropagation();
 
         if (this.adjacents[d.id]) {
-            adjacentNodes = this.selectedNodes = this.adjacents[d.id];
+            this.adjacentNodes = this.adjacents[d.id];
         }
 
-        circle.style('fill', function(e) {
-                var elem = d3.select(this);
+        this.draw();
+    },
 
-                if (adjacentNodes[e.id]) {
-                    return self.color(e.cluster);
+    isSelected: function(node) {
+        return this.selectedNode && this.selectedNode.id === node.id;
+    },
+
+    isAdjacent: function(node) {
+        return !!this.adjacentNodes[node.id]
+    },
+
+    isThereMatch: function() {
+        return !!this.currentMatchText;
+    },
+
+    draw: function() {
+        var self = this;
+        var circle = this.d3Circles;
+        var path = this.d3Path;
+        var titles = this.d3TitleNodes;
+        var adjacentNodes = this.adjacentNodes || {};
+        var selectedNode = this.selectedNode;
+        var isThereMatch = this.isThereMatch();
+
+        circle.style('fill', function(e) {
+            if (selectedNode) {
+                if (self.isAdjacent(e)) {
+                    if (isThereMatch && isMatched(e) ||!isThereMatch) {
+                        return self.color(e.cluster);
+                    } else {
+                        return UNSELECTED_COLOR;
+                    }
                 } else {
                     return UNSELECTED_COLOR;
                 }
-            })
-        .style("stroke", function(e) {
-                if (e.id == d.id) {
-                    return d3.rgb(self.color(e.cluster)).darker();
-                } else {
-                    return DEFAULT_CIRCLE_STROKE;
-                }
-            });
+            } else if (isThereMatch && isMatched(e)) {
+                return self.color(e.cluster);
+            } else {
+                return UNSELECTED_COLOR;
+            }
 
-        path.attr("stroke-width", function(e, i) {
-                if (d.id == e.source.id || d.id == e.target.id) {
+            // -----------
+            //if (isMatched(e) || selectedNode && self.isAdjacent(e)) {
+            //    return self.color(e.cluster);
+            //} else {
+            //    return UNSELECTED_COLOR;
+            //}
+        }).style("stroke", function(e) {
+            if (selectedNode) {
+                if (self.isSelected(e)) {
+                    if (isThereMatch && isMatched(e) ||!isThereMatch) {
+                        return d3.rgb(self.color(e.cluster)).darker();
+                    } else {
+                        return UNSELECTED_COLOR;
+                    }
+                } else if (self.isAdjacent(e)) {
+                    if (isThereMatch && isMatched(e) ||!isThereMatch) {
+                        return DEFAULT_CIRCLE_STROKE;
+                    } else {
+                        return UNSELECTED_COLOR;
+                    }
+                } else {
+                    return UNSELECTED_COLOR;
+                }
+            } else if (isThereMatch && isMatched(e)) {
+                return DEFAULT_CIRCLE_STROKE;
+            } else {
+                return UNSELECTED_COLOR;
+            }
+            // -----------
+            //if (self.isSelected(e)) {
+            //    return d3.rgb(self.color(e.cluster)).darker();
+            //} if (isMatched(e)) {
+            //    return DEFAULT_CIRCLE_STROKE;
+            //} else {
+            //    return UNSELECTED_COLOR;
+            //}
+        });
+
+        path.attr("stroke", function(e) {
+            if (selectedNode) {
+                if (self.isSelected(e.source) || self.isSelected(e.target)) {
+                    if (isThereMatch && isMatched(e) ||!isThereMatch) {
+                        return self.pathStroke(e);
+                    } else {
+                        return UNSELECTED_COLOR;
+                    }
+                } else {
+                    return UNSELECTED_COLOR;
+                }
+            } else if (isThereMatch && isMatched(e)) {
+                return self.pathStroke(e);
+            } else {
+                return UNSELECTED_COLOR;
+            }
+        }).attr("stroke-width", function(e) {
+                if (self.isSelected(e.source) || self.isSelected(e.target)) {
                     return SELECTED_PATH_STROKE_WIDTH;
                 } else {
                     return DEFAULT_PATH_STROKE_WIDTH;
                 }
-            })
-        .attr("stroke", function(e, i) {
-                if (d.id == e.source.id || d.id == e.target.id) {
-                    return self.pathStroke(e);
-                } else {
-                    return UNSELECTED_COLOR;
-                }
-
             });
 
         this.displayTitle();
@@ -324,9 +413,13 @@ Graph.prototype = {
         var circle = this.d3Circles;
         var path = this.d3Path;
 
-        this.selectedNodes = {};
+        this.adjacentNodes = {};
+        delete this.selectedNode;
+        delete this.currentMatchText;
 
         circle.style('fill', function(e) {
+                // reseting selection
+                delete e._matched; 
                 return self.color(e.cluster);
             }).style("stroke", function(e) {
                 return DEFAULT_CIRCLE_STROKE;
@@ -342,31 +435,22 @@ Graph.prototype = {
         this.displayTitle();
     },
 
+    setMatchs: function(fn) {
+        this.d3Nodes.each(function(e) {
+            e._matched = fn(e);
+        });
+    },
+
+
     selectByText: function(text) {
-        var self = this;
-        var circle = this.d3Circles;
-        var path = this.d3Path;
+        var matchText = this.currentMatchText = text.toLowerCase();
 
-        this.selectedNodes = {};
+        this.setMatchs(function(e) {
+            var nodeText = (e.text || "").toLowerCase();
+            return !!(~nodeText.indexOf(matchText));
+        });
 
-        circle.style('fill', function(e) {
-                var nodeText = (e.text || "").toLowerCase();
-                var matchText = text.toLowerCase();
-
-                if (~nodeText.indexOf(matchText)) {
-                    return self.color(e.cluster);
-                } else {
-                    return UNSELECTED_COLOR;
-                }
-
-            }).style("stroke", function(e) {
-                return DEFAULT_CIRCLE_STROKE;
-            });
-
-        path.attr("stroke", function(e, i) {
-                return UNSELECTED_COLOR;
-            });
-
+        this.draw();
     },
 
     /**
@@ -440,5 +524,14 @@ d3.select(window).on("mousemove", function(d) {
     currentMousePos.x = ev.pageX;
     currentMousePos.y = ev.pageY;
 });
+
+// helpers 
+function isMatched(d) {
+    return hasMatchData(d) && d._matched;
+}
+
+function hasMatchData(d) {
+    return d._matched != null;
+}
 
 window.InsightsGraph = Graph;
