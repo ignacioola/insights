@@ -1,7 +1,7 @@
 Insights Graph
 ==============
 
-A customized force layout written with d3.js.
+A customized force layout written with d3.js. Demo [here](
 
 ## Downloads:
 * Version packaged with dependencies: [insights.packaged.js](https://raw.github.com/ignacioola/insights-graph/master/dist/insights.packaged.js)
@@ -15,7 +15,7 @@ A customized force layout written with d3.js.
 * [underscore.js](https://github.com/documentcloud/underscore/)
 * [Mustache.js](https://github.com/janl/mustache.js)
 
-## Minimal input
+## Minimal input example
 
 ```javascript
 var nodes = [
