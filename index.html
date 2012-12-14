@@ -16,7 +16,10 @@
           links = data[1],
           el = document.getElementById("parent");
 
-          var graph = new InsightsGraph(el, nodes, links);
+          var graph = new InsightsGraph(el, nodes, links, { 
+            width: screen.width, 
+            height: screen.height 
+          });
         });
       }();
     </script>
