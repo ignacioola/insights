@@ -62,5 +62,6 @@ new InsightsGraph(el, nodes, links)
 new InsightsGraph(el, nodes, links, {
     onRendered: function() {
         // hide loader
-    });
+    }
+});
 ```
