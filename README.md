@@ -11,9 +11,9 @@ A customized force layout written with d3.js. Demo [here](http://ignacioola.gith
 * A default optional stylesheet is available: [insights-default.css](https://raw.github.com/ignacioola/insights-graph/master/dist/insights-default.css)
 
 ## Dependencies:
-* [d3.js](https://github.com/mbostock/d3) >= 2.10.3
-* [underscore.js](https://github.com/documentcloud/underscore/) >= 1.4.3 
-* [Mustache.js](https://github.com/janl/mustache.js) >= 0.7.1
+* [d3.js](https://github.com/mbostock/d3) (tested with version 2.10.3)
+* [underscore.js](https://github.com/documentcloud/underscore/) (tested with version 1.4.3)
+* [Mustache.js](https://github.com/janl/mustache.js) (tested with version 0.7.1)
 
 ## Minimal input example
 
