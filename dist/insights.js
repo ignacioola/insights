@@ -64,7 +64,7 @@ var SELECTED_PATH_STROKE_WIDTH = 1.5;
 var DEFAULT_CIRCLE_STROKE = "#FFF";
 var ZOOM_SCALE_EXTENT = [0.2, 2.3];
 
-var TOOLTIP_TEMPLATE = "<div>word: {{ text }}</div> <div>tweets: {{ntweets}}</div>";
+var TOOLTIP_TEMPLATE = "<div>word: {{ text }}</div> <div>count: {{count}}</div>";
 var BASE_ELEMENT_CLASS = "insights-graph";
 var DEFAULT_WIDTH = 1200;
 var DEFAULT_HEIGHT = 700; 
@@ -210,9 +210,9 @@ Graph.prototype = {
         target = d.target;
 
         if (target.size > source.size) {
-            return this.color(target.cidx);
+            return this.color(target.cluster);
         } else {
-            return this.color(source.cidx);
+            return this.color(source.cluster);
         }
     },
 
@@ -224,7 +224,7 @@ Graph.prototype = {
         var nodes = this.nodes;
 
 
-        function circleFill(d) { return self.color(d.cidx); }
+        function circleFill(d) { return self.color(d.cluster); }
         function circleRadius(d) { return self.radiusScale(d.size ||1); }
 
         var force = this.force = d3.layout.force()
@@ -346,14 +346,14 @@ Graph.prototype = {
                 var elem = d3.select(this);
 
                 if (adjacentNodes[e.id]) {
-                    return self.color(e.cidx);
+                    return self.color(e.cluster);
                 } else {
                     return UNSELECTED_COLOR;
                 }
             })
         .style("stroke", function(e) {
                 if (e.id == d.id) {
-                    return d3.rgb(self.color(e.cidx)).darker();
+                    return d3.rgb(self.color(e.cluster)).darker();
                 } else {
                     return DEFAULT_CIRCLE_STROKE;
                 }
@@ -386,7 +386,7 @@ Graph.prototype = {
         this.selectedNodes = {};
 
         circle.style('fill', function(e) {
-                return self.color(e.cidx);
+                return self.color(e.cluster);
             }).style("stroke", function(e) {
                 return DEFAULT_CIRCLE_STROKE;
             });
@@ -413,7 +413,7 @@ Graph.prototype = {
                 var matchText = text.toLowerCase();
 
                 if (~nodeText.indexOf(matchText)) {
-                    return self.color(e.cidx);
+                    return self.color(e.cluster);
                 } else {
                     return UNSELECTED_COLOR;
                 }

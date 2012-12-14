@@ -1,6 +1,19 @@
 Insights Graph
 ==============
 
+A customized force layout written with d3.js.
+
+## Downloads:
+    * Version packed with dependencies: [insights.packed.js](https://raw.github.com/ignacioola/insights-graph/master/dist/insights.packed.js)
+    * Version without dependencies: [insights.js](https://raw.github.com/ignacioola/insights-graph/master/dist/insights.js)
+
+## Stylesheet
+    * A default optional stylesheet is available: [insights-default.css](https://raw.github.com/ignacioola/insights-graph/master/dist/insights-default.css)
+
+## Dependencies:
+    * [d3.js](https://github.com/mbostock/d3)
+    * [underscore.js](https://github.com/documentcloud/underscore/)
+    * [Mustache.js](https://github.com/janl/mustache.js)
 
 ## Minimal input
 
@@ -10,8 +23,8 @@ var nodes = [
         id: 1,
         text: "apple",
         size: 9,
-        count: 1034,
-        cluster: 5
+        cluster: 5,
+        count: 1034
     },
     {
         id: 2,
@@ -30,29 +43,24 @@ var nodes = [
 ];
 
 var links = [
-    [ 1, 2, 15 ], // [ source, target, weight ]
-    [ 2, 3, 12 ],
-    [ 1, 3, 5 ]
+    [ 1, 2, 15 ], // [ source.id, target.id, weight ]
+    [ 2, 3, 12 ],
+    [ 1, 3, 5 ]
 ];
-
-var el = document.getElementById("container");
-```
-
-## HTML
-``html
-<head>
-  <link rel="stylesheet" src="insights-default.css" />
-</head>
-
-<body>
-  <div id="container"></div>
-
-  <script src="insights.packaged.js"></script>
-</body>
 ```
 
 ## How to use it ?
 
 ```javascript
+var el = document.getElementById("container");
 new InsightsGraph(el, nodes, links)
+```
+
+## Adding an onRendered callback
+
+´´´javascript
+new InsightsGraph(el, nodes, links, {
+    onRendered: function() {
+        // hide loader
+    })
 ```
