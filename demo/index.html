@@ -21,7 +21,11 @@
               links = data[1],
               el = document.getElementById("parent");
 
-          graph = new InsightsGraph(el, nodes, links);
+          graph = new InsightsGraph(el, nodes, links, {
+            width: screen.width,
+            height: screen.height
+          });
+
         });
       }();
     </script>
