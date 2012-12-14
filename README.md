@@ -4,7 +4,7 @@ Insights Graph
 A customized force layout written with d3.js.
 
 ## Downloads:
-* Version packed with dependencies: [insights.packed.js](https://raw.github.com/ignacioola/insights-graph/master/dist/insights.packed.js)
+* Version packaged with dependencies: [insights.packed.js](https://raw.github.com/ignacioola/insights-graph/master/dist/insights.packaged.js)
 * Version without dependencies: [insights.js](https://raw.github.com/ignacioola/insights-graph/master/dist/insights.js)
 
 ## Stylesheet
