@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Insights graph demo</title>
+    <link rel="stylesheet" href="https://raw.github.com/ignacioola/insights-graph/master/dist/insights-default.css" />
+  </head>
+
+  <body>
+    <div id="parent"></div>
+
+    <script src="https://raw.github.com/ignacioola/insights-graph/master/dist/insights.packaged.js"></script>
+    <script>
+      !function() {
+        d3.json("data.json", function(data) {
+          var nodes = data[0],
+          links = data[1],
+          el = document.getElementById("parent");
+
+          var graph = new InsightsGraph(el, nodes, links);
+        });
+      }();
+    </script>
+  </body>
+</html>
