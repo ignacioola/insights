@@ -16,9 +16,13 @@ function Graph(el, nodes, links, options) {
     this.links = links;
     this.nodes = nodes;
     this.onRendered = options.onRendered ||function() {};
+    this.onReset = options.onReset || function() {};
     this.width = options.width || DEFAULT_WIDTH;
     this.height = options.height ||DEFAULT_HEIGHT;
     this.color = d3.scale.category20();
+
+    this.max = {};
+    this.min = {};
 
     this.adjacentNodes = {};
     this.processData();
@@ -43,9 +47,11 @@ Graph.prototype = {
         var maxWeight = 0;
         var adjacents= {}
         var linksList = [];
+        var maxCount = 0;
 
         this.nodes.forEach(function(n) {
             maxSize = Math.max(maxSize, n.size || 0);
+            maxCount = Math.max(maxCount, n.count || 0);
             n.name = n.id;
             nodesHash[n.id] = nodesHash[n.id] || n;
         });
@@ -81,13 +87,15 @@ Graph.prototype = {
         this.linksList = linksList;
         this.adjacents = adjacents;
         this.nodesHash = nodesHash;
-        this.maxSize = maxSize;
-        this.maxWeight = maxWeight;
+
+        this.max.size = maxSize;
+        this.max.weight = maxWeight;
+        this.max.count = maxCount
     },
 
     processScales: function() {
-        this.radiusScale = d3.scale.sqrt().domain([1, this.maxSize]).range([6, 40]);
-        this.linkWidthScale = d3.scale.log().domain([1, this.maxWeight]).range([.2, .21]); 
+        this.radiusScale = d3.scale.sqrt().domain([1, this.max.size]).range([6, 40]);
+        this.linkWidthScale = d3.scale.log().domain([1, this.max.weight]).range([.2, .21]); 
     },
 
     init: function() {
@@ -107,7 +115,7 @@ Graph.prototype = {
                 .append('svg:g')
                     .style('display','none');
 
-        this.$el.on("click", function() { self.reset() });
+        this.$el.on("click", function() { self._reset() });
     },
 
     onZoom: function() {
@@ -137,11 +145,20 @@ Graph.prototype = {
         var self = this;
         var scale = this.getScale();
         var adjacentNodes = this.adjacentNodes;
-        var hasSelection = !!_(adjacentNodes).size();
+        var selectedNode = this.selectedNode;
+        var hasSelection = !!this.selectedNode;
         var isThereMatch = this.isThereMatch();
 
         this.d3TitleNodes.style("display", function(d) {
             var isDisplayable = self.isTitleDisplayable(d);
+
+            if (isDisplayable && self.isSelected(d)) {
+                if (isThereMatch && !isMatched(d)) {
+                    return "none";
+                } else {
+                    return "";
+                }
+            }
 
             if (hasSelection && !adjacentNodes[d.id]) {
                 return "none"
@@ -173,8 +190,6 @@ Graph.prototype = {
     render: function() {
         var self = this;
         var nodesHash = {};
-        var maxSize = 0;
-        var maxWeight = 0;
         var nodes = this.nodes;
 
         function circleFill(d) { return self.color(d.cluster); }
@@ -269,6 +284,16 @@ Graph.prototype = {
         }
 
         function onMouseOver(d) {
+            var selectedNode = self.selectedNode;
+
+            if (self.selectedNode && !self.isSelected(d) && !self.isAdjacent(d)) {
+                return;
+            }
+
+            if (self.isThereMatch() && !isMatched(d)) {
+                return;
+            }
+
             var offset = { 
                     left: currentMousePos.x + 10, 
                     top: currentMousePos.y + 10 
@@ -288,9 +313,18 @@ Graph.prototype = {
         var path = this.d3Path;
         var adjacentNodes;
 
+
+        if (self.selectedNode && !self.isSelected(d) && !self.isAdjacent(d)) {
+            return;
+        }
+
+        if (self.isThereMatch() && !isMatched(d)) {
+            return;
+        }
+
         // In this case we want no match data, just the clicked circle data
         if (this.isThereMatch()) {
-            this.reset();
+            this._reset();
         }
 
         this.selectedNode = d;
@@ -384,7 +418,7 @@ Graph.prototype = {
         path.attr("stroke", function(e) {
             if (selectedNode) {
                 if (self.isSelected(e.source) || self.isSelected(e.target)) {
-                    if (isThereMatch && isMatched(e) ||!isThereMatch) {
+                    if (isThereMatch && isMatched(e.source) && isMatched(e.target) ||!isThereMatch) {
                         return self.pathStroke(e);
                     } else {
                         return UNSELECTED_COLOR;
@@ -392,7 +426,7 @@ Graph.prototype = {
                 } else {
                     return UNSELECTED_COLOR;
                 }
-            } else if (isThereMatch && isMatched(e)) {
+            } else if (isThereMatch && isMatched(e.source) && isMatched(e.target)) {
                 return self.pathStroke(e);
             } else {
                 return UNSELECTED_COLOR;
@@ -433,6 +467,16 @@ Graph.prototype = {
             });
 
         this.displayTitle();
+
+    },
+
+    _reset: function(preventTrigger) {
+        this.reset();
+
+        if (!preventTrigger) {
+            this.onReset();
+        }
+
     },
 
     setMatchs: function(fn) {

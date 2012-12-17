@@ -9,15 +9,23 @@ function Tooltip(options) {
 
 Tooltip.prototype = {
     constructor: Tooltip,
+    elementId: "insights-tooltip",
+    elementClass: "insights-tooltip",
 
     _createElement: function() {
-        this.el = document.createElement("div");
+        var found = document.getElementById(this.elementId);
 
-        this.el.id = "insights-tooltip";
-        this.el.className = "insights-tooltip";
-        this.el.style.position = "absolute";
-        this.el.style.display = "none";
-        document.body.appendChild(this.el);
+        if (!found) {
+            this.el = document.createElement("div");
+
+            this.el.id = this.elementId;
+            this.el.className = this.elementClass;
+            this.el.style.position = "absolute";
+            this.el.style.display = "none";
+            document.body.appendChild(this.el);
+        } else {
+            this.el = found;
+        }
     },
 
     render: function() {
