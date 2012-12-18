@@ -16,7 +16,7 @@ function Graph(el, nodes, links, options) {
     this.links = links;
     this.nodes = nodes;
     this.onRendered = options.onRendered ||function() {};
-    this.onReset = options.onReset || function() {};
+    this.onReset = options.onReset || function() {};
     this.width = options.width || DEFAULT_WIDTH;
     this.height = options.height ||DEFAULT_HEIGHT;
     this.color = d3.scale.category20();
@@ -36,7 +36,7 @@ function Graph(el, nodes, links, options) {
     this.render();
 }
 
-Graph.version = "0.1";
+Graph.version = "0.2";
 
 Graph.prototype = {
     constructor: Graph,
@@ -134,7 +134,7 @@ Graph.prototype = {
 
     isTitleDisplayable: function(d) {
         var scale = this.getScale();
-        var res = this.titleScale(d.size || 1);
+        var res = this.titleScale(d.size || 1);
 
         return (scale * res > .8 || scale > 2.2 );
     },
@@ -153,7 +153,7 @@ Graph.prototype = {
             if (isDisplayable && self.isSelected(d)) {
                 if (isThereMatch && !isMatched(d)) {
                     return "none";
-                } else {
+                } else {
                     return "";
                 }
             }
