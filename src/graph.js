@@ -36,7 +36,7 @@ function Graph(el, nodes, links, options) {
     this.render();
 }
 
-Graph.version = "0.2";
+Graph.version = "0.1.1";
 
 Graph.prototype = {
     constructor: Graph,
