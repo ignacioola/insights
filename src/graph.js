@@ -95,7 +95,8 @@ Graph.prototype = {
 
     processScales: function() {
         this.radiusScale = d3.scale.sqrt().domain([1, this.max.size]).range([6, 40]);
-        this.linkWidthScale = d3.scale.log().domain([1, this.max.weight]).range([.2, .21]); 
+        //this.linkWidthScale = d3.scale.log().domain([1, this.max.weight]).range([.2, .21]); 
+        this.titleScale = d3.scale.log().domain([1, this.max.size]).range([0, 1]);
     },
 
     init: function() {
@@ -133,12 +134,9 @@ Graph.prototype = {
 
     isTitleDisplayable: function(d) {
         var scale = this.getScale();
-        var res = Math.LOG10E * Math.log(d.size + 1) / 2;
-        if (scale > 2 ||scale * res > 2) {
-            return true;
-        } else {
-            return false;
-        }
+        var res = this.titleScale(d.size || 1);
+
+        return (scale * res > .8 || scale > 2.2 );
     },
 
     displayTitle: function() {
