@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Insights graph demo</title>
+    <link rel="stylesheet" href="../../dist/insights-default.css" />
+  </head>
+  <body>
+    <div id="parent"></div>
+
+    <script src="../../lib/underscore.js"></script>
+    <script src="../../lib/d3.v2.js"></script>
+    <script src="../../lib/mustache.js"></script>
+    <script src="../../dist/insights.js"></script>
+
+    <script>
+      !function() {
+        d3.json("8N.json", function(data) {
+          var nodes = data[0],
+              links = data[1],
+              el = document.getElementById("parent");
+
+          graph = new InsightsGraph(el, nodes, links, {
+            width: screen.width,
+            height: screen.height,
+            collisionAlpha: 15
+          });
+
+        });
+      }();
+    </script>
+  </body>
+</html>
