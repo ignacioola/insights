@@ -8947,6 +8947,7 @@ var TOOLTIP_TEMPLATE = "<div>word: {{ text }}</div> <div>count: {{count}}</div>"
 var BASE_ELEMENT_CLASS = "insights-graph";
 var DEFAULT_WIDTH = 1200;
 var DEFAULT_HEIGHT = 700; 
+var DEFAULT_COLLISION_ALPHA = .5;
 
 function Graph(el, nodes, links, options) {
     options = options || {};
@@ -8959,6 +8960,7 @@ function Graph(el, nodes, links, options) {
     this.width = options.width || DEFAULT_WIDTH;
     this.height = options.height ||DEFAULT_HEIGHT;
     this.color = d3.scale.category20();
+    this.collisionAlpha = options.collisionAlpha || DEFAULT_COLLISION_ALPHA;
 
     this.max = {};
     this.min = {};
@@ -9181,7 +9183,7 @@ Graph.prototype = {
                     n = self.nodes.length;
             
                 while (++i < n) {
-                  q.visit(self.collide(self.nodes[i]));
+                  q.visit(self.collide(self.nodes[i], self.collisionAlpha));
                 }
 
             }
@@ -9442,7 +9444,7 @@ Graph.prototype = {
     /**
      * Hace que los nodos no se peguen.
      */
-    collide: function(node) {
+    collide: function(node, alpha) {
         var self = this,
             r = node.radius + 16,
             nx1 = node.x - r,
@@ -9457,7 +9459,7 @@ Graph.prototype = {
                 l = Math.sqrt(x * x + y * y),
                 r= self.radiusScale(quad.point.size ||1)*2;
                 if (l < r) {
-                    l = (l - r) / l * .5;
+                    l = (l - r) / l * alpha;
                     node.x -= x *= l;
                     node.y -= y *= l;
                     quad.point.x += x;
