@@ -43,9 +43,9 @@ var nodes = [
 ];
 
 var links = [
-    [ 1, 2, 15 ], // [ source.id, target.id, weight ]
-    [ 2, 3, 12 ],
-    [ 1, 3, 5 ]
+    [ 1, 2 ], // [ source.id, target.id ]
+    [ 2, 3 ],
+    [ 1, 3 ]
 ];
 ```
 
