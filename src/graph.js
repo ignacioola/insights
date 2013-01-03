@@ -560,13 +560,19 @@ Graph.prototype = {
 
     selectByCluster: function(cluster) {
         this.selectBy(function(e) {
+            var c = e.cluster;
+
+            if (c != null) {
+                c = c.toString()
+            }
+
             // if an array is passed
             if (typeof cluster == "object" && cluster.indexOf) {
-                return ~cluster.indexOf(e.cluster);
+                return ~cluster.indexOf(c);
             }
 
             // if a value is passed
-            return e.cluster == cluster;
+            return c == cluster;
         });
     },
 
