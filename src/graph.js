@@ -46,7 +46,7 @@ function Graph(el, nodes, links, options) {
     this.render();
 }
 
-Graph.version = "0.1.1";
+Graph.version = "0.2";
 
 Graph.prototype = {
     constructor: Graph,
@@ -58,22 +58,23 @@ Graph.prototype = {
         var maxWeight = 0;
         var adjacents= {}
         var linksList = [];
-        var maxCount = 0;
+        var clusters = {};
 
         this.nodes.forEach(function(n) {
             maxSize = Math.max(maxSize, self.getSize(n));
-            maxCount = Math.max(maxCount, n.count || 0);
             n.name = n.id;
             nodesHash[n.id] = nodesHash[n.id] || n;
+
+            if (n.cluster != null) {
+                // caching cluster data
+                clusters[n.cluster] = self.color(n.cluster);
+            }
         });
 
         // Compute the distinct nodes from the links.
         this.links.forEach(function(link) {
             var source = nodesHash[link[0]],
-                target = nodesHash[link[1]],
-                weight = link[2];
-
-            maxWeight = Math.max(maxWeight, weight ||0);
+                target = nodesHash[link[1]];
 
             if (!source ||!target) return;
             
@@ -90,8 +91,7 @@ Graph.prototype = {
 
             linksList.push({
                 source: source,
-                target: target,
-                w: weight
+                target: target
             });
         });
 
@@ -100,8 +100,7 @@ Graph.prototype = {
         this.nodesHash = nodesHash;
 
         this.max.size = maxSize;
-        this.max.weight = maxWeight;
-        this.max.count = maxCount
+        this.clusters = clusters;
     },
 
     processScales: function() {
@@ -239,9 +238,9 @@ Graph.prototype = {
         target = d.target;
 
         if (this.getSize(target) > this.getSize(source)) {
-            return this.color(target.cluster);
+            return this.getClusterColor(target.cluster);
         } else {
-            return this.color(source.cluster);
+            return this.getClusterColor(source.cluster);
         }
     },
 
@@ -251,7 +250,7 @@ Graph.prototype = {
         var nodesHash = {};
         var nodes = this.nodes;
 
-        function circleFill(d) { return self.color(d.cluster); }
+        function circleFill(d) { return self.getClusterColor(d.cluster); }
         function circleRadius(d) { return self.radiusScale(self.getSize(d) ||1); }
 
         var force = this.force = d3.layout.force()
@@ -430,7 +429,7 @@ Graph.prototype = {
             if (selectedNode) {
                 if (self.isAdjacent(e)) {
                     if (isThereMatch && isMatched(e) ||!isThereMatch) {
-                        return self.color(e.cluster);
+                        return self.getClusterColor(e.cluster);
                     } else {
                         return UNSELECTED_COLOR;
                     }
@@ -438,7 +437,7 @@ Graph.prototype = {
                     return UNSELECTED_COLOR;
                 }
             } else if (isThereMatch && isMatched(e)) {
-                return self.color(e.cluster);
+                return self.getClusterColor(e.cluster);
             } else {
                 return UNSELECTED_COLOR;
             }
@@ -446,7 +445,7 @@ Graph.prototype = {
             if (selectedNode) {
                 if (self.isSelected(e)) {
                     if (isThereMatch && isMatched(e) ||!isThereMatch) {
-                        return d3.rgb(self.color(e.cluster)).darker();
+                        return d3.rgb(self.getClusterColor(e.cluster)).darker();
                     } else {
                         return UNSELECTED_COLOR;
                     }
@@ -513,7 +512,7 @@ Graph.prototype = {
         circle.style('fill', function(e) {
                 // reseting selection
                 delete e._matched; 
-                return self.color(e.cluster);
+                return self.getClusterColor(e.cluster);
             }).style("stroke", function(e) {
                 return DEFAULT_CIRCLE_STROKE;
             });
@@ -629,6 +628,16 @@ Graph.prototype = {
 
     getSize: function(d) {
         return d[this.sizeAttr] || 0;
+    },
+
+    getClusters: function() {
+        return this.clusters;
+    },
+
+    getClusterColor: function(cluster) {
+        var c = this.clusters[cluster];
+
+        return c;
     }
 }
 
