@@ -76,6 +76,7 @@ var BASE_ELEMENT_CLASS = "insights-graph";
 var DEFAULT_WIDTH = 1200;
 var DEFAULT_HEIGHT = 700; 
 var DEFAULT_COLLISION_ALPHA = .5;
+var DEFAULT_FORCE_ALPHA_LIMIT = 0.007;
 
 function Graph(el, nodes, links, options) {
     options = options || {};
@@ -89,6 +90,11 @@ function Graph(el, nodes, links, options) {
     this.height = options.height ||DEFAULT_HEIGHT;
     this.color = d3.scale.category20();
     this.collisionAlpha = options.collisionAlpha || DEFAULT_COLLISION_ALPHA;
+    this.scaleExtent = options.scaleExtent || ZOOM_SCALE_EXTENT;
+    
+    if (options.initialScale) {
+        this.initialScale = options.initialScale;
+    }
 
     this.max = {};
     this.min = {};
@@ -164,14 +170,31 @@ Graph.prototype = {
 
     processScales: function() {
         this.radiusScale = d3.scale.sqrt().domain([1, this.max.size]).range([6, 40]);
-        //this.linkWidthScale = d3.scale.log().domain([1, this.max.weight]).range([.2, .21]); 
         this.titleScale = d3.scale.log().domain([1, this.max.size]).range([0, 1]);
+    },
+
+    processCenterCoords: function() {
+        var xMass=0, yMass=0, totalSize=0;
+
+        this.d3Nodes.each(function(d) { 
+            xMass += d.x * d.size;
+            yMass += d.y * d.size;
+            totalSize += d.size;
+        });
+
+        this.xCenter = xMass / totalSize;
+        this.yCenter = yMass / totalSize;
     },
 
     init: function() {
         var self = this;
         
-        this.zoom = d3.behavior.zoom();
+        this._zoom = d3.behavior.zoom().translate([0,0]);
+
+        if (this.initialScale) {
+            this._zoom = this._zoom.scale(this.initialScale);
+        }
+
         this.$el = this.getElement();
 
         this.svg = this.$el
@@ -180,25 +203,55 @@ Graph.prototype = {
                 .attr("width", this.width)
                 .attr("height", this.height)
                 .attr("pointer-events", "all")
-                .call(this.zoom.on("zoom", _(this.onZoom).bind(this))
-                               .scaleExtent(ZOOM_SCALE_EXTENT))
-                .append('svg:g')
-                    .style('display','none');
+                .call(this._zoom.on("zoom", _(this.onZoom).bind(this))
+                               .scaleExtent(this.scaleExtent))
+
+        this.baseGroup = this.svg.append('svg:g')
+                              .style('display','none');
 
         this.$el.on("click", function() { self._reset() });
     },
 
     onZoom: function() {
+        var zoom = this._zoom;
         var trans = this.getTranslation();
         var scale = this.getScale();
 
-        var x = trans[0] - ((this.xCenter || 0) - this.width / 2)*scale;
-        var y = trans[1] - scale*((this.yCenter ||0) - this.height / 2);
+        //var x = trans[0] - scale*(this.xCenter - this.width / 2 );
+        //var y = trans[1] - scale*(this.yCenter - this.height / 2);
+        this.baseGroup.attr("transform", "translate(" + trans + ")" + " scale(" + scale + ")");
 
         this.displayTitle();
+    },
 
-        this.svg.attr("transform", 
-            "translate(" + [x, y] + ")" + " scale(" + scale + ")");
+    zoom: function(scale) {
+        var trans = this.getTranslation();
+        var zoom = this._zoom;
+
+        zoom.scale(scale);
+
+        this.baseGroup.transition().duration(500).attr('transform', 
+            'translate(' + zoom.translate() + ') scale(' + zoom.scale() + ')');
+
+        this.displayTitle();
+    },
+
+    zoomIn: function() {
+        var scale = this.getScale();
+        var k = Math.pow(2, Math.floor(Math.log(scale) / Math.LN2) + 1);
+
+        k = Math.min(k, this.scaleExtent[1]);
+            
+        this.zoom(k);
+    },
+
+    zoomOut: function() {
+        var scale = this.getScale();
+        var k = Math.pow(2, Math.ceil(Math.log(scale) / Math.LN2) - 1);
+
+        k = Math.max(k, this.scaleExtent[0]);
+            
+        this.zoom(k);
     },
 
     isTitleDisplayable: function(d) {
@@ -254,6 +307,7 @@ Graph.prototype = {
         }
     },
 
+
     render: function() {
         var self = this;
         var nodesHash = {};
@@ -273,7 +327,7 @@ Graph.prototype = {
             .on("tick", tick)
             .start();
 
-        var path = this.d3Path = this.svg.append("svg:g").selectAll("path")
+        var path = this.d3Path = this.baseGroup.append("svg:g").selectAll("path")
             .data(force.links())
             .enter().append("svg:path")
             .attr("stroke", _(this.pathStroke).bind(this))
@@ -281,7 +335,7 @@ Graph.prototype = {
             .attr("fill", "none");
             //.attr("marker-end", function(d) { return "url(#" + d.type + ")"; }); // QUE ES ESTO??
         
-        var node = this.d3Nodes = this.svg.selectAll(".node")
+        var node = this.d3Nodes = this.baseGroup.selectAll(".node")
             .data(force.nodes())
             .enter().append("g")
             .attr("class", "node")
@@ -300,54 +354,24 @@ Graph.prototype = {
             .style("display", "none")
             .text(function(d) { return d.text; });
 
-        var firstTime= true;
         function tick(e) {
+            if (force.alpha() < DEFAULT_FORCE_ALPHA_LIMIT) {
+                self.handleCollisions();
 
-            if (firstTime && force.alpha() < 0.07) {
-                // para que no se pisen los nodos. Como es lento, lo empiezo a hacer despues de que
-                // los nodos estan mas o menos acomodados
-                var q = d3.geom.quadtree(nodes),
-                    i = 0,
-                    n = self.nodes.length;
-            
-                while (++i < n) {
-                  q.visit(self.collide(self.nodes[i], self.collisionAlpha));
-                }
-
-            }
-            if (!firstTime || force.alpha() < 0.05) {
                 // to prevent the chart from moving after
-                force.alpha(0)
+                force.stop();
+
+                self.positionNodes();
+                self.generateLinks();
+
+                self.processCenterCoords();
+
                 // showing canvas after finished rendering
-                self.svg.style('display','block')
-                firstTime= false;
-
-                var xMass=0, yMass=0, totalSize=0;
-                node.each(function(d) { 
-                    xMass += d.x * d.size;
-                    yMass += d.y * d.size;
-                    totalSize += d.size;
-                });
-
-                self.xCenter = xMass / totalSize;
-                self.yCenter = yMass / totalSize;
-
-                node.attr("transform", function(d) { 
-                    return "translate(" + d.x + "," + d.y + ")"; 
-                });
-
-                // curve line between nods
-                path.attr("d", function(d) {
-                    var dx = d.target.x - d.source.x,
-                    dy = d.target.y - d.source.y,
-                    dr = Math.sqrt(dx * dx + dy * dy);
-                    return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
-                });
+                self.show();
 
                 self.onZoom();
                 self.onRendered();
             }
-         
         }
 
         function onMouseOver(d) {
@@ -372,6 +396,43 @@ Graph.prototype = {
         function onMouseOut(d) {
             self.tooltip.hide();
         }
+    },
+
+    show: function() {
+        this.baseGroup.style('display','block')
+    },
+
+    hide: function() {
+        this.baseGroup.style('display','none')
+    },
+
+    handleCollisions: function() {
+        var nodes = this.nodes,
+            q = d3.geom.quadtree(nodes),
+            i = 0,
+            n = nodes.length;
+
+        while (++i < n) {
+            q.visit(this.collide(nodes[i], this.collisionAlpha));
+        }
+    },
+
+    // Updates the position of the nodes
+    positionNodes: function() {
+        this.d3Nodes.attr("transform", function(d) { 
+            return "translate(" + d.x + "," + d.y + ")"; 
+        });
+    },
+
+    // Updates the position of the links
+    generateLinks: function() {
+        // curve line between nodes
+        this.d3Path.attr("d", function(d) {
+            var dx = d.target.x - d.source.x,
+            dy = d.target.y - d.source.y,
+            dr = Math.sqrt(dx * dx + dy * dy);
+            return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+        });
     },
 
     onCircleClick: function(d) {
@@ -443,13 +504,6 @@ Graph.prototype = {
             } else {
                 return UNSELECTED_COLOR;
             }
-
-            // -----------
-            //if (isMatched(e) || selectedNode && self.isAdjacent(e)) {
-            //    return self.color(e.cluster);
-            //} else {
-            //    return UNSELECTED_COLOR;
-            //}
         }).style("stroke", function(e) {
             if (selectedNode) {
                 if (self.isSelected(e)) {
@@ -602,31 +656,33 @@ Graph.prototype = {
     },
 
     getScale: function() {
-        if (d3.event && !isNaN(d3.event.scale)) {
-            this._lastScale = d3.event.scale;
+        return this._zoom.scale();
+        //if (d3.event && !isNaN(d3.event.scale)) {
+        //    this._lastScale = d3.event.scale;
 
-            return this._lastScale;
-        }else{
-            if (!isNaN(this._lastScale)) {
-                return this._lastScale;
-            }
+        //    return this._lastScale;
+        //}else{
+        //    if (this._lastScale != null) {
+        //        return this._lastScale;
+        //    }
 
-            return d3.behavior.zoom().scale();
-        }
+        //    return this._zoom.scale();
+        //}
     },
 
     getTranslation: function() {
-        if (d3.event && d3.event.translate) {
-            this._lastTranslate = d3.event.translate;
+        return this._zoom.translate();
+        //if (d3.event && d3.event.translate) {
+        //    this._lastTranslate = d3.event.translate;
 
-            return this._lastTranslate;
-        } else {
-            if (!isNaN(this._lastTranslate)) {
-                return this._lastTranslate;
-            }
+        //    return this._lastTranslate;
+        //} else {
+        //    if (this._lastTranslate != null) {
+        //        return this._lastTranslate;
+        //    }
 
-            return d3.behavior.zoom().translate();
-        }
+        //    return this._zoom.translate();
+        //}
     },
 
     getElement: function() {

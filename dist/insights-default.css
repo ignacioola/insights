@@ -27,5 +27,5 @@
   fill: #444;
   font: 9px sans-serif;
   pointer-events: none;
-  text-shadow: 0 0 1em #fff, 0 0 1em #fff, 0 0 1em #fff, 0 0 1em #fff, 0 0 1em #fff;
+  text-shadow: -1px 0px 3px white, -1px 0px 9px white;
 }

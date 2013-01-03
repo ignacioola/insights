@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Insights graph demo</title>
+    <link rel="stylesheet" href="../../dist/insights-default.css" />
+  </head>
+  <body>
+    <div id="parent"></div>
+
+    <script src="../../dist/insights.packaged.js"></script>
+
+    <script>
+      !function() {
+        d3.json("8N.json", function(data) {
+          var nodes = data[0],
+              links = data[1],
+              el = document.getElementById("parent");
+
+          start = new Date();
+          graph = new InsightsGraph(el, nodes, links, {
+            width: screen.width,
+            height: screen.height,
+            collisionAlpha: 30,
+            onRendered: function() {
+              var secs = parseFloat(new Date() -start) / 1000;
+              console.log("rendered in ", secs, " seconds");
+            }
+          });
+
+        });
+      }();
+    </script>
+  </body>
+</html>

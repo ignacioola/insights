@@ -1,5 +1,5 @@
 SRC = src/tooltip.js src/graph.js
-PACKAGE_SRC = lib/underscore.js lib/mustache.js lib/d3.v2.js $(SRC)
+PACKAGE_SRC = lib/underscore.js lib/mustache.js lib/d3.js $(SRC)
 
 build: $(SRC)
 	cp src/css/insights-default.css dist/
