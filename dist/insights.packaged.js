@@ -9732,6 +9732,7 @@ var DEFAULT_WIDTH = 1200;
 var DEFAULT_HEIGHT = 700; 
 var DEFAULT_COLLISION_ALPHA = .5;
 var DEFAULT_FORCE_ALPHA_LIMIT = 0.007;
+var DEFAULT_SIZE_ATTR = "size";  // where to find size info
 
 function Graph(el, nodes, links, options) {
     options = options || {};
@@ -9746,6 +9747,7 @@ function Graph(el, nodes, links, options) {
     this.color = d3.scale.category20();
     this.collisionAlpha = options.collisionAlpha || DEFAULT_COLLISION_ALPHA;
     this.scaleExtent = options.scaleExtent || ZOOM_SCALE_EXTENT;
+    this.sizeAttr = options.sizeAttr || DEFAULT_SIZE_ATTR;
     
     if (options.initialScale) {
         this.initialScale = options.initialScale;
@@ -9772,6 +9774,7 @@ Graph.prototype = {
     constructor: Graph,
 
     processData: function() {
+        var self = this;
         var nodesHash = {};
         var maxSize = 0;
         var maxWeight = 0;
@@ -9780,7 +9783,7 @@ Graph.prototype = {
         var maxCount = 0;
 
         this.nodes.forEach(function(n) {
-            maxSize = Math.max(maxSize, n.size || 0);
+            maxSize = Math.max(maxSize, self.getSize(n));
             maxCount = Math.max(maxCount, n.count || 0);
             n.name = n.id;
             nodesHash[n.id] = nodesHash[n.id] || n;
@@ -9829,12 +9832,14 @@ Graph.prototype = {
     },
 
     processCenterCoords: function() {
+        var self = this;
         var xMass=0, yMass=0, totalSize=0;
 
         this.d3Nodes.each(function(d) { 
-            xMass += d.x * d.size;
-            yMass += d.y * d.size;
-            totalSize += d.size;
+            var size = self.getSize(d);
+            xMass += d.x * size;
+            yMass += d.y * size;
+            totalSize += size;
         });
 
         this.xCenter = xMass / totalSize;
@@ -9911,7 +9916,7 @@ Graph.prototype = {
 
     isTitleDisplayable: function(d) {
         var scale = this.getScale();
-        var res = this.titleScale(d.size || 1);
+        var res = this.titleScale(this.getSize(d) || 1);
 
         return (scale * res > .8 || scale > 2.2 );
     },
@@ -9955,7 +9960,7 @@ Graph.prototype = {
         var source = d.source,
         target = d.target;
 
-        if (target.size > source.size) {
+        if (this.getSize(target) > this.getSize(source)) {
             return this.color(target.cluster);
         } else {
             return this.color(source.cluster);
@@ -9969,7 +9974,7 @@ Graph.prototype = {
         var nodes = this.nodes;
 
         function circleFill(d) { return self.color(d.cluster); }
-        function circleRadius(d) { return self.radiusScale(d.size ||1); }
+        function circleRadius(d) { return self.radiusScale(self.getSize(d) ||1); }
 
         var force = this.force = d3.layout.force()
             .nodes(d3.values(this.nodesHash)) // lo pasa de {a:1, b:2} a [1, 2]
@@ -10294,7 +10299,7 @@ Graph.prototype = {
                 var x = node.x - quad.point.x,
                 y = node.y - quad.point.y,
                 l = Math.sqrt(x * x + y * y),
-                r= self.radiusScale(quad.point.size ||1)*2;
+                r= self.radiusScale(self.getSize(quad.point) ||1)*2;
                 if (l < r) {
                     l = (l - r) / l * alpha;
                     node.x -= x *= l;
@@ -10342,6 +10347,10 @@ Graph.prototype = {
 
     getElement: function() {
         return d3.select(this.el);
+    },
+
+    getSize: function(d) {
+        return d[this.sizeAttr] || 0;
     }
 }
 
