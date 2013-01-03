@@ -552,12 +552,16 @@ Graph.prototype = {
     selectByText: function(text) {
         var matchText =  text.toLowerCase();
 
-        this.setMatchs(function(e) {
+        this.selectBy(function(e) {
             var nodeText = (e.text || "").toLowerCase();
             return !!(~nodeText.indexOf(matchText));
         });
+    },
 
-        this.draw();
+    selectByCluster: function(cluster) {
+        this.selectBy(function(e) {
+            return e.cluster == cluster;
+        });
     },
 
     /**
@@ -594,32 +598,10 @@ Graph.prototype = {
 
     getScale: function() {
         return this._zoom.scale();
-        //if (d3.event && !isNaN(d3.event.scale)) {
-        //    this._lastScale = d3.event.scale;
-
-        //    return this._lastScale;
-        //}else{
-        //    if (this._lastScale != null) {
-        //        return this._lastScale;
-        //    }
-
-        //    return this._zoom.scale();
-        //}
     },
 
     getTranslation: function() {
         return this._zoom.translate();
-        //if (d3.event && d3.event.translate) {
-        //    this._lastTranslate = d3.event.translate;
-
-        //    return this._lastTranslate;
-        //} else {
-        //    if (this._lastTranslate != null) {
-        //        return this._lastTranslate;
-        //    }
-
-        //    return this._zoom.translate();
-        //}
     },
 
     getElement: function() {
@@ -635,9 +617,7 @@ Graph.prototype = {
     },
 
     getClusterColor: function(cluster) {
-        var c = this.clusters[cluster];
-
-        return c;
+        return this.clusters[cluster];
     }
 }
 
