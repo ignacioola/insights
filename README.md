@@ -1,7 +1,7 @@
 Insights Graph
 ==============
 
-A customized force layout written with d3.js. Demo [here](http://ignacioola.github.com/insights-graph/)
+A customized force layout written with d3.js. Demo [here](http://ignacioola.github.com/insights-graph/demo/)
 
 ## Downloads:
 * Version packaged with dependencies: [insights.packaged.js](https://raw.github.com/ignacioola/insights-graph/master/dist/insights.packaged.js)
