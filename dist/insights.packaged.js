@@ -10282,6 +10282,12 @@ Graph.prototype = {
 
     selectByCluster: function(cluster) {
         this.selectBy(function(e) {
+            // if an array is passed
+            if (typeof cluster == "object" && cluster.indexOf) {
+                return ~cluster.indexOf(e.cluster);
+            }
+
+            // if a value is passed
             return e.cluster == cluster;
         });
     },
