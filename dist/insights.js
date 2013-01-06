@@ -188,6 +188,7 @@ Graph.prototype = {
 
         this.xCenter = xMass / totalSize;
         this.yCenter = yMass / totalSize;
+        this.massCenter = [this.xCenter, this.yCenter];
     },
 
     init: function() {
@@ -373,6 +374,7 @@ Graph.prototype = {
                 // showing canvas after finished rendering
                 self.show();
 
+                self.focus(self.massCenter);
                 self.onZoom();
                 self.onRendered();
             }
@@ -625,8 +627,8 @@ Graph.prototype = {
         if (n) {
             this.selectNode(n);
             this.draw();
+            this.focus([n.x, n.y]);
         }
-
     },
 
     // rename to selectByTextPartial
@@ -687,6 +689,35 @@ Graph.prototype = {
             || y1 > ny2
             || y2 < ny1;
         }
+    },
+
+    location: function(p) {
+        var translate = this.getTranslation(),
+            scale = this.getScale();
+
+        return [(p[0] - translate[0]) / scale, (p[1] - translate[1]) / scale];
+    },
+
+    point: function(l) {
+        var translate = this.getTranslation(),
+            scale = this.getScale();
+
+        return [l[0] * scale + translate[0], l[1] * scale + translate[1]];
+    },
+
+    translateTo: function(p, l) {
+        var translate = this.getTranslation();
+
+        l = this.point(l);
+        translate[0] += p[0] - l[0];
+        translate[1] += p[1] - l[1];
+
+        this._zoom.translate(translate);
+    },
+
+    focus: function(l) {
+        this.translateTo([this.width/2, this.height/2], l);
+        this.onZoom();
     },
 
     getScale: function() {
