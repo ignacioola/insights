@@ -10,9 +10,9 @@
   },
   "development": {},
   "scripts": [
-    "tooltip.js", "index.js"
+    "src/tooltip.js", "src/graph.js", "index.js"
   ],
   "styles": [
-    "insights-default.css"
+    "insights-graph.css"
   ]
 }
