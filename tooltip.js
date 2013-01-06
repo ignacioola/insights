@@ -1,10 +1,12 @@
+var minstache = require("minstache");
 
 function Tooltip(options) {
     options = options || {};
-    this.template = options.template;
+    //this.template = options.template;
     this._data = {};
 
     this._createElement();
+    this.renderTemplate = minstache.compile(options.template);
 }
 
 Tooltip.prototype = {
@@ -29,7 +31,7 @@ Tooltip.prototype = {
     },
 
     render: function() {
-        var content = Mustache.render(this.template, this.getData());
+        var content = this.renderTemplate(this.getData());
 
         if (!this._offset) throw new Error("Must set an offset");
         
@@ -64,3 +66,5 @@ Tooltip.prototype = {
         this.el.style.display = "none";
     }
 };
+
+module.exports = Tooltip;

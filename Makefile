@@ -1,11 +1,11 @@
-SRC = src/tooltip.js src/graph.js
-PACKAGE_SRC = lib/underscore.js lib/mustache.js lib/d3.js $(SRC)
 
-build: $(SRC)
-	cp src/css/insights-default.css dist/
-	(echo '!function() {'; cat $^; echo '}();') > dist/insights.js
-	make package
+build: components tooltip.js graph.js insights-default.css
+	@component build --dev
 
-package: $(PACKAGE_SRC)
-	(echo '!function() {'; cat $^; echo '}();') > dist/insights.packaged.js
+components: component.json
+	@component install --dev
 
+clean:
+	rm -fr build components template.js
+
+.PHONY: clean

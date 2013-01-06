@@ -1,77 +1,14 @@
-!function() {
+var  _ = require("underscore"),
+    d3 = require("d3")(),
+    Tooltip = require("./tooltip");
 
-function Tooltip(options) {
-    options = options || {};
-    this.template = options.template;
-    this._data = {};
-
-    this._createElement();
-}
-
-Tooltip.prototype = {
-    constructor: Tooltip,
-    elementId: "insights-tooltip",
-    elementClass: "insights-tooltip",
-
-    _createElement: function() {
-        var found = document.getElementById(this.elementId);
-
-        if (!found) {
-            this.el = document.createElement("div");
-
-            this.el.id = this.elementId;
-            this.el.className = this.elementClass;
-            this.el.style.position = "absolute";
-            this.el.style.display = "none";
-            document.body.appendChild(this.el);
-        } else {
-            this.el = found;
-        }
-    },
-
-    render: function() {
-        var content = Mustache.render(this.template, this.getData());
-
-        if (!this._offset) throw new Error("Must set an offset");
-        
-        this.el.innerHTML = content;
-        this.el.style.top = this._offset.top + "px";
-        this.el.style.left = this._offset.left + "px";
-        
-        return this;
-    },
-
-    setOffset: function(offset) {
-        this._offset = offset;
-    },
-
-    setData: function(data) {
-        this._data = data;
-    },
-
-    getData: function() {
-        return this._data;
-    },
-
-    show: function(offset, data) {
-        offset && this.setOffset(offset);
-        data && this.setData(data);
-        this.render();
-
-        this.el.style.display = "";
-    },
-
-    hide: function() {
-        this.el.style.display = "none";
-    }
-};
 var UNSELECTED_COLOR = "transparent"; //"#EFEFEF";
 var DEFAULT_PATH_STROKE_WIDTH = .3;
 var SELECTED_PATH_STROKE_WIDTH = 1.5;
 var DEFAULT_CIRCLE_STROKE = "#FFF";
 var ZOOM_SCALE_EXTENT = [0.2, 2.3];
 
-var TOOLTIP_TEMPLATE = "<div>word: {{ text }}</div> <div>count: {{count}}</div>";
+var TOOLTIP_TEMPLATE = "<div>word: {{text}}</div> <div>count: {{count}}</div>";
 var BASE_ELEMENT_CLASS = "insights-graph";
 var DEFAULT_WIDTH = 1200;
 var DEFAULT_HEIGHT = 700; 
@@ -113,7 +50,7 @@ function Graph(el, nodes, links, options) {
     this.render();
 }
 
-Graph.version = "0.2";
+Graph.version = "0.3";
 
 Graph.prototype = {
     constructor: Graph,
@@ -730,5 +667,4 @@ function hasMatchData(d) {
     return d._matched != null;
 }
 
-window.InsightsGraph = Graph;
-}();
+module.exports = Graph;
