@@ -1,0 +1,18 @@
+{
+  "name": "insights-graph",
+  "version": "0.3",
+  "description": "An interactive d3 force graph.",
+  "keywords": ["d3", "force", "graph"],
+  "dependencies": {
+    "component/d3": "*",
+    "component/underscore": "*",
+    "visionmedia/minstache": "*"
+  },
+  "development": {},
+  "scripts": [
+    "tooltip.js", "index.js"
+  ],
+  "styles": [
+    "insights-default.css"
+  ]
+}
