@@ -454,6 +454,14 @@ Graph.prototype = {
             return;
         }
 
+        d3.event.preventDefault();
+        d3.event.stopPropagation();
+
+        this.selectNode(d);
+        this.draw();
+    },
+
+    selectNode: function(d) {
         // In this case we want no match data, just the clicked circle data
         if (this.isThereMatch()) {
             this._reset();
@@ -461,14 +469,11 @@ Graph.prototype = {
 
         this.selectedNode = d;
 
-        d3.event.preventDefault();
-        d3.event.stopPropagation();
 
         if (this.adjacents[d.id]) {
             this.adjacentNodes = this.adjacents[d.id];
         }
 
-        this.draw();
     },
 
     isSelected: function(node) {
@@ -530,14 +535,6 @@ Graph.prototype = {
             } else {
                 return UNSELECTED_COLOR;
             }
-            // -----------
-            //if (self.isSelected(e)) {
-            //    return d3.rgb(self.color(e.cluster)).darker();
-            //} if (isMatched(e)) {
-            //    return DEFAULT_CIRCLE_STROKE;
-            //} else {
-            //    return UNSELECTED_COLOR;
-            //}
         });
 
         path.attr("stroke", function(e) {
@@ -616,8 +613,25 @@ Graph.prototype = {
         this.draw();
     },
 
+    selectByTextExact: function(text) {
+        var matchText = text.toLowerCase();
+
+        var n;
+        this.d3Nodes.each(function(d) {
+            if (d.text.toLowerCase() == matchText) 
+                n = d;
+        });
+
+        if (n) {
+            this.selectNode(n);
+            this.draw();
+        }
+
+    },
+
+    // rename to selectByTextPartial
     selectByText: function(text) {
-        var matchText =  text.toLowerCase();
+        var matchText = text.toLowerCase();
 
         this.selectBy(function(e) {
             var nodeText = (e.text || "").toLowerCase();
