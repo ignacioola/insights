@@ -218,13 +218,21 @@ Graph.prototype = {
     },
 
     onZoom: function() {
+        this.refreshZoom();
+    },
+
+    refreshZoom: function(animate) {
         var zoom = this._zoom;
         var trans = this.getTranslation();
         var scale = this.getScale();
 
-        //var x = trans[0] - scale*(this.xCenter - this.width / 2 );
-        //var y = trans[1] - scale*(this.yCenter - this.height / 2);
-        this.baseGroup.attr("transform", "translate(" + trans + ")" + " scale(" + scale + ")");
+        
+        if (animate) {
+            this.baseGroup.transition().duration(500).attr('transform', 
+                'translate(' + zoom.translate() + ') scale(' + zoom.scale() + ')');
+        } else {
+            this.baseGroup.attr("transform", "translate(" + trans + ")" + " scale(" + scale + ")");
+        }
 
         this.displayTitle();
     },
@@ -235,10 +243,11 @@ Graph.prototype = {
 
         zoom.scale(scale);
 
-        this.baseGroup.transition().duration(500).attr('transform', 
-            'translate(' + zoom.translate() + ') scale(' + zoom.scale() + ')');
+        this.refreshZoom(true);
+        //this.baseGroup.transition().duration(500).attr('transform', 
+        //    'translate(' + zoom.translate() + ') scale(' + zoom.scale() + ')');
 
-        this.displayTitle();
+        //this.displayTitle();
     },
 
     zoomIn: function() {
@@ -375,7 +384,7 @@ Graph.prototype = {
                 self.show();
 
                 self.focus(self.massCenter);
-                self.onZoom();
+                self.refreshZoom();
                 self.onRendered();
             }
         }
@@ -717,7 +726,7 @@ Graph.prototype = {
 
     focus: function(l) {
         this.translateTo([this.width/2, this.height/2], l);
-        this.onZoom();
+        this.refreshZoom(true);
     },
 
     getScale: function() {
