@@ -1,5 +1,4 @@
 *.swp
 export.sh
 *.DS_Store
-build/
 components/

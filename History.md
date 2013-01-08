@@ -1,3 +1,9 @@
+# 0.4 (8-1-2012)
+* Added bind, emitter deps.
+* Removed underscore dep.
+* Updated d3 repo & dep.
+* Tooltip optional.
+
 # 0.2
 * Added collisionAlpha option.
 * Added focus function.
