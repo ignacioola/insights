@@ -11,7 +11,7 @@
     <script src="../build/build.js"></script>
     <script>
       !function() {
-        var d3 = require("component-d3/d3.v2")(),
+        var d3 = require("ignacioola-d3/d3"),
             InsightsGraph = require("insights-graph");
 
         d3.json("data.json", function(data) {
@@ -24,6 +24,23 @@
             height: screen.height
           });
 
+          graph.on("reset", function() {
+            console.log("reset");
+          });
+
+          graph.on("node:click", function(d) {
+            console.log("click", d);
+          });
+
+          graph.on("node:mouseover", function(d, offset) {
+            console.log("mouseover", d, offset);
+          });
+
+          graph.on("node:mouseout", function(d, offset) {
+            console.log("mouseout", d, offset);
+          });
+
+          graph.tooltip("<div>word: {{text}}</div><div>count: {{count}}</div>");
         });
       }();
     </script>

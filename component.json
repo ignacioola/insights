@@ -2,15 +2,22 @@
   "name": "insights-graph",
   "version": "0.3",
   "description": "An interactive d3 force graph.",
-  "keywords": ["d3", "force", "graph"],
+  "keywords": [
+    "d3",
+    "force",
+    "graph"
+  ],
   "dependencies": {
-    "component/d3": "*",
-    "component/underscore": "*",
-    "visionmedia/minstache": "*"
+    "ignacioola/d3": "*",
+    "visionmedia/minstache": "*",
+    "component/emitter": "*",
+    "component/bind": "*"
   },
   "development": {},
   "scripts": [
-    "src/tooltip.js", "src/graph.js", "index.js"
+    "src/tooltip.js",
+    "src/graph.js",
+    "index.js"
   ],
   "styles": [
     "insights-graph.css"

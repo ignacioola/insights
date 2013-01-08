@@ -1,5 +1,6 @@
-var  _ = require("underscore"),
-    d3 = require("d3")(),
+var bind = require("bind"),
+    Emitter = require("emitter"),
+    d3 = require("d3"),
     Tooltip = require("./tooltip");
 
 var UNSELECTED_COLOR = "transparent"; //"#EFEFEF";
@@ -32,7 +33,7 @@ function Graph(el, nodes, links, options) {
     this.sizeAttr = options.sizeAttr || DEFAULT_SIZE_ATTR;
     
     if (options.initialScale) {
-        this.initialScale = options.initialScale;
+        this._initialScale = options.initialScale;
     }
 
     this.max = {};
@@ -43,9 +44,7 @@ function Graph(el, nodes, links, options) {
     this.processScales();
     this.init();
 
-    this.tooltip = new Tooltip({
-        template: options.tooltipTemplate ||TOOLTIP_TEMPLATE
-    }); 
+    options.tooltipTemplate && this.tooltip(options.tooltipTemplate);
 
     this.render();
 }
@@ -133,8 +132,8 @@ Graph.prototype = {
         
         this._zoom = d3.behavior.zoom().translate([0,0]);
 
-        if (this.initialScale) {
-            this._zoom = this._zoom.scale(this.initialScale);
+        if (this._initialScale) {
+            this._zoom = this._zoom.scale(this._initialScale);
         }
 
         this.$el = this.getElement();
@@ -145,7 +144,7 @@ Graph.prototype = {
                 .attr("width", this.width)
                 .attr("height", this.height)
                 .attr("pointer-events", "all")
-                .call(this._zoom.on("zoom", _(this.onZoom).bind(this))
+                .call(this._zoom.on("zoom", bind(this, this.onZoom))
                                .scaleExtent(this.scaleExtent))
 
         this.baseGroup = this.svg.append('svg:g')
@@ -281,10 +280,9 @@ Graph.prototype = {
         var path = this.d3Path = this.baseGroup.append("svg:g").selectAll("path")
             .data(force.links())
             .enter().append("svg:path")
-            .attr("stroke", _(this.pathStroke).bind(this))
+            .attr("stroke", bind(this, this.pathStroke))
             .attr("stroke-width", DEFAULT_PATH_STROKE_WIDTH)
             .attr("fill", "none");
-            //.attr("marker-end", function(d) { return "url(#" + d.type + ")"; }); // QUE ES ESTO??
         
         var node = this.d3Nodes = this.baseGroup.selectAll(".node")
             .data(force.nodes())
@@ -292,8 +290,7 @@ Graph.prototype = {
             .attr("class", "node")
             .on("mouseover", onMouseOver)
             .on("mouseout", onMouseOut)
-            .on("click", _(this.onCircleClick).bind(this));
-            //.call(force.drag)
+            .on("click", bind(this, this.onCircleClick));
 
         var circle = this.d3Circles = node.append("circle")
             .style("fill", circleFill)
@@ -322,6 +319,9 @@ Graph.prototype = {
 
                 self.focus(self.massCenter);
                 self.refreshZoom();
+                self.emit("rendered");
+
+                // deprecated call
                 self.onRendered();
             }
         }
@@ -342,11 +342,13 @@ Graph.prototype = {
                     top: currentMousePos.y + 10 
                 };
 
-            self.tooltip.show(offset, d);
+            self._tooltip && self._tooltip.show(offset, d);
+            self.emit("node:mouseover", d, offset);
         }
 
         function onMouseOut(d) {
-            self.tooltip.hide();
+            self._tooltip && self._tooltip.hide();
+            self.emit("node:mouseout", d);
         }
     },
 
@@ -407,6 +409,8 @@ Graph.prototype = {
 
         this.selectNode(d);
         this.draw();
+
+        this.emit("node:click", d);
     },
 
     selectNode: function(d) {
@@ -421,7 +425,6 @@ Graph.prototype = {
         if (this.adjacents[d.id]) {
             this.adjacentNodes = this.adjacents[d.id];
         }
-
     },
 
     isSelected: function(node) {
@@ -544,6 +547,9 @@ Graph.prototype = {
         this.reset();
 
         if (!preventTrigger) {
+            this.emit("reset");
+
+            // deprecated call
             this.onReset();
         }
 
@@ -606,7 +612,7 @@ Graph.prototype = {
     },
 
     /**
-     * Hace que los nodos no se peguen.
+     * Prevents nodes from sticking up together ( best effort )
      */
     collide: function(node, alpha) {
         var self = this,
@@ -688,8 +694,16 @@ Graph.prototype = {
 
     getClusterColor: function(cluster) {
         return this.clusters[cluster];
+    },
+
+    tooltip: function(tmpl) {
+        this._tooltip = new Tooltip({
+            template: tmpl || TOOLTIP_TEMPLATE
+        }); 
     }
 }
+
+Emitter(Graph.prototype);
 
 var currentMousePos = { x: -1, y: -1 };
 d3.select(window).on("mousemove", function(d) {
