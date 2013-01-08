@@ -44,6 +44,7 @@ function Graph(el, nodes, links, options) {
     this.processScales();
     this.init();
 
+    this.tooltipOn();
     options.tooltipTemplate && this.tooltip(options.tooltipTemplate);
 
     this.render();
@@ -342,12 +343,13 @@ Graph.prototype = {
                     top: currentMousePos.y + 10 
                 };
 
-            self._tooltip && self._tooltip.show(offset, d);
+
+            self.showTooltip(offset, d);
             self.emit("node:mouseover", d, offset);
         }
 
         function onMouseOut(d) {
-            self._tooltip && self._tooltip.hide();
+            self.hideTooltip();
             self.emit("node:mouseout", d);
         }
     },
@@ -700,6 +702,23 @@ Graph.prototype = {
         this._tooltip = new Tooltip({
             template: tmpl || TOOLTIP_TEMPLATE
         }); 
+    },
+
+    showTooltip: function(offset, d) {
+        this._tooltip && this._tooltipOn && this._tooltip.show(offset, d);
+    },
+
+    hideTooltip: function() {
+        this._tooltip && this._tooltip.hide();
+    },
+
+    tooltipOn: function() {
+        this._tooltipOn = true;
+    },
+
+    tooltipOff: function() {
+        this.hideTooltip();
+        this._tooltipOn = false;
     }
 }
 

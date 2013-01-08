@@ -3,6 +3,7 @@
 * Removed underscore dep.
 * Updated d3 repo & dep.
 * Tooltip optional.
+* Added tooltip on/off methods.
 
 # 0.2
 * Added collisionAlpha option.
