@@ -8362,7 +8362,7 @@ module.exports = function(obj, fn){
 };
 
 });
-require.register("insights-graph/src/tooltip.js", function(exports, require, module){
+require.register("insights/src/tooltip.js", function(exports, require, module){
 var minstache = require("minstache");
 
 function Tooltip(options) {
@@ -8435,7 +8435,7 @@ Tooltip.prototype = {
 module.exports = Tooltip;
 
 });
-require.register("insights-graph/src/graph.js", function(exports, require, module){
+require.register("insights/src/graph.js", function(exports, require, module){
 var bind = require("bind"),
     Emitter = require("emitter"),
     d3 = require("d3"),
@@ -9162,17 +9162,17 @@ function hasMatchData(d) {
 module.exports = Graph;
 
 });
-require.register("insights-graph/index.js", function(exports, require, module){
+require.register("insights/index.js", function(exports, require, module){
 var graph = require("./src/graph");
 module.exports = graph;
 
 });
-require.alias("ignacioola-d3/d3.js", "insights-graph/deps/d3/d3.js");
-require.alias("ignacioola-d3/d3.js", "insights-graph/deps/d3/index.js");
+require.alias("ignacioola-d3/d3.js", "insights/deps/d3/d3.js");
+require.alias("ignacioola-d3/d3.js", "insights/deps/d3/index.js");
 
-require.alias("visionmedia-minstache/index.js", "insights-graph/deps/minstache/index.js");
+require.alias("visionmedia-minstache/index.js", "insights/deps/minstache/index.js");
 
-require.alias("component-emitter/index.js", "insights-graph/deps/emitter/index.js");
+require.alias("component-emitter/index.js", "insights/deps/emitter/index.js");
 
-require.alias("component-bind/index.js", "insights-graph/deps/bind/index.js");
+require.alias("component-bind/index.js", "insights/deps/bind/index.js");
 

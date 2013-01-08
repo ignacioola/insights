@@ -1,5 +1,5 @@
 
-build: components src/tooltip.js src/graph.js index.js insights-graph.css
+build: components src/tooltip.js src/graph.js index.js insights.css
 	@component build --dev
 
 components: component.json
