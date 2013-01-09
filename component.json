@@ -1,0 +1,25 @@
+{
+  "name": "insights",
+  "version": "0.4",
+  "description": "An interactive d3 force graph.",
+  "keywords": [
+    "d3",
+    "force",
+    "graph"
+  ],
+  "dependencies": {
+    "ignacioola/d3": "*",
+    "visionmedia/minstache": "*",
+    "component/emitter": "*",
+    "component/bind": "*"
+  },
+  "development": {},
+  "scripts": [
+    "src/tooltip.js",
+    "src/graph.js",
+    "index.js"
+  ],
+  "styles": [
+    "insights.css"
+  ]
+}
