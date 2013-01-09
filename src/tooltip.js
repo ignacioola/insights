@@ -6,7 +6,12 @@ function Tooltip(options) {
     this._data = {};
 
     this._createElement();
-    this.renderTemplate = minstache.compile(options.template);
+
+    try {
+        this.renderTemplate = minstache.compile(options.template);
+    } catch(err) {
+        throw new Error("Error parsing tooltip template.", err);
+    }
 }
 
 Tooltip.prototype = {
