@@ -1,19 +1,17 @@
-Insights Graph
-==============
+Insights 
+========
 
-A customized force layout written with d3.js. Demo [here](http://ignacioola.github.com/insights-graph/demo/)
+An interactive force graph written with d3. 
 
-## Downloads:
-* Version packaged with dependencies: [insights.packaged.js](https://raw.github.com/ignacioola/insights-graph/master/dist/insights.packaged.js)
-* Version without dependencies: [insights.js](https://raw.github.com/ignacioola/insights-graph/master/dist/insights.js)
+Demo [here](http://ignacioola.github.com/insights/demo/)
 
-## Stylesheet
-* A default optional stylesheet is available: [insights-default.css](https://raw.github.com/ignacioola/insights-graph/master/dist/insights-default.css)
+## Installation
+    $ component install ignacioola/insights
 
-## Dependencies:
-* [d3.js](https://github.com/mbostock/d3) (tested with version 2.10.3)
-* [underscore.js](https://github.com/documentcloud/underscore/) (tested with version 1.4.3)
-* [Mustache.js](https://github.com/janl/mustache.js) (tested with version 0.7.1)
+## Usage
+```javascript
+var Insights = require("insights");
+```
 
 ## Minimal input example
 
@@ -23,22 +21,19 @@ var nodes = [
         id: 1,
         text: "apple",
         size: 9,
-        cluster: 5,
-        count: 1034
+        cluster: 5
     },
     {
         id: 2,
         text: "google",
         size: 7,
-        cluster: 2,
-        count: 534
+        cluster: 2
     },
     {
         id: 3,
         text: "microsoft",
         size: 5,
-        cluster: 1,
-        count: 432
+        cluster: 1
     }
 ];
 
@@ -53,15 +48,13 @@ var links = [
 
 ```javascript
 var el = document.getElementById("container");
-new InsightsGraph(el, nodes, links)
+var graph = new Insights(el, nodes, links)
 ```
 
-## Adding an onRendered callback
+## Adding a rendered callback
 
 ```javascript
-new InsightsGraph(el, nodes, links, {
-    onRendered: function() {
-        // hide loader
-    }
+graph.on("rendered", function() {
+    // hide loader, ...
 });
 ```
