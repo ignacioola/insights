@@ -1,11 +1,14 @@
 Insights 
 ========
 
-An interactive force graph written with d3 and distributed with [component.js](https://github.com/component/component). 
+An interactive force graph written with d3. 
 
 Demo [here](http://ignacioola.github.com/insights/demo/)
 
 ## Installation
+
+Insights is packaged and distributed with [component.js](https://github.com/component/component).
+
     $ component install ignacioola/insights
 
 ## Usage
