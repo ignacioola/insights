@@ -1,7 +1,7 @@
 Insights 
 ========
 
-An interactive force graph written with d3. 
+An interactive force graph written with d3 and distributed with [component.js](https://github.com/component/component). 
 
 Demo [here](http://ignacioola.github.com/insights/demo/)
 
