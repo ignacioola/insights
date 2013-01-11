@@ -3,15 +3,18 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Insights graph demo</title>
-    <link rel="stylesheet" href="../../dist/insights-default.css" />
+    <link rel="stylesheet" href="../../build/build.css" />
   </head>
   <body>
     <div id="parent"></div>
 
-    <script src="../../dist/insights.packaged.js"></script>
+    <script src="../../build/build.js"></script>
 
     <script>
       !function() {
+        var d3 = require("ignacioola-d3/d3"),
+            InsightsGraph = require("insights");
+
         d3.json("8N.json", function(data) {
           var nodes = data[0],
               links = data[1],
@@ -26,7 +29,7 @@
               var secs = parseFloat(new Date() -start) / 1000;
               console.log("rendered in ", secs, " seconds");
             }
-          });
+          }).tooltip();
 
         });
       }();

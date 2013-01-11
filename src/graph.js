@@ -50,7 +50,7 @@ function Graph(el, nodes, links, options) {
     this.render();
 }
 
-Graph.version = "0.3";
+Graph.version = "0.5";
 
 Graph.prototype = {
     constructor: Graph,
@@ -451,9 +451,12 @@ Graph.prototype = {
         var isThereMatch = this.isThereMatch();
 
         circle.style('fill', function(e) {
+
             if (selectedNode) {
                 if (self.isAdjacent(e)) {
                     if (isThereMatch && isMatched(e) ||!isThereMatch) {
+                        // HACK: reordering for zindex
+                        this.parentNode.parentNode.appendChild(this.parentNode);
                         return self.getClusterColor(e.cluster);
                     } else {
                         return UNSELECTED_COLOR;
@@ -462,6 +465,8 @@ Graph.prototype = {
                     return UNSELECTED_COLOR;
                 }
             } else if (isThereMatch && isMatched(e)) {
+                // HACK: reordering for zindex
+                this.parentNode.parentNode.appendChild(this.parentNode);
                 return self.getClusterColor(e.cluster);
             } else {
                 return UNSELECTED_COLOR;
