@@ -50,7 +50,7 @@ function Graph(el, nodes, links, options) {
     this.render();
 }
 
-Graph.version = "0.3";
+Graph.version = "0.5";
 
 Graph.prototype = {
     constructor: Graph,

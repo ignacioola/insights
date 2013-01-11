@@ -1,3 +1,6 @@
+# 0.5 (11-1-2012)
+* Z-Index fix
+
 # 0.4 (8-1-2012)
 * Added bind, emitter deps.
 * Removed underscore dep.
