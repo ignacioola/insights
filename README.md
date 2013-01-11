@@ -65,7 +65,7 @@ graph.on("rendered", function() {
 ## Events
 
 * `rendered`: when the chart has finished rendering.
-* `reset`: when the chart is resetted.
+* `reset`: when the chart is reseted.
 * `node:click`: when a node is clicked.
 * `node:mouseover`: when the mouse is over a node.
 * `node:mouseout`: when the mouse goes out from a node.
