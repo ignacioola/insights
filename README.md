@@ -54,10 +54,26 @@ var el = document.getElementById("container");
 var graph = new Insights(el, nodes, links)
 ```
 
-## Adding a rendered callback
+## Adding a an event handler
 
 ```javascript
 graph.on("rendered", function() {
     // hide loader, ...
 });
+```
+
+## Events
+
+* `rendered`: when the chart has finished rendering.
+* `reset`: when the chart is resetted.
+* `node:click`: when a node is clicked.
+* `node:mouseover`: when the mouse is over a node.
+* `node:mouseout`: when the mouse goes out from a node.
+
+## Adding a tooltip
+
+Using mustache synthax:
+
+```javascript
+graph.tooltip("<div>name: {{text}}</div><div>count: {{count}}</div>")
 ```
