@@ -28,6 +28,10 @@
             console.log("reset");
           });
 
+          graph.on("focus", function(d) {
+            console.log("focus", d);
+          });
+
           graph.on("node:click", function(d) {
             console.log("click", d);
           });

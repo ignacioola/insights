@@ -444,7 +444,7 @@ Graph.prototype = {
             this.adjacentNodes = this.adjacents[node.id];
         }
 
-        return;
+        return node;
     },
 
     isSelected: function(node) {
@@ -595,8 +595,7 @@ Graph.prototype = {
         var n;
 
         if (focus) {
-            this.selectNode(fn);
-            this.selectedNode && this.draw();
+            this.focus(fn);
         } else {
             this.select(fn);
         }
@@ -610,6 +609,7 @@ Graph.prototype = {
         options = options || {};
             
         if (options.exact) {
+            debugger;
             fn = function(d) {
                 return getText(d).toLowerCase() == matchText;
             };
