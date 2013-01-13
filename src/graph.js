@@ -609,7 +609,6 @@ Graph.prototype = {
         options = options || {};
             
         if (options.exact) {
-            debugger;
             fn = function(d) {
                 return getText(d).toLowerCase() == matchText;
             };
