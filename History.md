@@ -1,3 +1,11 @@
+# NEXT
+* `center` method added.
+* Optimized drawing.
+* Selection methods standarized.
+* Fodrawing
+* Center method
+* Added focus event.
+
 # 0.5 (11-1-2012)
 * Z-Index fix
 
