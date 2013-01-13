@@ -103,7 +103,7 @@ It returns the graph to it's original state.
 
 Selects all the nodes that match the given function.
     
-### Insights#focus(fh, center)
+### Insights#focus(fn, center)
 
 Focuses the graph on only one node that matches `fn`, if `center=true` it centers the graph on that node.
     
@@ -117,9 +117,9 @@ Selects all the nodes that it's text contains a substring of the passed `text` a
     
 Selects all the nodes that belong to the passed cluster. The `cluster` argument can also be a list of cluster names.
     
-### Insights#selectBySize(max, min)
+### Insights#selectBySize(min, max)
 
-Selects all the nodes wich size is in the range [ max, min ].
+Selects all the nodes wich size is in the range [ min, max ].
 
 ### Insights#tooltip(tmpl)
 
