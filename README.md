@@ -123,7 +123,7 @@ Selects all the nodes wich size is in the range [ min, max ].
 
 ### Insights#tooltip(tmpl)
 
-Adds a tooltip with the given template to the node:mouseover event.
+Adds a tooltip with the given template to the `node:mouseover` event.
     
 ### Insights#zoomIn()
 
@@ -139,7 +139,7 @@ Zooms the graph to the given `scale`.
     
 ### Insights#center()
     
-Centers the graph, if there's a selected node, it will be centered on it, if not it will center the graph on the mass center.
+Centers the graph. If there's a selected node it will be centered around it, if not it will center the graph on the mass center.
     
 ### Insights#getClusters()
 
