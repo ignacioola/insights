@@ -23,8 +23,6 @@ function Graph(el, nodes, links, options) {
     this.el = el;
     this.links = links;
     this.nodes = nodes;
-    this.onRendered = options.onRendered ||function() {};
-    this.onReset = options.onReset || function() {};
     this.width = options.width || DEFAULT_WIDTH;
     this.height = options.height ||DEFAULT_HEIGHT;
     this.color = d3.scale.category20();
@@ -50,28 +48,32 @@ function Graph(el, nodes, links, options) {
     this.render();
 }
 
-Graph.version = "0.5";
+Graph.version = "0.6";
 
 Graph.prototype = {
     constructor: Graph,
 
     processData: function() {
-        var self = this;
-        var nodesHash = {};
-        var maxSize = 0;
-        var maxWeight = 0;
-        var adjacents= {}
-        var linksList = [];
-        var clusters = {};
+        var self = this,
+            nodesHash = {},
+            maxSize = 0,
+            maxWeight = 0,
+            adjacents= {},
+            linksList = [],
+            clusters = {},
+            getCluster = bind(this, this.getCluster),
+            getSize = bind(this, this.getSize);
 
         this.nodes.forEach(function(n) {
-            maxSize = Math.max(maxSize, self.getSize(n));
+            var cluster = getCluster(n);
+
+            maxSize = Math.max(maxSize, getSize(n));
             n.name = n.id;
             nodesHash[n.id] = nodesHash[n.id] || n;
 
-            if (n.cluster != null) {
+            if (cluster != null) {
                 // caching cluster data
-                clusters[n.cluster] = self.color(n.cluster);
+                clusters[cluster] = self.color(cluster);
             }
         });
 
@@ -181,10 +183,6 @@ Graph.prototype = {
         zoom.scale(scale);
 
         this.refreshZoom(true);
-        //this.baseGroup.transition().duration(500).attr('transform', 
-        //    'translate(' + zoom.translate() + ') scale(' + zoom.scale() + ')');
-
-        //this.displayTitle();
     },
 
     zoomIn: function() {
@@ -249,26 +247,25 @@ Graph.prototype = {
 
     pathStroke: function(d) {
         var source = d.source,
-        target = d.target;
+            target = d.target;
 
         if (this.getSize(target) > this.getSize(source)) {
-            return this.getClusterColor(target.cluster);
+            return this.getClusterColor(target);
         } else {
-            return this.getClusterColor(source.cluster);
+            return this.getClusterColor(source);
         }
     },
-
 
     render: function() {
         var self = this;
         var nodesHash = {};
         var nodes = this.nodes;
 
-        function circleFill(d) { return self.getClusterColor(d.cluster); }
+        function circleFill(d) { return self.getClusterColor(d); }
         function circleRadius(d) { return self.radiusScale(self.getSize(d) ||1); }
 
         var force = this.force = d3.layout.force()
-            .nodes(d3.values(this.nodesHash)) // lo pasa de {a:1, b:2} a [1, 2]
+            .nodes(d3.values(this.nodesHash)) // turns {a:1, b:2} into [1, 2]
             .links(this.linksList)
             .size([this.width, this.height])
             .linkDistance(60)
@@ -289,8 +286,8 @@ Graph.prototype = {
             .data(force.nodes())
             .enter().append("g")
             .attr("class", "node")
-            .on("mouseover", onMouseOver)
-            .on("mouseout", onMouseOut)
+            .on("mouseover", bind(this, this.onMouseOver))
+            .on("mouseout", bind(this, this.onMouseOut))
             .on("click", bind(this, this.onCircleClick));
 
         var circle = this.d3Circles = node.append("circle")
@@ -301,7 +298,7 @@ Graph.prototype = {
             .attr("text-anchor", "middle")
             .attr("dy", ".35em")
             .style("display", "none")
-            .text(function(d) { return d.text; });
+            .text(function(d) { return self.getText(d); });
 
         function tick(e) {
             if (force.alpha() < DEFAULT_FORCE_ALPHA_LIMIT) {
@@ -312,45 +309,14 @@ Graph.prototype = {
 
                 self.positionNodes();
                 self.generateLinks();
-
-                self.processCenterCoords();
+                self.center();
 
                 // showing canvas after finished rendering
                 self.show();
 
-                self.focus(self.massCenter);
                 self.refreshZoom();
                 self.emit("rendered");
-
-                // deprecated call
-                self.onRendered();
             }
-        }
-
-        function onMouseOver(d) {
-            var selectedNode = self.selectedNode;
-
-            if (self.selectedNode && !self.isSelected(d) && !self.isAdjacent(d)) {
-                return;
-            }
-
-            if (self.isThereMatch() && !isMatched(d)) {
-                return;
-            }
-
-            var offset = { 
-                    left: currentMousePos.x + 10, 
-                    top: currentMousePos.y + 10 
-                };
-
-
-            self.showTooltip(offset, d);
-            self.emit("node:mouseover", d, offset);
-        }
-
-        function onMouseOut(d) {
-            self.hideTooltip();
-            self.emit("node:mouseout", d);
         }
     },
 
@@ -415,18 +381,70 @@ Graph.prototype = {
         this.emit("node:click", d);
     },
 
+    onMouseOver: function(d) {
+        var selectedNode = this.selectedNode;
+
+        if (this.selectedNode && !this.isSelected(d) && !this.isAdjacent(d)) {
+            return;
+        }
+
+        if (this.isThereMatch() && !isMatched(d)) {
+            return;
+        }
+
+        var offset = { 
+            left: currentMousePos.x + 10, 
+            top: currentMousePos.y + 10 
+        };
+
+
+        this.showTooltip(offset, d);
+        this.emit("node:mouseover", d, offset);
+    },
+
+    onMouseOut: function(d) {
+        this.hideTooltip();
+
+        if (this.selectedNode && !this.isSelected(d) && !this.isAdjacent(d)) {
+            return;
+        }
+
+        if (this.isThereMatch() && !isMatched(d)) {
+            return;
+        }
+
+        this.emit("node:mouseout", d);
+    },
+
     selectNode: function(d) {
+        var node, fn;
         // In this case we want no match data, just the clicked circle data
         if (this.isThereMatch()) {
             this._reset();
         }
 
-        this.selectedNode = d;
-
-
-        if (this.adjacents[d.id]) {
-            this.adjacentNodes = this.adjacents[d.id];
+        if (typeof d === "function") {
+            fn = d;
+            this.d3Nodes.each(function(e) {
+                if (fn(e)) {
+                    node = e;
+                }
+            });
+        } else {
+            node = d;
         }
+
+        if (!node) {
+            return;
+        }
+
+        this.selectedNode = node;
+
+        if (this.adjacents[node.id]) {
+            this.adjacentNodes = this.adjacents[node.id];
+        }
+
+        return;
     },
 
     isSelected: function(node) {
@@ -441,82 +459,71 @@ Graph.prototype = {
         return this.matching;
     },
 
-    draw: function() {
+    draw: function(fn) {
         var self = this;
         var circle = this.d3Circles;
         var path = this.d3Path;
         var titles = this.d3TitleNodes;
         var adjacentNodes = this.adjacentNodes || {};
         var selectedNode = this.selectedNode;
+
+        if (fn) {
+            this.matching = true;
+        }
+
         var isThereMatch = this.isThereMatch();
 
         circle.style('fill', function(e) {
+            if (fn) {
+                e._matched = fn(e);
+            }
 
-            if (selectedNode) {
-                if (self.isAdjacent(e)) {
-                    if (isThereMatch && isMatched(e) ||!isThereMatch) {
-                        // HACK: reordering for zindex
-                        this.parentNode.parentNode.appendChild(this.parentNode);
-                        return self.getClusterColor(e.cluster);
-                    } else {
-                        return UNSELECTED_COLOR;
-                    }
-                } else {
-                    return UNSELECTED_COLOR;
-                }
-            } else if (isThereMatch && isMatched(e)) {
+            var el = this;
+            var $el = d3.select(el);
+            var yes = function(e, highlight) {
                 // HACK: reordering for zindex
-                this.parentNode.parentNode.appendChild(this.parentNode);
-                return self.getClusterColor(e.cluster);
-            } else {
+                el.parentNode.parentNode.appendChild(el.parentNode);
+                $el.style("cursor", "pointer");
+
+                var stroke = DEFAULT_CIRCLE_STROKE;
+                if (highlight) {
+                    stroke = d3.rgb(self.getClusterColor(e)).darker();
+                } 
+                $el.style("stroke", stroke);
+                return self.getClusterColor(e);
+            }
+            var no = function(d) {
+                $el.style("cursor", "default");
+                $el.style("stroke", UNSELECTED_COLOR);
                 return UNSELECTED_COLOR;
             }
-        }).style("stroke", function(e) {
-            if (selectedNode) {
-                if (self.isSelected(e)) {
-                    if (isThereMatch && isMatched(e) ||!isThereMatch) {
-                        return d3.rgb(self.getClusterColor(e.cluster)).darker();
-                    } else {
-                        return UNSELECTED_COLOR;
-                    }
-                } else if (self.isAdjacent(e)) {
-                    if (isThereMatch && isMatched(e) ||!isThereMatch) {
-                        return DEFAULT_CIRCLE_STROKE;
-                    } else {
-                        return UNSELECTED_COLOR;
-                    }
-                } else {
-                    return UNSELECTED_COLOR;
-                }
-            } else if (isThereMatch && isMatched(e)) {
-                return DEFAULT_CIRCLE_STROKE;
-            } else {
-                return UNSELECTED_COLOR;
+
+            if (self.isSelected(e)) {
+                return yes(e, true);
             }
+            
+            if (isMatched(e) || selectedNode && self.isAdjacent(e)) {
+                return yes(e);
+            }
+
+            return no(e);
         });
 
         path.attr("stroke", function(e) {
-            if (selectedNode) {
-                if (self.isSelected(e.source) || self.isSelected(e.target)) {
-                    if (isThereMatch && isMatched(e.source) && isMatched(e.target) ||!isThereMatch) {
-                        return self.pathStroke(e);
-                    } else {
-                        return UNSELECTED_COLOR;
-                    }
-                } else {
-                    return UNSELECTED_COLOR;
+                var yes = function(e) { return self.pathStroke(e) },
+                    no = UNSELECTED_COLOR;
+
+                if (self.isSelected(e.source) || self.isSelected(e.target) || isMatched(e.source) && isMatched(e.target)) {
+                    return yes(e);
                 }
-            } else if (isThereMatch && isMatched(e.source) && isMatched(e.target)) {
-                return self.pathStroke(e);
-            } else {
-                return UNSELECTED_COLOR;
-            }
-        }).attr("stroke-width", function(e) {
+
+                return no;
+            }).attr("stroke-width", function(e) {
                 if (self.isSelected(e.source) || self.isSelected(e.target)) {
                     return SELECTED_PATH_STROKE_WIDTH;
-                } else {
-                    return DEFAULT_PATH_STROKE_WIDTH;
                 }
+
+                return DEFAULT_PATH_STROKE_WIDTH;
             });
 
         this.displayTitle();
@@ -534,10 +541,9 @@ Graph.prototype = {
         circle.style('fill', function(e) {
                 // reseting selection
                 delete e._matched; 
-                return self.getClusterColor(e.cluster);
-            }).style("stroke", function(e) {
-                return DEFAULT_CIRCLE_STROKE;
-            });
+                return self.getClusterColor(e);
+            }).style("stroke", DEFAULT_CIRCLE_STROKE)
+              .style("cursor", "pointer");
 
         path.attr("stroke-width", function(e, i) {
                 return DEFAULT_PATH_STROKE_WIDTH;
@@ -555,54 +561,77 @@ Graph.prototype = {
 
         if (!preventTrigger) {
             this.emit("reset");
+        }
+    },
 
-            // deprecated call
-            this.onReset();
+    /**
+     * Will show all the nodes that match fn's result.
+     * 
+     * @api public
+     */
+    select: function(fn) {
+        if (this.selectedNode) {
+            this.reset();
         }
 
+        this.draw(fn);
     },
 
-    setMatchs: function(fn) {
-        this.matching = true;
-        this.d3Nodes.each(function(e) {
-            e._matched = fn(e);
-        });
+    /**
+     * Will put focus in one node that matches the fn result
+     * 
+     * @api public
+     */
+    focus: function(fn, center) {
+        var n = this.selectNode(fn);
+        if (n) {
+            center && this.center([n.x, n.y]);
+            this.draw();
+            this.emit("focus", n);
+        }
     },
 
-    selectBy: function(fn) {
-        this.setMatchs(fn);
-        this.draw();
+    selectBy: function(fn, focus) {
+        var n;
+
+        if (focus) {
+            this.selectNode(fn);
+            this.selectedNode && this.draw();
+        } else {
+            this.select(fn);
+        }
+    },
+
+    selectByText: function(text, options) {
+        var fn, 
+            matchText = text.toLowerCase(),
+            getText = bind(this, this.getText);
+
+        options = options || {};
+            
+        if (options.exact) {
+            fn = function(d) {
+                return getText(d).toLowerCase() == matchText;
+            };
+            this.selectBy(fn, true);
+        } else {
+            fn = function(d) {
+                var nodeText = getText(d).toLowerCase();
+                return !!(~nodeText.indexOf(matchText));
+            };
+            this.selectBy(fn);
+        }
     },
 
     selectByTextExact: function(text) {
-        var matchText = text.toLowerCase();
-
-        var n;
-        this.d3Nodes.each(function(d) {
-            if (d.text.toLowerCase() == matchText) 
-                n = d;
-        });
-
-        if (n) {
-            this.selectNode(n);
-            this.draw();
-            this.focus([n.x, n.y]);
-        }
-    },
-
-    // rename to selectByTextPartial
-    selectByText: function(text) {
-        var matchText = text.toLowerCase();
-
-        this.selectBy(function(e) {
-            var nodeText = (e.text || "").toLowerCase();
-            return !!(~nodeText.indexOf(matchText));
-        });
+        return this.selectByText(text, { exact: true } );
     },
 
     selectByCluster: function(cluster) {
+        var getCluster = bind(this, this.getCluster);
+
         this.selectBy(function(e) {
-            var c = e.cluster;
+            var c = getCluster(e);
 
             if (c != null) {
                 c = c.toString()
@@ -615,6 +644,14 @@ Graph.prototype = {
 
             // if a value is passed
             return c == cluster;
+        });
+    },
+
+    selectBySize: function(min, max) {
+        var self = this;
+        this.selectBy(function(d) {
+            var s = self.getSize(d);
+            return min <= s && s <= max;
         });
     },
 
@@ -673,8 +710,29 @@ Graph.prototype = {
 
         this._zoom.translate(translate);
     },
+    /**
+     * centers the graph on a point, if no point is passed, the mass center of
+     * the graph is used.
+     *
+     * @api public
+     *
+     */
+    center: function(l) {
+        var n;
 
-    focus: function(l) {
+        if (!l) {
+            n = this.selectedNode;
+            if (n) {
+                l = [ n.x, n.y ];
+            } else {
+                if (!this.massCenter) {
+                    this.processCenterCoords();
+                }
+
+                l = this.massCenter;
+            }
+        }
+
         this.translateTo([this.width/2, this.height/2], l);
         this.refreshZoom(true);
     },
@@ -691,8 +749,16 @@ Graph.prototype = {
         return d3.select(this.el);
     },
 
-    getSize: function(d) {
-        return d[this.sizeAttr] || 0;
+    getSize: function(node) {
+        return node[this.sizeAttr] || 0;
+    },
+
+    getText: function(node) {
+        return node.text;
+    },
+
+    getCluster: function(node) {
+        return node.cluster;
     },
 
     getClusters: function() {
@@ -700,7 +766,15 @@ Graph.prototype = {
     },
 
     getClusterColor: function(cluster) {
-        return this.clusters[cluster];
+        var c;
+
+        if (typeof cluster === "object") {
+            c = this.getCluster(cluster);
+        } else {
+            c= cluster;
+        }
+
+        return this.clusters[c];
     },
 
     tooltip: function(tmpl) {
@@ -724,6 +798,10 @@ Graph.prototype = {
     tooltipOff: function() {
         this.hideTooltip();
         this._tooltipOn = false;
+    },
+
+    getSelectedNode: function() {
+        return this.selectNode;
     }
 }
 
