@@ -8491,7 +8491,7 @@ function Graph(el, nodes, links, options) {
     this.render();
 }
 
-Graph.version = "0.6";
+Graph.version = "0.6.1";
 
 Graph.prototype = {
     constructor: Graph,
@@ -8818,9 +8818,7 @@ Graph.prototype = {
         d3.event.preventDefault();
         d3.event.stopPropagation();
 
-        this.selectNode(d);
-        this.draw();
-
+        this.focus(d);
         this.emit("node:click", d);
     },
 
@@ -9024,6 +9022,9 @@ Graph.prototype = {
      * Will put focus in one node that matches the fn result
      * 
      * @api public
+     *
+     * @param fn {Object|Function}
+     * @param center {Boolean}
      */
     focus: function(fn, center) {
         var n = this.selectNode(fn);
