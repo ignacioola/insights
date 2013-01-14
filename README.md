@@ -80,3 +80,71 @@ Using mustache synthax:
 ```javascript
 graph.tooltip("<div>name: {{text}}</div><div>count: {{count}}</div>")
 ```
+
+## API 
+
+### Insights(el, nodes, links)
+
+Creates a new graph on the `el` element with the given nodes and links. Available options include:
+
+* `width`: the graph width.
+* `height`: the graph height.
+* `collisionAlpha`: indicates for how long the graph will try to avoid collisions between it`s nodes.
+* `scaleExtent`: [min, max] scale.
+* `initialScale`: the chart's initial scale.
+* `sizeAttr`: with wich key er find the size on the node's data.
+* `tooltipTemplate`: adds a tooltip with the passed template.
+    
+### Insights#reset()
+
+It returns the graph to it's original state.
+
+### Insights#select(fn)
+
+Selects all the nodes that match the given function.
+    
+### Insights#focus(fn, center)
+
+Focuses the graph on only one node that matches `fn`, if `center=true` it centers the graph on that node.
+    
+### Insights#selectByText(text, options)
+
+Selects all the nodes that it's text contains a substring of the passed `text` argument. Options include:
+    
+* `exact`: if passed, the graph will focus on a node that matches exactly the passed `text` argument.
+    
+### Insights#selectByCluster(cluster)
+    
+Selects all the nodes that belong to the passed cluster. The `cluster` argument can also be a list of cluster names.
+    
+### Insights#selectBySize(min, max)
+
+Selects all the nodes wich size is in the range [ min, max ].
+
+### Insights#tooltip(tmpl)
+
+Adds a tooltip with the given template to the `node:mouseover` event.
+    
+### Insights#zoomIn()
+
+Zooms in the graph.
+    
+### Insights#zoomOut()
+
+Zooms out the graph.
+    
+### Insights#zoom(scale)
+
+Zooms the graph to the given `scale`.
+    
+### Insights#center()
+    
+Centers the graph. If there's a selected node it will be centered around it, if not it will center the graph on the mass center.
+    
+### Insights#getClusters()
+
+Returns a hash of the available clusters and it's colors.
+
+## Licence
+
+MIT
