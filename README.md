@@ -83,7 +83,7 @@ graph.tooltip("<div>name: {{text}}</div><div>count: {{count}}</div>")
 
 ## API 
 
-### Insights(el, nodes, links)
+### Insights(el, nodes, links, options)
 
 Creates a new graph on the `el` element with the given nodes and links. Available options include:
 
