@@ -48,7 +48,7 @@ function Graph(el, nodes, links, options) {
     this.render();
 }
 
-Graph.version = "0.6.1";
+Graph.version = "0.7";
 
 Graph.prototype = {
     constructor: Graph,
@@ -583,10 +583,9 @@ Graph.prototype = {
      * @param fn {Object|Function}
      * @param center {Boolean}
      */
-    focus: function(fn, center) {
+    focus: function(fn) {
         var n = this.selectNode(fn);
         if (n) {
-            center && this.center([n.x, n.y]);
             this.draw();
             this.emit("focus", n);
         }

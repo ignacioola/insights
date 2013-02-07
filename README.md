@@ -103,9 +103,9 @@ It returns the graph to it's original state.
 
 Selects all the nodes that match the given function.
     
-### Insights#focus(fn, center)
+### Insights#focus(fn)
 
-Focuses the graph on only one node that matches `fn`, if `center=true` it centers the graph on that node.
+Focuses the graph on only one node that matches `fn`.
     
 ### Insights#selectByText(text, options)
 

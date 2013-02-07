@@ -1,6 +1,6 @@
 {
   "name": "insights",
-  "version": "0.6.1",
+  "version": "0.7",
   "description": "An interactive d3 force graph.",
   "keywords": [
     "d3",
