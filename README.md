@@ -101,11 +101,11 @@ It returns the graph to it's original state.
 
 ### Insights#select(fn)
 
-Selects all the nodes that match the given function.
+Selects all the nodes that for wich `fn` result evaluates to `true`.
     
 ### Insights#focus(fn)
 
-Focuses the graph on only one node that matches `fn`.
+Focuses the graph on the first node for wich `fn` result evaluates to `true`.
     
 ### Insights#selectByText(text, options)
 
