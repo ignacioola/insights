@@ -622,6 +622,18 @@ Graph.prototype = {
         }
     },
 
+    focusByText: function(text) {
+        var fn, 
+            matchText = text.toLowerCase(),
+            getText = bind(this, this.getText);
+
+        fn = function(d) {
+            return getText(d).toLowerCase() == matchText;
+        };
+
+        this.selectBy(fn, true);
+    },
+
     selectByTextExact: function(text) {
         return this.selectByText(text, { exact: true } );
     },

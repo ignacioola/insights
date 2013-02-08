@@ -1,4 +1,8 @@
-# NEXT
+# 0.7
+* focusByText method
+* center param removed from focus().
+
+# 0.6
 * `center` method added.
 * Optimized drawing.
 * Selection methods standarized.
