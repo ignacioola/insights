@@ -1,5 +1,5 @@
-Insights 
-========
+Insights.js
+===========
 
 An interactive force graph written with d3. 
 
@@ -94,6 +94,7 @@ Creates a new graph on the `el` element with the given nodes and links. Availabl
 * `initialScale`: the chart's initial scale.
 * `sizeAttr`: with wich key er find the size on the node's data.
 * `tooltipTemplate`: adds a tooltip with the passed template.
+* `defaultColors`: an object containing the colors for each cluster. For example: `{ "0": "blue", "1": "red" } `.
     
 ### Insights#reset()
 
@@ -147,7 +148,7 @@ Returns a hash of the available clusters and it's colors.
 
 ## Used In..
 
-[#8N Report](http://blog.zenzey.com/reports/8N)
+[#8N Analisis](http://blog.zenzey.com/reports/8N) Twitter analysis of a major social event in Argentina.
 
 ## Licence
 

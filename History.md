@@ -1,3 +1,6 @@
+# 0.7.1
+* Added `defaultColors` option.
+
 # 0.7
 * focusByText method
 * center param removed from focus().

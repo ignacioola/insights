@@ -25,10 +25,11 @@ function Graph(el, nodes, links, options) {
     this.nodes = nodes;
     this.width = options.width || DEFAULT_WIDTH;
     this.height = options.height ||DEFAULT_HEIGHT;
-    this.color = d3.scale.category20();
     this.collisionAlpha = options.collisionAlpha || DEFAULT_COLLISION_ALPHA;
     this.scaleExtent = options.scaleExtent || ZOOM_SCALE_EXTENT;
     this.sizeAttr = options.sizeAttr || DEFAULT_SIZE_ATTR;
+    this.color = d3.scale.category20();
+    this.colors = options.defaultColors || {};
     
     if (options.initialScale) {
         this._initialScale = options.initialScale;
@@ -48,7 +49,7 @@ function Graph(el, nodes, links, options) {
     this.render();
 }
 
-Graph.version = "0.7";
+Graph.version = "0.7.1";
 
 Graph.prototype = {
     constructor: Graph,
@@ -60,7 +61,6 @@ Graph.prototype = {
             maxWeight = 0,
             adjacents= {},
             linksList = [],
-            clusters = {},
             getCluster = bind(this, this.getCluster),
             getSize = bind(this, this.getSize);
 
@@ -71,9 +71,9 @@ Graph.prototype = {
             n.name = n.id;
             nodesHash[n.id] = nodesHash[n.id] || n;
 
-            if (cluster != null) {
+            if (cluster != null && self.colors[cluster] == null) {
                 // caching cluster data
-                clusters[cluster] = self.color(cluster);
+                self.colors[cluster] = self.color(cluster);
             }
         });
 
@@ -106,7 +106,6 @@ Graph.prototype = {
         this.nodesHash = nodesHash;
 
         this.max.size = maxSize;
-        this.clusters = clusters;
     },
 
     processScales: function() {
@@ -591,16 +590,6 @@ Graph.prototype = {
         }
     },
 
-    selectBy: function(fn, focus) {
-        var n;
-
-        if (focus) {
-            this.focus(fn);
-        } else {
-            this.select(fn);
-        }
-    },
-
     selectByText: function(text, options) {
         var fn, 
             matchText = text.toLowerCase(),
@@ -612,13 +601,13 @@ Graph.prototype = {
             fn = function(d) {
                 return getText(d).toLowerCase() == matchText;
             };
-            this.selectBy(fn, true);
+            this.focus(fn);
         } else {
             fn = function(d) {
                 var nodeText = getText(d).toLowerCase();
                 return !!(~nodeText.indexOf(matchText));
             };
-            this.selectBy(fn);
+            this.select(fn);
         }
     },
 
@@ -631,7 +620,7 @@ Graph.prototype = {
             return getText(d).toLowerCase() == matchText;
         };
 
-        this.selectBy(fn, true);
+        this.focus(fn);
     },
 
     selectByTextExact: function(text) {
@@ -641,7 +630,7 @@ Graph.prototype = {
     selectByCluster: function(cluster) {
         var getCluster = bind(this, this.getCluster);
 
-        this.selectBy(function(e) {
+        this.select(function(e) {
             var c = getCluster(e);
 
             if (c != null) {
@@ -660,7 +649,7 @@ Graph.prototype = {
 
     selectBySize: function(min, max) {
         var self = this;
-        this.selectBy(function(d) {
+        this.select(function(d) {
             var s = self.getSize(d);
             return min <= s && s <= max;
         });
@@ -773,7 +762,7 @@ Graph.prototype = {
     },
 
     getClusters: function() {
-        return this.clusters;
+        return this.colors;
     },
 
     getClusterColor: function(cluster) {
@@ -785,7 +774,7 @@ Graph.prototype = {
             c= cluster;
         }
 
-        return this.clusters[c];
+        return this.colors[c];
     },
 
     tooltip: function(tmpl) {
