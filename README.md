@@ -145,6 +145,10 @@ Centers the graph. If there's a selected node it will be centered around it, if 
 
 Returns a hash of the available clusters and it's colors.
 
+## Used In..
+
+[#8N Report](http://blog.zenzey.com/reports/8N)
+
 ## Licence
 
 MIT
