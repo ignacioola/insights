@@ -92,7 +92,7 @@ Creates a new graph on the `el` element with the given nodes and links. Availabl
 * `collisionAlpha`: indicates for how long the graph will try to avoid collisions between it`s nodes.
 * `scaleExtent`: [min, max] scale.
 * `initialScale`: the chart's initial scale.
-* `sizeAttr`: with wich key er find the size on the node's data.
+* `sizeAttr`: wich key we use to find the size on the node's data.
 * `tooltipTemplate`: adds a tooltip with the passed template.
 * `defaultColors`: an object containing the colors for each cluster. For example: `{ "0": "blue", "1": "red" } `.
     
