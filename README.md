@@ -108,12 +108,14 @@ Selects all the nodes that for wich `fn` result evaluates to `true`.
 
 Focuses the graph on the first node for wich `fn` result evaluates to `true`.
     
-### Insights#selectByText(text, options)
+### Insights#selectByText(text)
 
-Selects all the nodes that it's text contains a substring of the passed `text` argument. Options include:
-    
-* `exact`: if passed, the graph will focus on a node that matches exactly the passed `text` argument.
-    
+Selects all the nodes that it's text contains a substring of the passed `text` argument.
+
+### Insights#focusByText(text)
+
+Focuses the graph on the first node that matches exactly the passed `text`.
+        
 ### Insights#selectByCluster(cluster)
     
 Selects all the nodes that belong to the passed cluster. The `cluster` argument can also be a list of cluster names.
