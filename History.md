@@ -1,3 +1,9 @@
+# Next
+* Cumulative filters.
+    * added isFiltering, addFilter, testFilter methods.
+    * removed arg fn from draw().
+    * removed matching context variable.
+
 # 0.7.1
 * Added `defaultColors` option.
 

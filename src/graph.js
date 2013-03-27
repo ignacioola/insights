@@ -215,13 +215,13 @@ Graph.prototype = {
         var adjacentNodes = this.adjacentNodes;
         var selectedNode = this.selectedNode;
         var hasSelection = !!this.selectedNode;
-        var isThereMatch = this.isThereMatch();
+        var isFiltering = this.isFiltering();
 
         this.d3TitleNodes.style("display", function(d) {
             var isDisplayable = self.isTitleDisplayable(d);
 
             if (isDisplayable && self.isSelected(d)) {
-                if (isThereMatch && !isMatched(d)) {
+                if (isFiltering && !isMatched(d)) {
                     return "none";
                 } else {
                     return "";
@@ -232,7 +232,7 @@ Graph.prototype = {
                 return "none"
             }
 
-            if (isThereMatch && !isMatched(d)) {
+            if (isFiltering && !isMatched(d)) {
                 return "none";
             }
 
@@ -367,7 +367,7 @@ Graph.prototype = {
             return;
         }
 
-        if (self.isThereMatch() && !isMatched(d)) {
+        if (self.isFiltering() && !isMatched(d)) {
             return;
         }
 
@@ -385,7 +385,7 @@ Graph.prototype = {
             return;
         }
 
-        if (this.isThereMatch() && !isMatched(d)) {
+        if (this.isFiltering() && !isMatched(d)) {
             return;
         }
 
@@ -406,7 +406,7 @@ Graph.prototype = {
             return;
         }
 
-        if (this.isThereMatch() && !isMatched(d)) {
+        if (this.isFiltering() && !isMatched(d)) {
             return;
         }
 
@@ -416,7 +416,7 @@ Graph.prototype = {
     selectNode: function(d) {
         var node, fn;
         // In this case we want no match data, just the clicked circle data
-        if (this.isThereMatch()) {
+        if (this.isFiltering()) {
             this._reset();
         }
 
@@ -452,8 +452,12 @@ Graph.prototype = {
         return !!this.adjacentNodes[node.id]
     },
 
-    isThereMatch: function() {
-        return this.matching;
+    isFiltering: function() {
+        return !!this.filters.length;
+    },
+    
+    getFilters: function() {
+        return this.filters;
     },
 
     draw: function(fn) {
@@ -463,16 +467,11 @@ Graph.prototype = {
         var titles = this.d3TitleNodes;
         var adjacentNodes = this.adjacentNodes || {};
         var selectedNode = this.selectedNode;
-
-        if (fn) {
-            this.matching = true;
-        }
-
-        var isThereMatch = this.isThereMatch();
+        var isFiltering = this.isFiltering();
 
         circle.style('fill', function(e) {
-            if (fn) {
-                e._matched = fn(e);
+            if (isFiltering) {
+                e._matched = self.testFilters(e);
             }
 
             var el = this;
@@ -533,7 +532,7 @@ Graph.prototype = {
 
         this.adjacentNodes = {};
         delete this.selectedNode;
-        delete this.matching;
+        this.filters = [];
 
         circle.style('fill', function(e) {
                 // reseting selection
@@ -561,6 +560,25 @@ Graph.prototype = {
         }
     },
 
+
+    addFilter: function(fn) {
+        this.filters.push(fn);
+    },
+
+    testFilters: function(node) {
+        var res = true,
+            filters = this.filters;
+
+        for (var i=0, len=filters.length; i<len; i++) {
+            if (!filters[i](node)) {
+                res = false;
+                break;
+            }
+        }
+
+        return res;
+    },
+
     /**
      * Will show all the nodes that match fn's result.
      * 
@@ -571,7 +589,7 @@ Graph.prototype = {
             this.reset();
         }
 
-        this.draw(fn);
+        this.addFilter(fn);
     },
 
     /**
