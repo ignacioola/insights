@@ -18,7 +18,7 @@ Insights is packaged and distributed with [component.js](https://github.com/comp
 var Insights = require("insights");
 ```
 
-## Minimal input example
+## Example Data
 
 ```javascript
 var nodes = [
@@ -69,6 +69,7 @@ graph.on("rendered", function() {
 * `rendered`: when the graph has finished rendering.
 * `reset`: when the graph is resetted.
 * `focus`: when the graph is focused on a node.
+* `nomatch`: when a filter is applied and no matching nodes where found.
 * `node:click`: when a node is clicked.
 * `node:mouseover`: when the mouse is over a node.
 * `node:mouseout`: when the mouse goes out from a node.
@@ -93,8 +94,8 @@ Creates a new graph on the `el` element with the given nodes and links. Availabl
 * `scaleExtent`: [min, max] scale.
 * `initialScale`: the chart's initial scale.
 * `sizeAttr`: with wich key er find the size on the node's data.
-* `tooltipTemplate`: adds a tooltip with the passed template.
-* `defaultColors`: an object containing the colors for each cluster. For example: `{ "0": "blue", "1": "red" } `.
+* `tooltip`: adds a tooltip with the passed template if a string if passed. If you pass a truthy value, that's not a string it uses the default template.
+* `defaultColors`: an object containing the colors for each cluster. For example: `{ "0": "blue", "1": "#FF0000" } `.
     
 ### Insights#reset()
 

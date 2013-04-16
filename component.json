@@ -4,6 +4,7 @@
   "description": "An interactive d3 force graph.",
   "keywords": [
     "d3",
+    "visualization",
     "force",
     "graph"
   ],
@@ -13,7 +14,6 @@
     "component/emitter": "*",
     "component/bind": "*"
   },
-  "development": {},
   "scripts": [
     "src/tooltip.js",
     "src/graph.js",

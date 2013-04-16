@@ -2,30 +2,33 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Insights graph demo</title>
-    <link rel="stylesheet" href="../build/build.css" />
+    <title>insights.js demo</title>
+    <link rel="stylesheet" href="../build/insights.css" />
   </head>
   <body>
     <div id="parent"></div>
 
-    <script src="../build/build.js"></script>
+    <script src="../build/insights.js"></script>
     <script>
       !function() {
-        var d3 = require("ignacioola-d3/d3"),
-            InsightsGraph = require("insights");
-
         d3.json("data.json", function(data) {
           var nodes = data[0],
               links = data[1],
-              el = document.getElementById("parent");
+              el = document.getElementById("parent"),
+              options = {
+                width: screen.width,
+                height: screen.height,
+                //width: 150,
+                //height: 150,
+                defaultColors: { "7": "blue" }
+              };
 
-          graph = new InsightsGraph(el, nodes, links, {
-            width: screen.width,
-            height: screen.height,
-            defaultColors: {
-              "7": "blue"
-            }
-          });
+          graph = new Insights(el, nodes, links, options)
+                      .focusByText("color")
+                      .filter({ cluster: 0, size: [500] })
+                      //.zoom(0.2)
+                      .render();
+                      //.center();
 
           graph.on("reset", function() {
             console.log("reset");

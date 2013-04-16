@@ -3,34 +3,28 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Insights graph demo</title>
-    <link rel="stylesheet" href="../../build/build.css" />
+    <link rel="stylesheet" href="../../build/insights.css" />
   </head>
   <body>
     <div id="parent"></div>
 
-    <script src="../../build/build.js"></script>
+    <script src="../../build/insights.js"></script>
 
     <script>
       !function() {
-        var d3 = require("ignacioola-d3/d3"),
-            InsightsGraph = require("insights");
-
         d3.json("8N.json", function(data) {
           var nodes = data[0],
               links = data[1],
               el = document.getElementById("parent");
 
-          start = new Date();
-          graph = new InsightsGraph(el, nodes, links, {
+          graph = new Insights(el, nodes, links, {
             width: screen.width,
             height: screen.height,
-            collisionAlpha: 30,
-            onRendered: function() {
-              var secs = parseFloat(new Date() -start) / 1000;
-              console.log("rendered in ", secs, " seconds");
-            }
-          }).tooltip();
+            tooltip: true,
+            collisionAlpha: 15
+          });
 
+          graph.zoom(.5).focusByText("infobae").render();
         });
       }();
     </script>

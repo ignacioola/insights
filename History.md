@@ -1,8 +1,22 @@
 # Next
-* Cumulative filters.
+* Cumulative selection filters.
     * added isFiltering, addFilter, testFilter methods.
     * removed arg fn from draw().
     * removed matching context variable.
+* selectByTextExact removed (focus() can be used instead).
+* options removed from selectByText.
+* changed `getSelectedNode()` for `getFocusedNode()`.
+* changed `isSelected()` for `isFocused()`.
+* `draw()` changed for `update()`
+* `select()` changed for `filter()`
+* `selectBySize()` changed for `filterBySize()`
+* `selectByCluster()` changed for `filterByCluster()`
+* `selectByText()` changed for `filterByText()`
+* `filterBySize()` accepts `null` to avoid using min or max values to filter.
+* `focusByText()` is case-insensitive now.
+* `getNode()` added.
+* `getFocusedNode()` added.
+* `getAdjacents()` added.
 
 # 0.7.1
 * Added `defaultColors` option.
