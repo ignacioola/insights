@@ -1,7 +1,8 @@
-var bind = require("bind"),
-  Emitter = require("emitter"),
-  d3 = require("d3"),
-  Tooltip = require("./tooltip");
+var bind = require("bind")
+  , Emitter = require("emitter")
+  , d3 = require("d3")
+  , toFunction = require('to-function')
+  , Tooltip = require("./tooltip");
 
 var UNSELECTED_COLOR = "transparent"; //"#EFEFEF";
 var DEFAULT_PATH_STROKE_WIDTH = .3;
@@ -158,10 +159,9 @@ Graph.prototype = {
   },
 
   refreshZoom: function(animate) {
-    var zoom = this._zoom;
-    var trans = this.getTranslation();
-    var scale = this.getScale();
-
+    var zoom = this._zoom
+      , trans = this.getTranslation()
+      , scale = this.getScale();
     
     if (animate) {
       this.baseGroup.transition().duration(500).attr('transform', 
@@ -181,8 +181,8 @@ Graph.prototype = {
       return this;
     }
 
-    var trans = this.getTranslation();
-    var zoom = this._zoom;
+    trans = this.getTranslation();
+    zoom = this._zoom;
 
     zoom.scale(scale);
 
@@ -192,8 +192,8 @@ Graph.prototype = {
   },
 
   zoomIn: function() {
-    var scale = this.getScale();
-    var k = Math.pow(2, Math.floor(Math.log(scale) / Math.LN2) + 1);
+    var scale = this.getScale()
+      , k = Math.pow(2, Math.floor(Math.log(scale) / Math.LN2) + 1);
 
     k = Math.min(k, this.scaleExtent[1]);
       
@@ -396,24 +396,19 @@ Graph.prototype = {
     this.emit("node:mouseout", d);
   },
 
-  focusNode: function(d) {
-    var node, fn;
+  findFocusedNode: function(fn) {
+    var n, i, len
+      , nodes = this.nodes;
 
-    if (typeof d === "function") {
-      fn = d;
-      this.nodes.forEach(function(e) {
-        if (fn(e)) {
-          node = e;
-        }
-      });
-    } else {
-      node = d;
+    for (var i=0, len=nodes.length; i<len; i++) {
+      n = nodes[i];
+      if (fn(n)) {
+        return n;
+      }
     }
+  },
 
-    if (!node) {
-      return;
-    }
-
+  focusNode: function(node) {
     this.focusedNode = node;
 
     if (this.adjacents[node.id]) {
@@ -520,7 +515,7 @@ Graph.prototype = {
     this.displayTitle();
 
     if (!isThereAVisibleNode) {
-      this.emit("nomatch");
+      this.emit("no match");
     }
   },
 
@@ -621,10 +616,24 @@ Graph.prototype = {
     return !!this.adjacentNodes[node.id]
   },
 
-  filterFn: {
+  fns: {
     text: 'filterByText',
     size: 'filterBySize',
     cluster: 'filterByCluster'
+  },
+
+  filterBy: function(key, val) {
+    var fn = this[this.fns[key]];
+
+    if (fn == null) {
+      throw new Error("invalid key: " + key);
+    }
+
+    if (Array.isArray(val)) {
+      return fn.apply(this, val);
+    } else {
+      return fn.call(this, val);
+    }
   },
 
   /**
@@ -632,40 +641,24 @@ Graph.prototype = {
    * 
    * @api public
    */
-  filter: function(key, val) {
-    var keyType = typeof key;
-    //var valType = typeof val;
-    var ret;
+  filter: function(obj) {
+    var type = ({}).toString.call(obj);
     
-    switch (keyType) {
-      case "function":
-        this.addFilter(key);
-        return this;
-      case "string":
-        var fn = this[this.filterFn[key]];
-
-        if (fn == null) {
-          throw new Error("invalid key: " + key);
-        }
-
-        if (Array.isArray(val)) {
-          return fn.apply(this, val);
-        } else {
-          return fn.call(this, val);
-        }
-      case "object":
-        for (var arg in key) {
-          if (key.hasOwnProperty(arg)) {
-            this.filter(arg, key[arg]);
+    switch (type) {
+      case "[object Function]":
+        this.addFilter(obj);
+      case "[object Object]":
+        for (var arg in obj) {
+          if (obj.hasOwnProperty(arg)) {
+            this.filterBy(arg, obj[arg]);
           }
         }
-        ret = this;
         break;
       default:
         throw new Error("invalid argument");
     }
 
-    return ret;
+    return this;
   },
 
   /**
@@ -673,34 +666,47 @@ Graph.prototype = {
    * 
    * @api public
    *
-   * @param fn {Object|Function}
+   * @param fn {Object|Function|Number|String}
    * @param center {Boolean}
    */
   focus: function(fn) {
-    var n;
+    var n, type = ({}).toString.call(fn);
 
-    n = this.focusNode(fn);
+    switch(type) {
+      case '[object Function]':
+        break;
+      case '[object Object]':
+        fn = toFunction(fn);
+        break;
+      case '[object Number]':
+      case '[object String]':
+        fn = toFunction({id: fn});
+        break;
+      default:
+        throw new Error('invalid argument');
+    }
+
+    n = this.findFocusedNode(fn);
 
     if (n) {
-      //this.update();
-      this.emit("focus", n);
+      this.focusNode(n);
     }
 
     return this;
   },
 
-  focusByText: function(text) {
-    var fn, 
-      getText = bind(this, this.getText);
+  //focusByText: function(text) {
+  //  var fn, 
+  //    getText = bind(this, this.getText);
 
-    text = text || "";
+  //  text = (text || "").toLowerCase();
 
-    fn = function(d) {
-      return getText(d).toLowerCase() == text.toLowerCase();
-    };
+  //  fn = function(d) {
+  //    return getText(d).toLowerCase() == text.toLowerCase();
+  //  };
 
-    return this.focus(fn);
-  },
+  //  return this.focus(fn);
+  //},
 
   filterByText: function(text) {
     var matchText = text.toLowerCase(),
@@ -726,7 +732,7 @@ Graph.prototype = {
       }
 
       // if an array is passed
-      if (typeof cluster == "object" && cluster.indexOf) {
+      if (cluster && cluster.indexOf) {
         return ~cluster.indexOf(c);
       }
 
@@ -787,15 +793,15 @@ Graph.prototype = {
   },
 
   location: function(p) {
-    var translate = this.getTranslation(),
-      scale = this.getScale();
+    var translate = this.getTranslation()
+      , scale = this.getScale();
 
     return [(p[0] - translate[0]) / scale, (p[1] - translate[1]) / scale];
   },
 
   point: function(l) {
-    var translate = this.getTranslation(),
-      scale = this.getScale();
+    var translate = this.getTranslation()
+      , scale = this.getScale();
 
     return [l[0] * scale + translate[0], l[1] * scale + translate[1]];
   },
@@ -929,8 +935,8 @@ Graph.prototype = {
   },
 
   getAdjacents: function(nodeId) {
-    var ret = [];
-    var adjacents = []; 
+    var ret = []
+      , adjacents = []; 
 
     if (nodeId == null) {
       adjacents = this.adjacentNodes;

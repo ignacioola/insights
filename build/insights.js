@@ -207,6 +207,107 @@ require.relative = function(parent) {
 
   return localRequire;
 };
+require.register("component-to-function/index.js", function(exports, require, module){
+
+/**
+ * Expose `toFunction()`.
+ */
+
+module.exports = toFunction;
+
+/**
+ * Convert `obj` to a `Function`.
+ *
+ * @param {Mixed} obj
+ * @return {Function}
+ * @api private
+ */
+
+function toFunction(obj) {
+  switch ({}.toString.call(obj)) {
+    case '[object Object]':
+      return objectToFunction(obj);
+    case '[object Function]':
+      return obj;
+    case '[object String]':
+      return stringToFunction(obj);
+    case '[object RegExp]':
+      return regexpToFunction(obj);
+    default:
+      return defaultToFunction(obj);
+  }
+}
+
+/**
+ * Default to strict equality.
+ *
+ * @param {Mixed} val
+ * @return {Function}
+ * @api private
+ */
+
+function defaultToFunction(val) {
+  return function(obj){
+    return val === obj;
+  }
+}
+
+/**
+ * Convert `re` to a function.
+ *
+ * @param {RegExp} re
+ * @return {Function}
+ * @api private
+ */
+
+function regexpToFunction(re) {
+  return function(obj){
+    return re.test(obj);
+  }
+}
+
+/**
+ * Convert property `str` to a function.
+ *
+ * @param {String} str
+ * @return {Function}
+ * @api private
+ */
+
+function stringToFunction(str) {
+  // immediate such as "> 20"
+  if (/^ *\W+/.test(str)) return new Function('_', 'return _ ' + str);
+
+  // properties such as "name.first" or "age > 18"
+  return new Function('_', 'return _.' + str);
+}
+
+/**
+ * Convert `object` to a function.
+ *
+ * @param {Object} object
+ * @return {Function}
+ * @api private
+ */
+
+function objectToFunction(obj) {
+  var match = {}
+  for (var key in obj) {
+    match[key] = typeof obj[key] === 'string'
+      ? defaultToFunction(obj[key])
+      : toFunction(obj[key])
+  }
+  return function(val){
+    if (typeof val !== 'object') return false;
+    for (var key in match) {
+      if (!(key in val)) return false;
+      if (!match[key](val[key])) return false;
+    }
+    return true;
+  }
+}
+
+});
 require.register("ignacioola-d3/d3.js", function(exports, require, module){
 (function() {
   var d3_format_decimalPoint = ".", d3_format_thousandsSeparator = ",", d3_format_grouping = [ 3, 3 ];
@@ -8452,10 +8553,11 @@ module.exports = Tooltip;
 
 });
 require.register("insights/src/graph.js", function(exports, require, module){
-var bind = require("bind"),
-  Emitter = require("emitter"),
-  d3 = require("d3"),
-  Tooltip = require("./tooltip");
+var bind = require("bind")
+  , Emitter = require("emitter")
+  , d3 = require("d3")
+  , toFunction = require('to-function')
+  , Tooltip = require("./tooltip");
 
 var UNSELECTED_COLOR = "transparent"; //"#EFEFEF";
 var DEFAULT_PATH_STROKE_WIDTH = .3;
@@ -8612,10 +8714,9 @@ Graph.prototype = {
   },
 
   refreshZoom: function(animate) {
-    var zoom = this._zoom;
-    var trans = this.getTranslation();
-    var scale = this.getScale();
-
+    var zoom = this._zoom
+      , trans = this.getTranslation()
+      , scale = this.getScale();
     
     if (animate) {
       this.baseGroup.transition().duration(500).attr('transform', 
@@ -8635,8 +8736,8 @@ Graph.prototype = {
       return this;
     }
 
-    var trans = this.getTranslation();
-    var zoom = this._zoom;
+    trans = this.getTranslation();
+    zoom = this._zoom;
 
     zoom.scale(scale);
 
@@ -8646,8 +8747,8 @@ Graph.prototype = {
   },
 
   zoomIn: function() {
-    var scale = this.getScale();
-    var k = Math.pow(2, Math.floor(Math.log(scale) / Math.LN2) + 1);
+    var scale = this.getScale()
+      , k = Math.pow(2, Math.floor(Math.log(scale) / Math.LN2) + 1);
 
     k = Math.min(k, this.scaleExtent[1]);
       
@@ -8850,24 +8951,19 @@ Graph.prototype = {
     this.emit("node:mouseout", d);
   },
 
-  focusNode: function(d) {
-    var node, fn;
+  findFocusedNode: function(fn) {
+    var n, i, len
+      , nodes = this.nodes;
 
-    if (typeof d === "function") {
-      fn = d;
-      this.nodes.forEach(function(e) {
-        if (fn(e)) {
-          node = e;
-        }
-      });
-    } else {
-      node = d;
+    for (var i=0, len=nodes.length; i<len; i++) {
+      n = nodes[i];
+      if (fn(n)) {
+        return n;
+      }
     }
+  },
 
-    if (!node) {
-      return;
-    }
-
+  focusNode: function(node) {
     this.focusedNode = node;
 
     if (this.adjacents[node.id]) {
@@ -8974,7 +9070,7 @@ Graph.prototype = {
     this.displayTitle();
 
     if (!isThereAVisibleNode) {
-      this.emit("nomatch");
+      this.emit("no match");
     }
   },
 
@@ -9075,10 +9171,24 @@ Graph.prototype = {
     return !!this.adjacentNodes[node.id]
   },
 
-  filterFn: {
+  fns: {
     text: 'filterByText',
     size: 'filterBySize',
     cluster: 'filterByCluster'
+  },
+
+  filterBy: function(key, val) {
+    var fn = this[this.fns[key]];
+
+    if (fn == null) {
+      throw new Error("invalid key: " + key);
+    }
+
+    if (Array.isArray(val)) {
+      return fn.apply(this, val);
+    } else {
+      return fn.call(this, val);
+    }
   },
 
   /**
@@ -9086,40 +9196,24 @@ Graph.prototype = {
    * 
    * @api public
    */
-  filter: function(key, val) {
-    var keyType = typeof key;
-    //var valType = typeof val;
-    var ret;
+  filter: function(obj) {
+    var type = ({}).toString.call(obj);
     
-    switch (keyType) {
-      case "function":
-        this.addFilter(key);
-        return this;
-      case "string":
-        var fn = this[this.filterFn[key]];
-
-        if (fn == null) {
-          throw new Error("invalid key: " + key);
-        }
-
-        if (Array.isArray(val)) {
-          return fn.apply(this, val);
-        } else {
-          return fn.call(this, val);
-        }
-      case "object":
-        for (var arg in key) {
-          if (key.hasOwnProperty(arg)) {
-            this.filter(arg, key[arg]);
+    switch (type) {
+      case "[object Function]":
+        this.addFilter(obj);
+      case "[object Object]":
+        for (var arg in obj) {
+          if (obj.hasOwnProperty(arg)) {
+            this.filterBy(arg, obj[arg]);
           }
         }
-        ret = this;
         break;
       default:
         throw new Error("invalid argument");
     }
 
-    return ret;
+    return this;
   },
 
   /**
@@ -9127,34 +9221,47 @@ Graph.prototype = {
    * 
    * @api public
    *
-   * @param fn {Object|Function}
+   * @param fn {Object|Function|Number|String}
    * @param center {Boolean}
    */
   focus: function(fn) {
-    var n;
+    var n, type = ({}).toString.call(fn);
 
-    n = this.focusNode(fn);
+    switch(type) {
+      case '[object Function]':
+        break;
+      case '[object Object]':
+        fn = toFunction(fn);
+        break;
+      case '[object Number]':
+      case '[object String]':
+        fn = toFunction({id: fn});
+        break;
+      default:
+        throw new Error('invalid argument');
+    }
+
+    n = this.findFocusedNode(fn);
 
     if (n) {
-      //this.update();
-      this.emit("focus", n);
+      this.focusNode(n);
     }
 
     return this;
   },
 
-  focusByText: function(text) {
-    var fn, 
-      getText = bind(this, this.getText);
+  //focusByText: function(text) {
+  //  var fn, 
+  //    getText = bind(this, this.getText);
 
-    text = text || "";
+  //  text = (text || "").toLowerCase();
 
-    fn = function(d) {
-      return getText(d).toLowerCase() == text.toLowerCase();
-    };
+  //  fn = function(d) {
+  //    return getText(d).toLowerCase() == text.toLowerCase();
+  //  };
 
-    return this.focus(fn);
-  },
+  //  return this.focus(fn);
+  //},
 
   filterByText: function(text) {
     var matchText = text.toLowerCase(),
@@ -9180,7 +9287,7 @@ Graph.prototype = {
       }
 
       // if an array is passed
-      if (typeof cluster == "object" && cluster.indexOf) {
+      if (cluster && cluster.indexOf) {
         return ~cluster.indexOf(c);
       }
 
@@ -9241,15 +9348,15 @@ Graph.prototype = {
   },
 
   location: function(p) {
-    var translate = this.getTranslation(),
-      scale = this.getScale();
+    var translate = this.getTranslation()
+      , scale = this.getScale();
 
     return [(p[0] - translate[0]) / scale, (p[1] - translate[1]) / scale];
   },
 
   point: function(l) {
-    var translate = this.getTranslation(),
-      scale = this.getScale();
+    var translate = this.getTranslation()
+      , scale = this.getScale();
 
     return [l[0] * scale + translate[0], l[1] * scale + translate[1]];
   },
@@ -9383,8 +9490,8 @@ Graph.prototype = {
   },
 
   getAdjacents: function(nodeId) {
-    var ret = [];
-    var adjacents = []; 
+    var ret = []
+      , adjacents = []; 
 
     if (nodeId == null) {
       adjacents = this.adjacentNodes;
@@ -9421,6 +9528,8 @@ var graph = require("./src/graph");
 module.exports = graph;
 
 });
+require.alias("component-to-function/index.js", "insights/deps/to-function/index.js");
+
 require.alias("ignacioola-d3/d3.js", "insights/deps/d3/d3.js");
 require.alias("ignacioola-d3/d3.js", "insights/deps/d3/index.js");
 require.alias("ignacioola-d3/d3.js", "ignacioola-d3/index.js");

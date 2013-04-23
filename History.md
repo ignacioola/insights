@@ -17,6 +17,7 @@
 * `getNode()` added.
 * `getFocusedNode()` added.
 * `getAdjacents()` added.
+* tests added
 
 # 0.7.1
 * Added `defaultColors` option.

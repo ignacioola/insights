@@ -53,7 +53,7 @@ var links = [
 
 ```javascript
 var el = document.getElementById("container");
-var graph = new Insights(el, nodes, links)
+var graph = new Insights(el, nodes, links).render();
 ```
 
 ## Adding a an event handler
@@ -68,8 +68,7 @@ graph.on("rendered", function() {
 
 * `rendered`: when the graph has finished rendering.
 * `reset`: when the graph is resetted.
-* `focus`: when the graph is focused on a node.
-* `nomatch`: when a filter is applied and no matching nodes where found.
+* `no match`: when a filter is applied and no matching nodes where found.
 * `node:click`: when a node is clicked.
 * `node:mouseover`: when the mouse is over a node.
 * `node:mouseout`: when the mouse goes out from a node.
@@ -80,6 +79,56 @@ Using mustache synthax:
 
 ```javascript
 graph.tooltip("<div>name: {{text}}</div><div>count: {{count}}</div>")
+```
+
+## Filtering
+
+The filter function decides which nodes are visible and which are not.
+
+### Filter by ID
+```javascript
+graph.filter({ id: 1 });
+```
+
+### Filter by partial matched text
+```javascript
+graph.filter({ text: "micro"});
+```
+
+### Filter by size using a range of values
+```javascript
+graph.filter({ size: [1, 15]});
+```
+
+### Filter by clusters
+```javascript
+graph.filter({ cluster: 1});
+graph.filter({ cluster: [1, 2, 3]});
+```
+
+### Filtering by more than one value
+```javascript
+graph.filter({ text: "app", size: [1, 15]});
+```
+
+### Custom filters
+```javascript
+graph.filter(function(node) {
+  if (node.text == "something") {
+    return true;
+  } else {
+    return false;
+  }
+});
+```
+
+## Focusing
+
+With `.focus()` you can decide which node (and it's relations) get highlighted.
+
+### Focusing by ID
+```javascript
+graph.focus(1);
 ```
 
 ## API 
@@ -97,55 +146,55 @@ Creates a new graph on the `el` element with the given nodes and links. Availabl
 * `tooltip`: adds a tooltip with the passed template if a string if passed. If you pass a truthy value, that's not a string it uses the default template.
 * `defaultColors`: an object containing the colors for each cluster. For example: `{ "0": "blue", "1": "#FF0000" } `.
     
-### Insights#reset()
+### .reset()
 
 It returns the graph to it's original state.
 
-### Insights#select(fn)
+### .filter(function|object)
 
-Selects all the nodes that for wich `fn` result evaluates to `true`.
+Selects all the nodes that for which `fn` result evaluates to `true` or if an object passed by all of it's values.
     
-### Insights#focus(fn)
+### .focus(function|object|string|number)
 
 Focuses the graph on the first node for wich `fn` result evaluates to `true`.
     
-### Insights#selectByText(text)
+### .selectByText(text)
 
 Selects all the nodes that it's text contains a substring of the passed `text` argument.
 
-### Insights#focusByText(text)
+### .focusByText(text)
 
 Focuses the graph on the first node that matches exactly the passed `text`.
         
-### Insights#selectByCluster(cluster)
+### .selectByCluster(cluster)
     
 Selects all the nodes that belong to the passed cluster. The `cluster` argument can also be a list of cluster names.
     
-### Insights#selectBySize(min, max)
+### .selectBySize(min, max)
 
 Selects all the nodes wich size is in the range [ min, max ].
 
-### Insights#tooltip(tmpl)
+### .tooltip(tmpl)
 
 Adds a tooltip with the given template to the `node:mouseover` event.
     
-### Insights#zoomIn()
+### .zoomIn()
 
 Zooms in the graph.
     
-### Insights#zoomOut()
+### .zoomOut()
 
 Zooms out the graph.
     
-### Insights#zoom(scale)
+### .zoom(scale)
 
 Zooms the graph to the given `scale`.
     
-### Insights#center()
+### .center()
     
 Centers the graph. If there's a selected node it will be centered around it, if not it will center the graph on the mass center.
     
-### Insights#getClusters()
+### .getClusters()
 
 Returns a hash of the available clusters and it's colors.
 

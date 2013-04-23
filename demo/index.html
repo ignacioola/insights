@@ -24,7 +24,7 @@
               };
 
           graph = new Insights(el, nodes, links, options)
-                      .focusByText("color")
+                      .focus({ text: "color" })
                       .filter({ cluster: 0, size: [500] })
                       //.zoom(0.2)
                       .render();

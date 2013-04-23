@@ -9,6 +9,7 @@
     "graph"
   ],
   "dependencies": {
+    "component/to-function": "*",
     "ignacioola/d3": "*",
     "visionmedia/minstache": "*",
     "component/emitter": "*",
