@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>insights.js demo</title>
+    <link rel="stylesheet" href="../build/insights.css" />
+  </head>
+  <body>
+    <div id="parent"></div>
+
+    <script src="../build/insights.js"></script>
+    <script>
+      !function() {
+        d3.json("data.json", function(data) {
+          var nodes = data[0],
+              links = data[1],
+              el = document.getElementById("parent"),
+              options = {
+                width: screen.width,
+                height: screen.height,
+                defaultColors: { 
+                  0: "#FF0000", 
+                  3: "yellow", 
+                  4: "light-blue", 
+                  5: "#00FF00", 
+                  7: "blue", 
+                  8: "purple", 
+                  10: "pink", 
+                  11: "violet",
+                  14: "orange", 
+                }
+              };
+
+          graph = new Insights(el, nodes, links, options).render();
+        });
+      }();
+    </script>
+  </body>
+</html>

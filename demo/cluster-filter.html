@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>insights.js demo</title>
+    <link rel="stylesheet" href="../build/insights.css" />
+  </head>
+  <body>
+    <div id="buttons"></div>
+    <div id="parent"></div>
+
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="../build/insights.js"></script>
+    <script>
+
+      d3.json("data.json", function(data) {
+        var nodes = data[0],
+            links = data[1],
+            el = document.getElementById("parent"),
+            options = {
+              width: screen.width,
+              height: screen.height,
+              defaultColors: { "7": "blue" }
+            };
+
+        graph = new Insights(el, nodes, links, options).render();
+
+        clusters = graph.getClusters();
+
+        var buttons = $("#buttons");
+        for (var cluster in clusters) {
+          btn = $("<button>").text(cluster).val(cluster).click(function(ev) {
+            val = $(ev.target).val();
+            graph.reset().filter({ cluster: val }).update();
+          });
+
+          buttons.append(btn);
+        }
+
+      });
+    </script>
+  </body>
+</html>

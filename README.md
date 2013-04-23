@@ -85,30 +85,31 @@ graph.tooltip("<div>name: {{text}}</div><div>count: {{count}}</div>")
 
 The filter function decides which nodes are visible and which are not.
 
-### Filter by ID
+### Filter by id
 ```javascript
 graph.filter({ id: 1 });
 ```
 
-### Filter by partial matched text
+### Filter by partial text match 
 ```javascript
-graph.filter({ text: "micro"});
+graph.filter({ text: "micro" });
 ```
 
 ### Filter by size using a range of values
 ```javascript
-graph.filter({ size: [1, 15]});
+graph.filter({ size: [1, 15] });
 ```
 
 ### Filter by clusters
 ```javascript
-graph.filter({ cluster: 1});
-graph.filter({ cluster: [1, 2, 3]});
+graph.filter({ cluster: 1})
+//  or multi-cluster filter...
+graph.filter({ cluster: [1, 2, 3] })
 ```
 
 ### Filtering by more than one value
 ```javascript
-graph.filter({ text: "app", size: [1, 15]});
+graph.filter({ text: "app", size: [1, 15] })
 ```
 
 ### Custom filters
@@ -119,16 +120,23 @@ graph.filter(function(node) {
   } else {
     return false;
   }
-});
+})
 ```
 
 ## Focusing
 
 With `.focus()` you can decide which node (and it's relations) get highlighted.
 
-### Focusing by ID
+### Focusing by id
 ```javascript
 graph.focus(1);
+//  or
+graph.focus({ id: 1 });
+```
+
+## Focusing by exact text match
+```javascript
+graph.focus({ text: "Apple" })
 ```
 
 ## API 
@@ -146,10 +154,6 @@ Creates a new graph on the `el` element with the given nodes and links. Availabl
 * `tooltip`: adds a tooltip with the passed template if a string if passed. If you pass a truthy value, that's not a string it uses the default template.
 * `defaultColors`: an object containing the colors for each cluster. For example: `{ "0": "blue", "1": "#FF0000" } `.
     
-### .reset()
-
-It returns the graph to it's original state.
-
 ### .filter(function|object)
 
 Selects all the nodes that for which `fn` result evaluates to `true` or if an object passed by all of it's values.
@@ -157,22 +161,10 @@ Selects all the nodes that for which `fn` result evaluates to `true` or if an ob
 ### .focus(function|object|string|number)
 
 Focuses the graph on the first node for wich `fn` result evaluates to `true`.
-    
-### .selectByText(text)
 
-Selects all the nodes that it's text contains a substring of the passed `text` argument.
+### .reset()
 
-### .focusByText(text)
-
-Focuses the graph on the first node that matches exactly the passed `text`.
-        
-### .selectByCluster(cluster)
-    
-Selects all the nodes that belong to the passed cluster. The `cluster` argument can also be a list of cluster names.
-    
-### .selectBySize(min, max)
-
-Selects all the nodes wich size is in the range [ min, max ].
+It returns the graph to it's original state.
 
 ### .tooltip(tmpl)
 
@@ -198,7 +190,7 @@ Centers the graph. If there's a selected node it will be centered around it, if 
 
 Returns a hash of the available clusters and it's colors.
 
-## Used In..
+## Used by..
 
 [#8N Analisis](http://blog.zenzey.com/reports/8N) Twitter analysis of a major social event in Argentina.
 
