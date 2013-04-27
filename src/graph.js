@@ -724,6 +724,8 @@ Graph.prototype = {
 
   filterByCluster: function(cluster) {
     var getCluster = bind(this, this.getCluster);
+    var isArray = ({}).toString.apply(cluster) === '[object Array]';
+
     var fn = function(e) {
       var c = getCluster(e);
 
@@ -731,12 +733,10 @@ Graph.prototype = {
         c = c.toString()
       }
 
-      // if an array is passed
-      if (cluster && cluster.indexOf) {
+      if (isArray) {
         return ~cluster.indexOf(c);
       }
 
-      // if a value is passed
       return c == cluster;
     };
 

@@ -9,9 +9,14 @@ Demo [here](http://ignacioola.github.com/insights/demo/)
 
 ## Installation
 
-Insights is packaged and distributed with [component.js](https://github.com/component/component).
+### With component.js
+
+Insights can be installed with [component.js](https://github.com/component/component).
 
     $ component install ignacioola/insights
+
+### Without component.js
+    copy insights.standalone.js and insights.standalone.css onto your webpage.
 
 ## Usage
 ```javascript
@@ -82,8 +87,10 @@ graph.tooltip("<div>name: {{text}}</div><div>count: {{count}}</div>")
 ```
 
 ## Filtering
-
-The filter function decides which nodes are visible and which are not.
+The filter function decides which nodes are visible and which are not. Always after applying filters the graph must be updated by calling `update()`.
+```javascript
+graph.filters({...}).update();
+```
 
 ### Filter by id
 ```javascript
@@ -95,9 +102,14 @@ graph.filter({ id: 1 });
 graph.filter({ text: "micro" });
 ```
 
-### Filter by size using a range of values
+### Filter by size
 ```javascript
+// filter by a range of values
 graph.filter({ size: [1, 15] });
+// filter greater than.. 
+graph.filter({ size: [1, null] });
+// filter lower than..
+graph.filter({ size: [null, 15] });
 ```
 
 ### Filter by clusters
@@ -109,7 +121,7 @@ graph.filter({ cluster: [1, 2, 3] })
 
 ### Filtering by more than one value
 ```javascript
-graph.filter({ text: "app", size: [1, 15] })
+graph.filter({ text: "app", size: [1, 15], cluster: 0 })
 ```
 
 ### Custom filters
@@ -138,6 +150,7 @@ graph.focus({ id: 1 });
 ```javascript
 graph.focus({ text: "Apple" })
 ```
+This will focus the graph on the first found node that matches exactly the given text.
 
 ## API 
 
