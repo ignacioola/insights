@@ -307,38 +307,43 @@ Graph.prototype = {
   },
 
   show: function() {
-    this.baseGroup.style('display','block')
+    this.baseGroup.style('display','block');
   },
 
   hide: function() {
-    this.baseGroup.style('display','none')
+    this.baseGroup.style('display','none');
   },
 
   handleCollisions: function() {
-    var nodes = this.nodes,
-      q = d3.geom.quadtree(nodes),
-      i = 0,
-      len = nodes.length;
+    var nodes = this.nodes
+      , q = d3.geom.quadtree(nodes)
+      , i = 0
+      , len = nodes.length;
 
     while (++i < len) {
       q.visit(this.collide(nodes[i], this.collisionAlpha));
     }
   },
 
-  // Updates the position of the nodes
+  /** 
+   * Updates the position of the nodes.
+   */
   positionNodes: function() {
     this.d3Nodes.attr("transform", function(d) { 
       return "translate(" + d.x + "," + d.y + ")"; 
     });
   },
 
-  // Updates the position of the links
+  /**
+   * Updates the position of the links.
+   */
   positionLinks: function() {
     // curve line between nodes
     this.d3Path.attr("d", function(d) {
-      var dx = d.target.x - d.source.x,
-      dy = d.target.y - d.source.y,
-      dr = Math.sqrt(dx * dx + dy * dy);
+      var dx = d.target.x - d.source.x
+        , dy = d.target.y - d.source.y
+        , dr = Math.sqrt(dx * dx + dy * dy);
+
       return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
     });
   },
@@ -511,10 +516,15 @@ Graph.prototype = {
       });
   },
 
+  /**
+   * Updates the node's state.
+   */
   update: function() {
     this.updateCircles();
     this.updatePaths();
     this.updateTitles();
+
+    this.setState();
 
     if (!this.visibleNodeCount) {
       this.emit("no match");
@@ -522,7 +532,6 @@ Graph.prototype = {
   },
 
   resetView: function() {
-    var self = this;
     var circle = this.d3Circles;
     var path = this.d3Path;
 
