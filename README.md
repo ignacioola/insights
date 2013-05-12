@@ -16,7 +16,7 @@ Insights can be installed with [component.js](https://github.com/component/compo
     $ component install ignacioola/insights
 
 ### Without component.js
-    copy insights.standalone.js and insights.standalone.css onto your webpage.
+    add insights.standalone.js and insights.standalone.css to your webpage.
 
 ## Usage
 ```javascript
@@ -72,7 +72,6 @@ graph.on("rendered", function() {
 ## Events
 
 * `rendered`: when the graph has finished rendering.
-* `reset`: when the graph is resetted.
 * `no match`: when a filter is applied and no matching nodes where found.
 * `node:click`: when a node is clicked.
 * `node:mouseover`: when the mouse is over a node.
@@ -90,6 +89,11 @@ graph.tooltip("<div>name: {{text}}</div><div>count: {{count}}</div>")
 The filter function decides which nodes are visible and which are not. Always after applying filters the graph must be updated by calling `update()`.
 ```javascript
 graph.filters({...}).update();
+```
+
+To return to the graph initial state, you can call `reset()`.
+```javascript
+graph.reset();
 ```
 
 ### Filter by id
@@ -137,7 +141,7 @@ graph.filter(function(node) {
 
 ## Focusing
 
-With `.focus()` you can decide which node (and it's relations) get highlighted.
+With `.focus()` you can decide which node and it's relations get highlighted.
 
 ### Focusing by id
 ```javascript
@@ -146,11 +150,20 @@ graph.focus(1);
 graph.focus({ id: 1 });
 ```
 
-## Focusing by exact text match
+### Focusing by exact text match
 ```javascript
 graph.focus({ text: "Apple" })
 ```
-This will focus the graph on the first found node that matches exactly the given text.
+This will focus the graph on the first node that matches exactly the given text.
+
+## Method chaining
+You can apply filters even in the focused state.
+```javascript
+graph.focus({ id: 1 })
+     .filter({ size: [ 50, 100 ] })
+     .zoom(.2)
+     .update()
+```
 
 ## API 
 
@@ -160,7 +173,7 @@ Creates a new graph on the `el` element with the given nodes and links. Availabl
 
 * `width`: the graph width.
 * `height`: the graph height.
-* `collisionAlpha`: indicates for how long the graph will try to avoid collisions between it`s nodes.
+* `collisionAlpha`: used when trying to solve collisions to determine how far from each other to position nodes. Defaults to `0.5`. 
 * `scaleExtent`: [min, max] scale.
 * `initialScale`: the chart's initial scale.
 * `sizeAttr`: with wich key er find the size on the node's data.
@@ -171,7 +184,7 @@ Creates a new graph on the `el` element with the given nodes and links. Availabl
 
 Selects all the nodes that for which `fn` result evaluates to `true` or if an object passed by all of it's values.
     
-### .focus(function|object|string|number)
+### .focus(function|object|id)
 
 Focuses the graph on the first node for wich `fn` result evaluates to `true`.
 

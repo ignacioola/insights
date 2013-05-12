@@ -25,8 +25,6 @@ function Graph(el, nodes, links, options) {
   options = options || {};
 
   this.el = el;
-  this.links = links;
-  this.nodes = nodes;
   this.width = options.width || DEFAULT_WIDTH;
   this.height = options.height ||DEFAULT_HEIGHT;
   this.collisionAlpha = options.collisionAlpha || DEFAULT_COLLISION_ALPHA;
@@ -42,9 +40,10 @@ function Graph(el, nodes, links, options) {
   this.max = {};
   this.min = {};
   this.filters = [];
+  this.state = {};
 
-  this.adjacentNodes = {};
-  this.processData();
+  this.currentAdjacents = {};
+  this.processData(nodes, links);
   this.processScales();
   this.init();
 
@@ -56,7 +55,7 @@ Graph.version = "0.7.1";
 Graph.prototype = {
   constructor: Graph,
 
-  processData: function() {
+  processData: function(nodes, links) {
     var self = this,
       nodesHash = {},
       maxSize = 0,
@@ -66,7 +65,7 @@ Graph.prototype = {
       getCluster = bind(this, this.getCluster),
       getSize = bind(this, this.getSize);
 
-    this.nodes.forEach(function(n) {
+    nodes.forEach(function(n) {
       var cluster = getCluster(n);
 
       maxSize = Math.max(maxSize, getSize(n));
@@ -80,7 +79,7 @@ Graph.prototype = {
     });
 
     // Compute the distinct nodes from the links.
-    this.links.forEach(function(link) {
+    links.forEach(function(link) {
       var source = nodesHash[link[0]],
         target = nodesHash[link[1]];
 
@@ -103,9 +102,10 @@ Graph.prototype = {
       });
     });
 
-    this.linksList = linksList;
-    this.adjacents = adjacents;
+    this.nodes = nodes;
     this.nodesHash = nodesHash;
+    this.links = linksList;
+    this.adjacents = adjacents;
 
     this.max.size = maxSize;
   },
@@ -151,7 +151,7 @@ Graph.prototype = {
     this.baseGroup = this.svg.append('svg:g')
                 .style('display','none');
 
-    this.$el.on("click", function() { self._reset() });
+    this.$el.on("click", function() { self.reset() });
   },
 
   onZoom: function() {
@@ -170,7 +170,7 @@ Graph.prototype = {
       this.baseGroup.attr("transform", "translate(" + trans + ")" + " scale(" + scale + ")");
     }
 
-    this.displayTitle();
+    this.updateTitles();
   },
 
   zoom: function(scale) {
@@ -216,20 +216,12 @@ Graph.prototype = {
     return (scale * res > .8 || scale > 2.2 );
   },
 
-  displayTitle: function() {
-    var self = this;
-    var focusOn = !!this.focusedNode;
-    var filtersOn = this.isFiltering();
+  titleDisplay: function(d) {
+    if (this.isTitleDisplayable(d) && this.isNodeVisible(d)) {
+      return "";
+    }
 
-    this.d3TitleNodes.style("display", function(d) {
-      var isDisplayable = self.isTitleDisplayable(d);
-
-      if (isDisplayable && self.isNodeVisible(d)) {
-        return "";
-      } else {
-        return "none";
-      }
-    });
+    return "none";
   },
 
   pathStroke: function(d) {
@@ -245,19 +237,16 @@ Graph.prototype = {
 
   render: function() {
     var self = this;
-    var nodesHash = {};
-    var nodes = this.nodes;
     
     if (this._initialScale) {
       this._zoom = this._zoom.scale(this._initialScale);
     }
 
-    function circleFill(d) { return self.getClusterColor(d); }
-    function circleRadius(d) { return self.radiusScale(self.getSize(d) ||1); }
+    function circleRadius(d) { return self.radiusScale(self.getSize(d) || 1); }
 
     var force = this.force = d3.layout.force()
-      .nodes(d3.values(this.nodesHash)) // turns {a:1, b:2} into [1, 2]
-      .links(this.linksList)
+      .nodes(this.nodes)
+      .links(this.links)
       .size([this.width, this.height])
       .linkDistance(DEFAULT_LINK_DISTANCE)
       //.linkStrength(DEFAULT_LINK_STRENGTH)
@@ -282,7 +271,7 @@ Graph.prototype = {
       .on("click", bind(this, this.onCircleClick));
 
     var circle = this.d3Circles = node.append("circle")
-      .style("fill", circleFill)
+      .style("fill", bind(this, this.getClusterColor))
       .attr("r", circleRadius)
 
     var titleNodes = this.d3TitleNodes = node.append("text")
@@ -299,7 +288,7 @@ Graph.prototype = {
         force.stop();
 
         self.positionNodes();
-        self.generateLinks();
+        self.positionLinks();
         self.center();
 
         // showing canvas after finished rendering
@@ -310,7 +299,7 @@ Graph.prototype = {
       }
     }
 
-    if (this.isFiltering() || this.hasFocus()) { 
+    if (this.hasFilters() || this.hasFocus()) { 
       this.update();
     }
 
@@ -344,7 +333,7 @@ Graph.prototype = {
   },
 
   // Updates the position of the links
-  generateLinks: function() {
+  positionLinks: function() {
     // curve line between nodes
     this.d3Path.attr("d", function(d) {
       var dx = d.target.x - d.source.x,
@@ -365,8 +354,7 @@ Graph.prototype = {
       d3.event.stopPropagation();
     }
 
-    this.focus(d);
-    this.update();
+    this.focus(d.id).update();
     this.emit("node:click", d);
   },
 
@@ -409,17 +397,19 @@ Graph.prototype = {
   },
 
   focusNode: function(node) {
+    var adjacents = this.adjacents[node.id];
+
     this.focusedNode = node;
 
-    if (this.adjacents[node.id]) {
-      this.adjacentNodes = this.adjacents[node.id];
+    if (adjacents) {
+      this.currentAdjacents = adjacents;
     }
 
     return node;
   },
 
-  isMatched: function(node) {
-    return node._matched;
+  isSelected: function(node) {
+    return node._selected;
   },
 
   isFocused: function(node) {
@@ -430,7 +420,7 @@ Graph.prototype = {
     return node._adjacent;
   },
 
-  isFiltering: function() {
+  hasFilters: function() {
     return !!this.filters.length;
   },
   
@@ -446,56 +436,63 @@ Graph.prototype = {
     return this.filters;
   },
 
-  update: function() {
+  updateTitles: function() {
+    this.d3TitleNodes.style("display", bind(this, this.titleDisplay));
+  },
+
+  updateCircles: function() {
     var self = this
-      , circle = this.d3Circles
-      , path = this.d3Path
-      , titles = this.d3TitleNodes
-      , adjacentNodes = this.adjacentNodes || {}
-      , hasFocus = this.hasFocus()
-      , isThereAVisibleNode = false;
+      , count = 0;
 
-    circle.style('fill', function(e) {
-      var el, $el, yes, no;
+    this.d3Circles
+      .style('fill', function(e) {
+        var el, $el, yes, no;
 
-      e._matched = self.testFilters(e);
-      e._focused = self.testFocused(e);
-      e._adjacent = self.testAdjacent(e);
+        e._selected = self.testFilters(e);
+        e._focused = self.testFocused(e);
+        e._adjacent = self.testAdjacent(e);
 
-      el = this;
-      $el = d3.select(el);
-      yes = function(e, highlight) {
-        // HACK: reordering for zindex
-        el.parentNode.parentNode.appendChild(el.parentNode);
-        $el.style("cursor", "pointer");
+        el = this;
+        $el = d3.select(el);
+        yes = function(e, highlight) {
+          // HACK: reordering for zindex
+          el.parentNode.parentNode.appendChild(el.parentNode);
+          $el.style("cursor", "pointer");
 
-        var stroke = DEFAULT_CIRCLE_STROKE;
-        if (highlight) {
-          stroke = d3.rgb(self.getClusterColor(e)).darker();
-        } 
-        $el.style("stroke", stroke);
-        return self.getClusterColor(e);
-      }
-      no = function(d) {
-        $el.style("cursor", "default");
-        $el.style("stroke", UNSELECTED_COLOR);
-        return UNSELECTED_COLOR;
-      }
-
-      if (self.isNodeVisible(e)) {
-        isThereAVisibleNode = true;
-
-        if (self.isFocused(e)) {
-          return yes(e, true);
+          var stroke = DEFAULT_CIRCLE_STROKE;
+          if (highlight) {
+            stroke = d3.rgb(self.getClusterColor(e)).darker();
+          } 
+          $el.style("stroke", stroke);
+          return self.getClusterColor(e);
+        }
+        no = function(d) {
+          $el.style("cursor", "default");
+          $el.style("stroke", UNSELECTED_COLOR);
+          return UNSELECTED_COLOR;
         }
 
-        return yes(e);
-      } else {
-        return no(e);
-      }
-    });
+        if (self.isNodeVisible(e)) {
+          count += 1;
 
-    path.attr("stroke", function(e) {
+          if (self.isFocused(e)) {
+            return yes(e, true);
+          }
+
+          return yes(e);
+        } else {
+          return no(e);
+        }
+      });
+
+    this.visibleNodeCount = count;
+  },
+
+  updatePaths: function() {
+    var self = this;
+
+    this.d3Path
+      .attr("stroke", function(e) {
         var yes = function(e) { return self.pathStroke(e) },
           no = UNSELECTED_COLOR;
 
@@ -504,62 +501,65 @@ Graph.prototype = {
         } else {
           return no;
         }
-      }).attr("stroke-width", function(e) {
+      })
+      .attr("stroke-width", function(e) {
         if (self.isFocused(e.source) || self.isFocused(e.target)) {
           return SELECTED_PATH_STROKE_WIDTH;
         }
 
         return DEFAULT_PATH_STROKE_WIDTH;
       });
+  },
 
-    this.displayTitle();
+  update: function() {
+    this.updateCircles();
+    this.updatePaths();
+    this.updateTitles();
 
-    if (!isThereAVisibleNode) {
+    if (!this.visibleNodeCount) {
       this.emit("no match");
     }
   },
 
-  reset: function() {
+  resetView: function() {
     var self = this;
     var circle = this.d3Circles;
     var path = this.d3Path;
 
-    this.adjacentNodes = {};
-    delete this.focusedNode;
-    this.filters = [];
-
     if (!this.isRendered()) return;
 
-    circle.style('fill', function(e) {
-        // reseting selection
-        delete e._matched; 
-        delete e._focused;
-        delete e._adjacent;
+    circle.style('fill', bind(this, this.getClusterColor))
+      .style("stroke", DEFAULT_CIRCLE_STROKE)
+      .style("cursor", "pointer");
 
-        return self.getClusterColor(e);
-      }).style("stroke", DEFAULT_CIRCLE_STROKE)
-        .style("cursor", "pointer");
+    path.attr("stroke-width", DEFAULT_PATH_STROKE_WIDTH)
+      .attr("stroke", bind(this, this.pathStroke))
 
-    path.attr("stroke-width", function(e, i) {
-        return DEFAULT_PATH_STROKE_WIDTH;
-      })
-    .attr("stroke", function(e, i) {
-        return self.pathStroke(e);
-      });
-
-    this.displayTitle();
+    this.updateTitles();
 
     return this;
   },
 
-  _reset: function(preventTrigger) {
-    this.reset();
-
-    if (!preventTrigger) {
-      this.emit("reset");
-    }
+  resetNode: function(node) {
+    delete node._selected; 
+    delete node._focused;
+    delete node._adjacent;
   },
 
+  resetState: function() {
+    this.filters = [];
+    this.currentAdjacents = {};
+    delete this.focusedNode;
+
+    this.d3Nodes.each(bind(this, this.resetNode));
+
+    return this;
+  },
+
+  reset: function() {
+    this.resetState();
+    this.resetView();
+  },
 
   addFilter: function(fn) {
     this.filters.push(fn);
@@ -568,13 +568,13 @@ Graph.prototype = {
   },
 
   isNodeVisible: function(node) {
-    if (this.isFiltering()) {
+    if (this.hasFilters()) {
       if (this.hasFocus()) {
-        if (this.isMatched(node) && (this.isAdjacent(node) 
+        if (this.isSelected(node) && (this.isAdjacent(node) 
           || this.isFocused(node))) {
           return true;
         } 
-      } else if (this.isMatched(node)) {
+      } else if (this.isSelected(node)) {
         return true;
       }
 
@@ -613,7 +613,7 @@ Graph.prototype = {
   },
 
   testAdjacent: function(node) {
-    return !!this.adjacentNodes[node.id]
+    return !!this.currentAdjacents[node.id]
   },
 
   fns: {
@@ -694,19 +694,6 @@ Graph.prototype = {
 
     return this;
   },
-
-  //focusByText: function(text) {
-  //  var fn, 
-  //    getText = bind(this, this.getText);
-
-  //  text = (text || "").toLowerCase();
-
-  //  fn = function(d) {
-  //    return getText(d).toLowerCase() == text.toLowerCase();
-  //  };
-
-  //  return this.focus(fn);
-  //},
 
   filterByText: function(text) {
     var matchText = text.toLowerCase(),
@@ -939,7 +926,7 @@ Graph.prototype = {
       , adjacents = []; 
 
     if (nodeId == null) {
-      adjacents = this.adjacentNodes;
+      adjacents = this.currentAdjacents;
     } else {
       adjacents = this.adjacents[nodeId];
     }
