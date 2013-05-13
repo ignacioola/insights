@@ -8585,12 +8585,9 @@ function Graph(el, nodes, links, options) {
     this._initialScale = options.initialScale;
   }
 
-  this.max = {};
-  this.min = {};
   this.filters = [];
-  this.state = {};
 
-  this.currentAdjacents = {};
+  this.resetState();
   this.processData(nodes, links);
   this.processScales();
   this.init();
@@ -8651,16 +8648,15 @@ Graph.prototype = {
     });
 
     this.nodes = nodes;
-    this.nodesHash = nodesHash;
     this.links = linksList;
+    this.maxSize = maxSize;
     this.adjacents = adjacents;
-
-    this.max.size = maxSize;
+    this.nodesHash = nodesHash;
   },
 
   processScales: function() {
-    this.radiusScale = d3.scale.sqrt().domain([1, this.max.size]).range([6, 40]);
-    this.titleScale = d3.scale.log().domain([1, this.max.size]).range([0, 1]);
+    this.radiusScale = d3.scale.sqrt().domain([1, this.maxSize]).range([6, 40]);
+    this.titleScale = d3.scale.log().domain([1, this.maxSize]).range([0, 1]);
   },
 
   processCenterCoords: function() {
@@ -8912,7 +8908,7 @@ Graph.prototype = {
   },
 
   onMouseOver: function(d) {
-    var focusedNode = this.focusedNode;
+    var focusedNode = this.state.focused;
 
     if (!this.isNodeVisible(d)) {
       return;
@@ -8952,10 +8948,10 @@ Graph.prototype = {
   focusNode: function(node) {
     var adjacents = this.adjacents[node.id];
 
-    this.focusedNode = node;
+    this.state.focused = node;
 
     if (adjacents) {
-      this.currentAdjacents = adjacents;
+      this.state.adjacents = adjacents;
     }
 
     return node;
@@ -8978,7 +8974,7 @@ Graph.prototype = {
   },
   
   hasFocus:function() {
-    return !!this.focusedNode;
+    return !!this.state.focused;
   },
 
   isRendered: function() {
@@ -9072,30 +9068,32 @@ Graph.prototype = {
     this.updatePaths();
     this.updateTitles();
 
-    this.setState();
+    // flushing filters
+    this.lastFilters = this.filters;
+    this.filters = [];
 
     if (!this.visibleNodeCount) {
       this.emit("no match");
     }
   },
 
-  resetView: function() {
-    var circle = this.d3Circles;
-    var path = this.d3Path;
+  //resetView: function() {
+  //  var circle = this.d3Circles;
+  //  var path = this.d3Path;
 
-    if (!this.isRendered()) return;
+  //  if (!this.isRendered()) return;
 
-    circle.style('fill', bind(this, this.getClusterColor))
-      .style("stroke", DEFAULT_CIRCLE_STROKE)
-      .style("cursor", "pointer");
+  //  circle.style('fill', bind(this, this.getClusterColor))
+  //    .style("stroke", DEFAULT_CIRCLE_STROKE)
+  //    .style("cursor", "pointer");
 
-    path.attr("stroke-width", DEFAULT_PATH_STROKE_WIDTH)
-      .attr("stroke", bind(this, this.pathStroke))
+  //  path.attr("stroke-width", DEFAULT_PATH_STROKE_WIDTH)
+  //    .attr("stroke", bind(this, this.pathStroke))
 
-    this.updateTitles();
+  //  this.updateTitles();
 
-    return this;
-  },
+  //  return this;
+  //},
 
   resetNode: function(node) {
     delete node._selected; 
@@ -9105,17 +9103,21 @@ Graph.prototype = {
 
   resetState: function() {
     this.filters = [];
-    this.currentAdjacents = {};
-    delete this.focusedNode;
 
-    this.d3Nodes.each(bind(this, this.resetNode));
+    this.state = {
+      adjacents: {},
+      focused: null
+    }
+
+    this.d3Nodes && this.d3Nodes.each(bind(this, this.resetNode));
 
     return this;
   },
 
   reset: function() {
     this.resetState();
-    this.resetView();
+    this.update();
+    //this.resetView();
   },
 
   addFilter: function(fn) {
@@ -9166,11 +9168,11 @@ Graph.prototype = {
   },
 
   testFocused: function(node) {
-    return this.focusedNode && this.focusedNode.id === node.id;
+    return this.state.focused && this.state.focused.id === node.id;
   },
 
   testAdjacent: function(node) {
-    return !!this.currentAdjacents[node.id]
+    return !!this.state.adjacents[node.id]
   },
 
   fns: {
@@ -9370,7 +9372,7 @@ Graph.prototype = {
     var n;
 
     if (!l) {
-      n = this.focusedNode;
+      n = this.state.focused;
       if (n) {
         l = [ n.x, n.y ];
       } else {
@@ -9471,7 +9473,7 @@ Graph.prototype = {
   },
 
   getFocusedNode: function() {
-    return this.focusedNode;
+    return this.state.focused;
   },
 
   getNode: function(nodeId) {
@@ -9483,7 +9485,7 @@ Graph.prototype = {
       , adjacents = []; 
 
     if (nodeId == null) {
-      adjacents = this.currentAdjacents;
+      adjacents = this.state.adjacents;
     } else {
       adjacents = this.adjacents[nodeId];
     }
