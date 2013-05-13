@@ -176,17 +176,21 @@ Creates a new graph on the `el` element with the given nodes and links. Availabl
 * `collisionAlpha`: used when trying to solve collisions to determine how far from each other to position nodes. Defaults to `0.5`. 
 * `scaleExtent`: [min, max] scale.
 * `initialScale`: the chart's initial scale.
-* `sizeAttr`: with wich key er find the size on the node's data.
 * `tooltip`: adds a tooltip with the passed template if a string if passed. If you pass a truthy value, that's not a string it uses the default template.
 * `defaultColors`: an object containing the colors for each cluster. For example: `{ "0": "blue", "1": "#FF0000" } `.
     
+
+### .attr(string, function)
+
+Sets an accessor function for the desired node's attribute's value.
+
 ### .filter(function|object)
 
 Selects all the nodes that for which `fn` result evaluates to `true` or if an object passed by all of it's values.
     
 ### .focus(function|object|id)
 
-Focuses the graph on the first node for wich `fn` result evaluates to `true`.
+Focuses the graph on the first node that matches the passed parameters.
 
 ### .reset()
 

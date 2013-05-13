@@ -25,6 +25,7 @@
 
         graph = new Insights(el, nodes, links, options)
           .focus({ text: "color" })
+          .attr('text', function(node) { return node.text })
           .filter({ cluster: 0, size: [500] })
           .render();
 

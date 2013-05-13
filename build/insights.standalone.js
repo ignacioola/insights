@@ -8567,7 +8567,7 @@ var DEFAULT_FORCE_ALPHA_LIMIT = 0.02; // 0.007
 var DEFAULT_LINK_STRENGTH = 1; // 1
 var DEFAULT_LINK_DISTANCE = 60; // 60
 var DEFAULT_GRAPH_CHARGE = -300;// -240
-var DEFAULT_SIZE_ATTR = "size";  // where to find size info
+//var DEFAULT_SIZE_ATTR = "size";  // where to find size info
 
 function Graph(el, nodes, links, options) {
   options = options || {};
@@ -8577,15 +8577,18 @@ function Graph(el, nodes, links, options) {
   this.height = options.height ||DEFAULT_HEIGHT;
   this.collisionAlpha = options.collisionAlpha || DEFAULT_COLLISION_ALPHA;
   this.scaleExtent = options.scaleExtent || ZOOM_SCALE_EXTENT;
-  this.sizeAttr = options.sizeAttr || DEFAULT_SIZE_ATTR;
+  //this.sizeAttr = options.sizeAttr || DEFAULT_SIZE_ATTR;
   this.color = d3.scale.category20();
   this.colors = options.defaultColors || {};
+
+  this.attrs = {};
   
   if (options.initialScale) {
     this._initialScale = options.initialScale;
   }
 
   this.filters = [];
+  this.appliedFilters = [];
 
   this.resetState();
   this.processData(nodes, links);
@@ -8696,6 +8699,32 @@ Graph.prototype = {
                 .style('display','none');
 
     this.$el.on("click", function() { self.reset() });
+  },
+
+  /**
+   * Tells where to extract the attribute each node's object.
+   */
+  attr: function(key, val) {
+    var attrs = ['id', 'size', 'cluster', 'text'];
+
+    if (~attrs.indexOf(key)) {
+      this.attrs[key] = val;
+    }
+
+    return this;
+  },
+
+  nodeVal: function(key, node) {
+    var val = this.attrs[key];
+    
+    if (val == null) {
+      return node[key];
+    } else if (typeof val == "function") {
+      return val(node);
+    }
+
+    //return node[val];
+    return;
   },
 
   onZoom: function() {
@@ -8972,6 +9001,10 @@ Graph.prototype = {
   hasFilters: function() {
     return !!this.filters.length;
   },
+
+  hasAppliedFilters: function() {
+    return !!this.appliedFilters.length;
+  },
   
   hasFocus:function() {
     return !!this.state.focused;
@@ -9064,12 +9097,13 @@ Graph.prototype = {
    * Updates the node's state.
    */
   update: function() {
+    // flushing filters
+    this.appliedFilters = this.filters;
+
     this.updateCircles();
     this.updatePaths();
     this.updateTitles();
 
-    // flushing filters
-    this.lastFilters = this.filters;
     this.filters = [];
 
     if (!this.visibleNodeCount) {
@@ -9103,6 +9137,7 @@ Graph.prototype = {
 
   resetState: function() {
     this.filters = [];
+    this.appliedFilters = [];
 
     this.state = {
       adjacents: {},
@@ -9127,7 +9162,7 @@ Graph.prototype = {
   },
 
   isNodeVisible: function(node) {
-    if (this.hasFilters()) {
+    if (this.hasAppliedFilters()) {
       if (this.hasFocus()) {
         if (this.isSelected(node) && (this.isAdjacent(node) 
           || this.isFocused(node))) {
@@ -9418,15 +9453,15 @@ Graph.prototype = {
   },
 
   getSize: function(node) {
-    return node[this.sizeAttr] || 0;
+    return this.nodeVal('size', node) || 0;
   },
 
   getText: function(node) {
-    return node.text;
+    return this.nodeVal('text', node);
   },
 
   getCluster: function(node) {
-    return node.cluster;
+    return this.nodeVal('cluster', node);
   },
 
   getClusters: function() {
