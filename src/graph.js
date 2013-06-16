@@ -50,7 +50,7 @@ function Graph(el, nodes, links, options) {
   options.tooltip && this.tooltip(options.tooltip);
 }
 
-Graph.version = "0.7.1";
+Graph.version = "0.8";
 
 Graph.prototype = {
   constructor: Graph,
