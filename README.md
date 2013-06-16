@@ -108,18 +108,26 @@ graph.filter({ text: "micro" });
 
 ### Filter by size
 ```javascript
+
 // filter by a range of values
+
 graph.filter({ size: [1, 15] });
+
 // filter greater than.. 
+
 graph.filter({ size: [1, null] });
+
 // filter lower than..
+
 graph.filter({ size: [null, 15] });
 ```
 
 ### Filter by clusters
 ```javascript
 graph.filter({ cluster: 1})
+
 //  or multi-cluster filter...
+
 graph.filter({ cluster: [1, 2, 3] })
 ```
 
@@ -146,7 +154,9 @@ With `.focus()` you can decide which node and it's relations get highlighted.
 ### Focusing by id
 ```javascript
 graph.focus(1);
+
 //  or
+
 graph.focus({ id: 1 });
 ```
 

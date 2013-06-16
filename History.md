@@ -1,4 +1,4 @@
-# Next
+# 0.8
 * Cumulative selection filters.
     * added isFiltering, addFilter, testFilter methods.
     * removed arg fn from draw().

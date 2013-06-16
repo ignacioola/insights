@@ -43,8 +43,8 @@ function Graph(el, nodes, links, options) {
   this.appliedFilters = [];
 
   this.resetState();
-  this.processData(nodes, links);
-  this.processScales();
+  this.compute(nodes, links);
+  this.computeScales();
   this.init();
 
   options.tooltip && this.tooltip(options.tooltip);
@@ -55,7 +55,7 @@ Graph.version = "0.7.1";
 Graph.prototype = {
   constructor: Graph,
 
-  processData: function(nodes, links) {
+  compute: function(nodes, links) {
     var self = this,
       nodesHash = {},
       maxSize = 0,
@@ -109,12 +109,12 @@ Graph.prototype = {
     this.nodesHash = nodesHash;
   },
 
-  processScales: function() {
+  computeScales: function() {
     this.radiusScale = d3.scale.sqrt().domain([1, this.maxSize]).range([6, 40]);
     this.titleScale = d3.scale.log().domain([1, this.maxSize]).range([0, 1]);
   },
 
-  processCenterCoords: function() {
+  computeCenterCoords: function() {
     var self = this;
     var xMass=0, yMass=0, totalSize=0;
 
@@ -864,7 +864,7 @@ Graph.prototype = {
         l = [ n.x, n.y ];
       } else {
         if (!this.massCenter) {
-          this.processCenterCoords();
+          this.computeCenterCoords();
         }
 
         l = this.massCenter;
