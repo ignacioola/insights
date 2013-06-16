@@ -1,0 +1,26 @@
+<html>
+  <head>
+    <title>insights.js - tests</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="mocha.css" />
+  </head>
+  <body>
+    <div id="mocha"></div>
+    <div id="insights" style="display:none"></div>
+
+    <script src="mocha.js"></script>
+    <script src="chai.js"></script>
+    <script src="sinon-chai.js"></script>
+    <script src="sinon.js"></script>
+    <script src="jquery.js"></script>
+
+    <script>mocha.setup('bdd')</script>
+
+    <script src="../build/build.js"></script>
+    <script src="tests.js"></script>
+
+    <script>
+      mocha.run();
+    </script>
+  </body>
+</html>

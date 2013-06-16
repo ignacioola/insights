@@ -1,5 +1,5 @@
-Insights 
-========
+Insights.js
+===========
 
 An interactive force graph written with d3. 
 
@@ -9,16 +9,22 @@ Demo [here](http://ignacioola.github.com/insights/demo/)
 
 ## Installation
 
-Insights is packaged and distributed with [component.js](https://github.com/component/component).
+### With component.js
+
+Insights can be installed with [component.js](https://github.com/component/component).
 
     $ component install ignacioola/insights
+
+### Without component.js
+
+Add the `insights.standalone.js` and `insights.standalone.css` files located under `build/` to your webpage.
 
 ## Usage
 ```javascript
 var Insights = require("insights");
 ```
 
-## Minimal input example
+## Example Data
 
 ```javascript
 var nodes = [
@@ -53,7 +59,7 @@ var links = [
 
 ```javascript
 var el = document.getElementById("container");
-var graph = new Insights(el, nodes, links)
+var graph = new Insights(el, nodes, links).render();
 ```
 
 ## Adding a an event handler
@@ -67,8 +73,7 @@ graph.on("rendered", function() {
 ## Events
 
 * `rendered`: when the graph has finished rendering.
-* `reset`: when the graph is resetted.
-* `focus`: when the graph is focused on a node.
+* `no match`: when a filter is applied and no matching nodes where found.
 * `node:click`: when a node is clicked.
 * `node:mouseover`: when the mouse is over a node.
 * `node:mouseout`: when the mouse goes out from a node.
@@ -81,69 +86,154 @@ Using mustache synthax:
 graph.tooltip("<div>name: {{text}}</div><div>count: {{count}}</div>")
 ```
 
+## Filtering
+The filter function decides which nodes are visible and which are not. Always after applying filters the graph must be updated by calling `update()`.
+```javascript
+graph.filters({...}).update();
+```
+
+To return to the graph initial state, you can call `reset()`.
+```javascript
+graph.reset();
+```
+
+### Filter by id
+```javascript
+graph.filter({ id: 1 });
+```
+
+### Filter by partial text match 
+```javascript
+graph.filter({ text: "micro" });
+```
+
+### Filter by size
+```javascript
+
+// filter by a range of values
+
+graph.filter({ size: [1, 15] });
+
+// filter greater than.. 
+
+graph.filter({ size: [1, null] });
+
+// filter lower than..
+
+graph.filter({ size: [null, 15] });
+```
+
+### Filter by clusters
+```javascript
+graph.filter({ cluster: 1})
+
+//  or multi-cluster filter...
+
+graph.filter({ cluster: [1, 2, 3] })
+```
+
+### Filtering by more than one value
+```javascript
+graph.filter({ text: "app", size: [1, 15], cluster: 0 })
+```
+
+### Custom filters
+```javascript
+graph.filter(function(node) {
+  if (node.text == "something") {
+    return true;
+  } else {
+    return false;
+  }
+})
+```
+
+## Focusing
+
+With `.focus()` you can decide which node and it's relations get highlighted.
+
+### Focusing by id
+```javascript
+graph.focus(1);
+
+//  or
+
+graph.focus({ id: 1 });
+```
+
+### Focusing by exact text match
+```javascript
+graph.focus({ text: "Apple" })
+```
+This will focus the graph on the first node that matches exactly the given text.
+
+## Method chaining
+You can apply filters even in the focused state.
+```javascript
+graph.focus({ id: 1 })
+     .filter({ size: [ 50, 100 ] })
+     .zoom(.2)
+     .update()
+```
+
 ## API 
 
-### Insights(el, nodes, links)
+### Insights(el, nodes, links, options)
 
 Creates a new graph on the `el` element with the given nodes and links. Available options include:
 
 * `width`: the graph width.
 * `height`: the graph height.
-* `collisionAlpha`: indicates for how long the graph will try to avoid collisions between it`s nodes.
+* `collisionAlpha`: used when trying to solve collisions to determine how far from each other to position nodes. Defaults to `0.5`. 
 * `scaleExtent`: [min, max] scale.
 * `initialScale`: the chart's initial scale.
-* `sizeAttr`: with wich key er find the size on the node's data.
-* `tooltipTemplate`: adds a tooltip with the passed template.
+* `tooltip`: adds a tooltip with the passed template if a string if passed. If you pass a truthy value, that's not a string it uses the default template.
+* `defaultColors`: an object containing the colors for each cluster. For example: `{ "0": "blue", "1": "#FF0000" } `.
     
-### Insights#reset()
+
+### .attr(string, function)
+
+Sets an accessor function for the desired node's attribute's value.
+
+### .filter(function|object)
+
+Selects all the nodes that for which `fn` result evaluates to `true` or if an object passed by all of it's values.
+    
+### .focus(function|object|id)
+
+Focuses the graph on the first node that matches the passed parameters.
+
+### .reset()
 
 It returns the graph to it's original state.
 
-### Insights#select(fn)
-
-Selects all the nodes that match the given function.
-    
-### Insights#focus(fn, center)
-
-Focuses the graph on only one node that matches `fn`, if `center=true` it centers the graph on that node.
-    
-### Insights#selectByText(text, options)
-
-Selects all the nodes that it's text contains a substring of the passed `text` argument. Options include:
-    
-* `exact`: if passed, the graph will focus on a node that matches exactly the passed `text` argument.
-    
-### Insights#selectByCluster(cluster)
-    
-Selects all the nodes that belong to the passed cluster. The `cluster` argument can also be a list of cluster names.
-    
-### Insights#selectBySize(min, max)
-
-Selects all the nodes wich size is in the range [ min, max ].
-
-### Insights#tooltip(tmpl)
+### .tooltip(tmpl)
 
 Adds a tooltip with the given template to the `node:mouseover` event.
     
-### Insights#zoomIn()
+### .zoomIn()
 
 Zooms in the graph.
     
-### Insights#zoomOut()
+### .zoomOut()
 
 Zooms out the graph.
     
-### Insights#zoom(scale)
+### .zoom(scale)
 
 Zooms the graph to the given `scale`.
     
-### Insights#center()
+### .center()
     
 Centers the graph. If there's a selected node it will be centered around it, if not it will center the graph on the mass center.
     
-### Insights#getClusters()
+### .getClusters()
 
 Returns a hash of the available clusters and it's colors.
+
+## Used by..
+
+* [#8N Analysis](http://blog.zenzey.com/reports/8N): Twitter analysis of a major social event in Argentina.
 
 ## Licence
 

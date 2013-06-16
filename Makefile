@@ -1,6 +1,7 @@
 
 build: components src/tooltip.js src/graph.js index.js insights.css
-	@component build --dev
+	@component build
+	@component build -n insights.standalone -s Insights
 
 components: component.json
 	@component install --dev
@@ -8,4 +9,4 @@ components: component.json
 clean:
 	rm -fr build components template.js
 
-.PHONY: clean
+.PHONY: clean test build

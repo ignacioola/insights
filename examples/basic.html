@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>insights.js demo</title>
+    <link rel="stylesheet" href="../build/insights.standalone.css" />
+  </head>
+  <body>
+    <div id="loader">rendering...</div>
+    <div id="parent"></div>
+
+    <script src="../build/insights.standalone.js"></script>
+    <script>
+      loader = document.getElementById('loader');
+
+      d3.json("data.json", function(data) {
+        var nodes = data[0]
+          , links = data[1]
+          , el = document.getElementById("parent")
+          , options = {
+              width: screen.width,
+              height: screen.height,
+              defaultColors: { "7": "blue" }
+            };
+
+        graph = new Insights(el, nodes, links, options)
+          .focus({ text: "color" })
+          .attr('text', function(node) { return node.text })
+          .filter({ cluster: 0, size: [500] })
+          .render();
+
+        graph.on('rendered', function() {
+          loader.remove();
+        })
+
+        graph.on("node:click", function(d) {
+          console.log("click", d);
+        });
+
+        graph.on("node:mouseover", function(d, offset) {
+          console.log("mouseover", d, offset);
+        });
+
+        graph.on("node:mouseout", function(d, offset) {
+          console.log("mouseout", d, offset);
+        });
+
+        graph.tooltip("<div>word: {{text}}</div><div>count: {{count}}</div>");
+      });
+    </script>
+  </body>
+</html>
