@@ -16,7 +16,8 @@ Insights can be installed with [component.js](https://github.com/component/compo
     $ component install ignacioola/insights
 
 ### Without component.js
-    add insights.standalone.js and insights.standalone.css to your webpage.
+
+Add the `insights.standalone.js` and `insights.standalone.css` files located under `build/` to your webpage.
 
 ## Usage
 ```javascript
