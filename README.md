@@ -232,7 +232,7 @@ Returns a hash of the available clusters and it's colors.
 
 ## Used by..
 
-[#8N Analisis](http://blog.zenzey.com/reports/8N) Twitter analysis of a major social event in Argentina.
+* [#8N Analysis](http://blog.zenzey.com/reports/8N): Twitter analysis of a major social event in Argentina.
 
 ## Licence
 
