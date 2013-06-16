@@ -5,7 +5,7 @@ An interactive force graph written with d3.
 
 <img src="http://ignacioola.github.com/insights/img/1.png" />
 
-Demo [here](http://ignacioola.github.com/insights/demo/)
+Demo [here](http://ignacioola.github.com/insights/examples/basic.html)
 
 ## Installation
 
