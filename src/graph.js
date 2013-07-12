@@ -687,6 +687,7 @@ Graph.prototype = {
    * 
    * @api public
    */
+
   filter: function(obj) {
     var type = ({}).toString.call(obj);
     
@@ -715,6 +716,7 @@ Graph.prototype = {
    * @param fn {Object|Function|Number|String}
    * @param center {Boolean}
    */
+
   focus: function(fn) {
     var n, type = ({}).toString.call(fn);
 
@@ -796,6 +798,7 @@ Graph.prototype = {
   /**
    * Prevents nodes from sticking up together ( best effort )
    */
+
   collide: function(node, alpha) {
     var self = this,
       r = node.radius + 16,
@@ -848,6 +851,7 @@ Graph.prototype = {
 
     this._zoom.translate(translate);
   },
+
   /**
    * centers the graph on a point, if no point is passed, the mass center of
    * the graph is used.
