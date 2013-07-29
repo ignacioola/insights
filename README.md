@@ -185,21 +185,20 @@ Creates a new graph on the `el` element with the given nodes and links. Availabl
 * `width`: the graph width.
 * `height`: the graph height.
 * `collisionAlpha`: used when trying to solve collisions to determine how far from each other to position nodes. Defaults to `0.5`. 
-* `scaleExtent`: [min, max] scale.
 * `initialScale`: the chart's initial scale.
 * `tooltip`: adds a tooltip with the passed template if a string if passed. If you pass a truthy value, that's not a string it uses the default template.
-* `defaultColors`: an object containing the colors for each cluster. For example: `{ "0": "blue", "1": "#FF0000" } `.
+* `colors`: an object containing the colors for each cluster. For example: `{ "0": "blue", "1": "#FF0000" } `.
     
 
-### .attr(string, function)
+### .attr(str, fn)
 
 Sets an accessor function for the desired node's attribute's value.
 
-### .filter(function|object)
+### .filter(fn|obj)
 
 Selects all the nodes that for which `fn` result evaluates to `true` or if an object passed by all of it's values.
     
-### .focus(function|object|id)
+### .focus(fn|obj|id)
 
 Focuses the graph on the first node that matches the passed parameters.
 
@@ -207,7 +206,7 @@ Focuses the graph on the first node that matches the passed parameters.
 
 It returns the graph to it's original state.
 
-### .tooltip(tmpl)
+### .tooltip(template:str)
 
 Adds a tooltip with the given template to the `node:mouseover` event.
     
@@ -223,17 +222,17 @@ Zooms out the graph.
 
 Zooms the graph to the given `scale`.
     
-### .center()
+### .center(id)
     
-Centers the graph. If there's a selected node it will be centered around it, if not it will center the graph on the mass center.
+Centers the graph. If there's a selected node it will be centered around it, if not it will center the graph on the mass center. If a node's id is passed, it centers the graph on it.
     
 ### .getClusters()
 
-Returns a hash of the available clusters and it's colors.
+Returns an object with the available clusters.
 
-## Used by..
+## Used in
 
-* [#8N Analysis](http://blog.zenzey.com/reports/8N): Twitter analysis of a major social event in Argentina.
+* [#8N Analysis](http://blog.zenzey.com/reports/8N)
 
 ## Licence
 

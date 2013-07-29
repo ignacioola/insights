@@ -64,7 +64,6 @@ require.aliases = {};
 
 require.resolve = function(path) {
   if (path.charAt(0) === '/') path = path.slice(1);
-  var index = path + '/index.js';
 
   var paths = [
     path,
@@ -77,10 +76,7 @@ require.resolve = function(path) {
   for (var i = 0; i < paths.length; i++) {
     var path = paths[i];
     if (require.modules.hasOwnProperty(path)) return path;
-  }
-
-  if (require.aliases.hasOwnProperty(index)) {
-    return require.aliases[index];
+    if (require.aliases.hasOwnProperty(path)) return require.aliases[path];
   }
 };
 
@@ -8552,42 +8548,62 @@ var bind = require("bind")
   , toFunction = require('to-function')
   , Tooltip = require("./tooltip");
 
-var UNSELECTED_COLOR = "transparent"; //"#EFEFEF";
-var DEFAULT_PATH_STROKE_WIDTH = .3;
-var SELECTED_PATH_STROKE_WIDTH = 1.5;
-var DEFAULT_CIRCLE_STROKE = "#FFF";
-var ZOOM_SCALE_EXTENT = [0.2, 2.3];
 
-var TOOLTIP_TEMPLATE = "<div>text: {{text}}</div> <div>size: {{size}}</div>";
+// Constants
+var UNSELECTED_COLOR = "transparent";
+var PATH_STROKE_WIDTH = .3;
+var SELECTED_PATH_STROKE_WIDTH = 1.5;
+var CIRCLE_STROKE = "#FFF";
 var BASE_ELEMENT_CLASS = "insights-graph";
-var DEFAULT_WIDTH = 1200;
-var DEFAULT_HEIGHT = 700; 
-var DEFAULT_COLLISION_ALPHA = .5;
-var DEFAULT_FORCE_ALPHA_LIMIT = 0.02; // 0.007
-var DEFAULT_LINK_STRENGTH = 1; // 1
-var DEFAULT_LINK_DISTANCE = 60; // 60
-var DEFAULT_GRAPH_CHARGE = -300;// -240
-//var DEFAULT_SIZE_ATTR = "size";  // where to find size info
+
+// Defaults
+var defaults = {
+  width: 1200,
+  height: 700, 
+  collisionAlpha: .5,
+  forceAlphaLimit: 0.02,
+  linkStrength: 1,
+  linkDistance: 60,
+  graphCharge: -300,
+  zoomScaleExtent: [0.2, 2.2],
+  tooltipTemplate: "<div>text: {{text}}</div> <div>size: {{size}}</div>"
+};
+
+// Valid attribute keys for a node
+var VALID_ATTRS = ['id', 'size', 'cluster', 'text'];
+
+/**
+ * Creates a new `Graph` instance.
+ *
+ * @constructor Graph
+ */
 
 function Graph(el, nodes, links, options) {
+
+  // main element
+  this.el = el;
+
+  // option cache
+  this.opts = {};
+
   options = options || {};
 
-  this.el = el;
-  this.width = options.width || DEFAULT_WIDTH;
-  this.height = options.height ||DEFAULT_HEIGHT;
-  this.collisionAlpha = options.collisionAlpha || DEFAULT_COLLISION_ALPHA;
-  this.scaleExtent = options.scaleExtent || ZOOM_SCALE_EXTENT;
-  //this.sizeAttr = options.sizeAttr || DEFAULT_SIZE_ATTR;
-  this.color = d3.scale.category20();
-  this.colors = options.defaultColors || {};
+  this.opts.width = options.width || defaults.width;
+  this.opts.height = options.height || defaults.height;
+  this.opts.color = d3.scale.category20();
+  this.opts.colors = options.colors || {};
+  this.opts.collisionAlpha = options.collisionAlpha || defaults.collisionAlpha;
+  this.opts.initialScale = options.initialScale;
+  this.opts.zoomScaleExtent = options.zoomScaleExtent || options.scaleExtent 
+                              || defaults.zoomScaleExtent;
 
+  // attribute name mapping
   this.attrs = {};
-  
-  if (options.initialScale) {
-    this._initialScale = options.initialScale;
-  }
 
+  // list of filters to apply
   this.filters = [];
+
+  // list of applied filters
   this.appliedFilters = [];
 
   this.resetState();
@@ -8595,55 +8611,78 @@ function Graph(el, nodes, links, options) {
   this.computeScales();
   this.init();
 
+  // activating tooltip
   options.tooltip && this.tooltip(options.tooltip);
 }
 
-Graph.version = "0.8";
+Graph.version = "0.8.1";
 
 Graph.prototype = {
   constructor: Graph,
 
+  /**
+   * Builds relevant data to render the graph
+   *
+   * @api private
+   */
+
   compute: function(nodes, links) {
-    var self = this,
-      nodesHash = {},
-      maxSize = 0,
-      maxWeight = 0,
-      adjacents= {},
-      linksList = [],
-      getCluster = bind(this, this.getCluster),
-      getSize = bind(this, this.getSize);
+    var self = this
+      , nodesObj = {}
+      , clustersObj = {}
+      , maxSize = 0
+      , maxWeight = 0
+      , adjacents= {}
+      , linksList = []
+      , getCluster = bind(this, this.getCluster)
+      , getSize = bind(this, this.getSize);
 
     nodes.forEach(function(n) {
       var cluster = getCluster(n);
 
       maxSize = Math.max(maxSize, getSize(n));
-      n.name = n.id;
-      nodesHash[n.id] = nodesHash[n.id] || n;
+      nodesObj[n.id] = nodesObj[n.id] || n;
 
-      if (cluster != null && self.colors[cluster] == null) {
-        // caching cluster data
-        self.colors[cluster] = self.color(cluster);
+      if (cluster != null && clustersObj[cluster] == null) {
+
+        // obtain color from options
+        var color = self.opts.colors[cluster];
+
+        // initialize cluster
+        clustersObj[cluster] = {};
+
+        // save color for cluster
+        clustersObj[cluster].color = color || self.opts.color(cluster);
       }
     });
 
     // Compute the distinct nodes from the links.
     links.forEach(function(link) {
-      var source = nodesHash[link[0]],
-        target = nodesHash[link[1]];
 
-      if (!source ||!target) return;
+      // try to find the nodes in the relation.
+      var id0 = link[0]
+        , id1 = link[1]
+        , source = nodesObj[id0]
+        , target = nodesObj[id1];
+
+      // if we dont find one node of the relation, we dismiss it.
+      if (!source || !target) return;
       
-      if (!(link[0] in adjacents)) {
-        adjacents[link[0]]= {};
-        adjacents[link[0]][link[0]]= true;
+      // We add the relations to the adjacents hash
+      if (!(id0 in adjacents)) {
+        adjacents[id0] = {};
+        adjacents[id0][id0] = true;
       } 
-      if (!(link[1] in adjacents)) {
-        adjacents[link[1]]= {};
-        adjacents[link[1]][link[1]]= true;
-      }
-      adjacents[link[0]][link[1]]=true;
-      adjacents[link[1]][link[0]]= true;
 
+      if (!(id1 in adjacents)) {
+        adjacents[id1] = {};
+        adjacents[id1][id1] = true;
+      }
+
+      adjacents[id0][id1] = true;
+      adjacents[id1][id0] = true;
+
+      // build link list
       linksList.push({
         source: source,
         target: target
@@ -8654,13 +8693,26 @@ Graph.prototype = {
     this.links = linksList;
     this.maxSize = maxSize;
     this.adjacents = adjacents;
-    this.nodesHash = nodesHash;
+    this.nodesObj = nodesObj;
+    this.clustersObj = clustersObj;
   },
+
+  /**
+   * Creates scales
+   *
+   * @api private
+   */
 
   computeScales: function() {
     this.radiusScale = d3.scale.sqrt().domain([1, this.maxSize]).range([6, 40]);
     this.titleScale = d3.scale.log().domain([1, this.maxSize]).range([0, 1]);
   },
+
+  /**
+   * Calculates the mass center of the graph
+   *
+   * @api private
+   */
 
   computeCenterCoords: function() {
     var self = this;
@@ -8678,58 +8730,82 @@ Graph.prototype = {
     this.massCenter = [this.xCenter, this.yCenter];
   },
 
+  /**
+   * Initializes the graph on the dom
+   *
+   * @api public
+   */
+
   init: function() {
     var self = this;
+    var el = this.getElement();
     
+    // initializing zoom
     this._zoom = d3.behavior.zoom().translate([0,0]);
 
-    this.$el = this.getElement();
+    el.html("");
 
-    this.$el.html("");
-    this.svg = this.$el
-      .attr("class", this.$el.attr("class") + " " + BASE_ELEMENT_CLASS) 
+    var svg = el.attr("class", el.attr("class") + " " + BASE_ELEMENT_CLASS) 
       .append("svg")
-        .attr("width", this.width)
-        .attr("height", this.height)
+        .attr("width", this.opts.width)
+        .attr("height", this.opts.height)
         .attr("pointer-events", "all")
         .call(this._zoom.on("zoom", bind(this, this.onZoom))
-                 .scaleExtent(this.scaleExtent))
+                        .scaleExtent(this.opts.zoomScaleExtent))
 
-    this.baseGroup = this.svg.append('svg:g')
-                .style('display','none');
+    this.parent = svg.append('svg:g').style('display','none');
 
-    this.$el.on("click", function() { self.reset() });
+    el.on("click", function() { self.reset() });
   },
 
   /**
-   * Tells where to extract the attribute each node's object.
+   * Tells which attribute to use to extract a standarized attribute's value.
+   *
+   * @api public
    */
-  attr: function(key, val) {
-    var attrs = ['id', 'size', 'cluster', 'text'];
 
-    if (~attrs.indexOf(key)) {
-      this.attrs[key] = val;
+  attr: function(key, fn) {
+
+    if (~VALID_ATTRS.indexOf(key)) {
+      this.attrs[key] = fn;
     }
 
     return this;
   },
+
+  /**
+   * Obtains a node's value for one of the standarized attribute names
+   *
+   * @api private
+   */
 
   nodeVal: function(key, node) {
     var val = this.attrs[key];
     
     if (val == null) {
       return node[key];
-    } else if (typeof val == "function") {
+    } else if (typeof val === "function") {
       return val(node);
     }
 
-    //return node[val];
     return;
   },
+
+  /**
+   * Handler for zoom event
+   *
+   * @api private
+   */
 
   onZoom: function() {
     this.refreshZoom();
   },
+
+  /**
+   * Refresh the zoom in the view to the currently applied state
+   *
+   * @api private
+   */
 
   refreshZoom: function(animate) {
     var zoom = this._zoom
@@ -8737,20 +8813,26 @@ Graph.prototype = {
       , scale = this.getScale();
     
     if (animate) {
-      this.baseGroup.transition().duration(500).attr('transform', 
+      this.parent.transition().duration(500).attr('transform', 
         'translate(' + zoom.translate() + ') scale(' + zoom.scale() + ')');
     } else {
-      this.baseGroup.attr("transform", "translate(" + trans + ")" + " scale(" + scale + ")");
+      this.parent.attr("transform", "translate(" + trans + ")" + " scale(" + scale + ")");
     }
 
     this.updateTitles();
   },
 
+  /**
+   * Applies zoom to a given scale between 0 and 1.
+   *
+   * @api public
+   */
+
   zoom: function(scale) {
     var trans, zoom;
 
     if (!this.isRendered()) {
-      this._initialScale = scale;
+      this.opts.initialScale = scale;
       return this;
     }
 
@@ -8764,23 +8846,42 @@ Graph.prototype = {
     return this;
   },
 
+  /**
+   * Applies zoom in
+   *
+   * @api public
+   */
+
   zoomIn: function() {
     var scale = this.getScale()
       , k = Math.pow(2, Math.floor(Math.log(scale) / Math.LN2) + 1);
 
-    k = Math.min(k, this.scaleExtent[1]);
+    k = Math.min(k, this.opts.zoomScaleExtent[1]);
       
     return this.zoom(k);
   },
+
+  /**
+   * Applies zoom out
+   *
+   * @api public
+   */
 
   zoomOut: function() {
     var scale = this.getScale();
     var k = Math.pow(2, Math.ceil(Math.log(scale) / Math.LN2) - 1);
 
-    k = Math.max(k, this.scaleExtent[0]);
+    k = Math.max(k, this.opts.zoomScaleExtent[0]);
       
     return this.zoom(k);
   },
+
+  /**
+   * Given, the current zoom and size of a node, tells if it's label should
+   * be displayed
+   *
+   * @api private
+   */
 
   isTitleDisplayable: function(d) {
     var scale = this.getScale();
@@ -8789,6 +8890,12 @@ Graph.prototype = {
     return (scale * res > .8 || scale > 2.2 );
   },
 
+  /**
+   * Helper to determine the display attribute of for a node.
+   *
+   * @api private
+   */
+
   titleDisplay: function(d) {
     if (this.isTitleDisplayable(d) && this.isNodeVisible(d)) {
       return "";
@@ -8796,6 +8903,12 @@ Graph.prototype = {
 
     return "none";
   },
+
+  /**
+   * Helper to determine the color of the path's stroke for a node.
+   *
+   * @api private
+   */
 
   pathStroke: function(d) {
     var source = d.source,
@@ -8808,11 +8921,17 @@ Graph.prototype = {
     }
   },
 
+  /**
+   * Renders the graph
+   *
+   * @api public
+   */
+
   render: function() {
     var self = this;
     
-    if (this._initialScale) {
-      this._zoom = this._zoom.scale(this._initialScale);
+    if (this.opts.initialScale) {
+      this._zoom = this._zoom.scale(this.opts.initialScale);
     }
 
     function circleRadius(d) { return self.radiusScale(self.getSize(d) || 1); }
@@ -8820,22 +8939,20 @@ Graph.prototype = {
     var force = this.force = d3.layout.force()
       .nodes(this.nodes)
       .links(this.links)
-      .size([this.width, this.height])
-      .linkDistance(DEFAULT_LINK_DISTANCE)
-      //.linkStrength(DEFAULT_LINK_STRENGTH)
-      //.gravity(0.2)
-      .charge(DEFAULT_GRAPH_CHARGE)
+      .size([this.opts.width, this.opts.height])
+      .linkDistance(defaults.linkDistance)
+      .charge(defaults.graphCharge)
       .on("tick", tick)
       .start();
 
-    var path = this.d3Path = this.baseGroup.append("svg:g").selectAll("path")
+    this.d3Path = this.parent.append("svg:g").selectAll("path")
       .data(force.links())
       .enter().append("svg:path")
       .attr("stroke", bind(this, this.pathStroke))
-      .attr("stroke-width", DEFAULT_PATH_STROKE_WIDTH)
+      .attr("stroke-width", PATH_STROKE_WIDTH)
       .attr("fill", "none");
     
-    var node = this.d3Nodes = this.baseGroup.selectAll(".node")
+    var node = this.d3Nodes = this.parent.selectAll(".node")
       .data(force.nodes())
       .enter().append("g")
       .attr("class", "node")
@@ -8843,25 +8960,27 @@ Graph.prototype = {
       .on("mouseout", bind(this, this.onMouseOut))
       .on("click", bind(this, this.onCircleClick));
 
-    var circle = this.d3Circles = node.append("circle")
+    this.d3Circles = node.append("circle")
       .style("fill", bind(this, this.getClusterColor))
       .attr("r", circleRadius)
 
-    var titleNodes = this.d3TitleNodes = node.append("text")
+    this.d3TitleNodes = node.append("text")
       .attr("text-anchor", "middle")
       .attr("dy", ".35em")
       .style("display", "none")
       .text(function(d) { return self.getText(d); });
 
     function tick(e) {
-      if (force.alpha() < DEFAULT_FORCE_ALPHA_LIMIT) {
+      if (force.alpha() < defaults.forceAlphaLimit) {
         self.handleCollisions();
 
         // to prevent the chart from moving after
         force.stop();
 
-        self.positionNodes();
-        self.positionLinks();
+        self.updateNodesPosition();
+        self.updateLinksPosition();
+
+        // center the graph
         self.center();
 
         // showing canvas after finished rendering
@@ -8872,20 +8991,38 @@ Graph.prototype = {
       }
     }
 
-    if (this.hasFilters() || this.hasFocus()) { 
+    if (this.hasUnappliedFilters() || this.hasFocus()) { 
       this.update();
     }
 
     return this;
   },
 
+  /**
+   * Shows the graph
+   *
+   * @api private
+   */
+
   show: function() {
-    this.baseGroup.style('display','block');
+    this.parent.style('display','block');
   },
 
+  /**
+   * Hides the graph
+   *
+   * @api private
+   */
+
   hide: function() {
-    this.baseGroup.style('display','none');
+    this.parent.style('display','none');
   },
+
+  /**
+   * Tries to prevent nodes to sticking to each other
+   *
+   * @api private
+   */
 
   handleCollisions: function() {
     var nodes = this.nodes
@@ -8894,14 +9031,17 @@ Graph.prototype = {
       , len = nodes.length;
 
     while (++i < len) {
-      q.visit(this.collide(nodes[i], this.collisionAlpha));
+      q.visit(this.collide(nodes[i], this.opts.collisionAlpha));
     }
   },
 
   /** 
    * Updates the position of the nodes.
+   *
+   * @api private
    */
-  positionNodes: function() {
+
+  updateNodesPosition: function() {
     this.d3Nodes.attr("transform", function(d) { 
       return "translate(" + d.x + "," + d.y + ")"; 
     });
@@ -8909,9 +9049,14 @@ Graph.prototype = {
 
   /**
    * Updates the position of the links.
+   *
+   * @api private
    */
-  positionLinks: function() {
-    // curve line between nodes
+
+  updateLinksPosition: function() {
+
+    // Render a curve line between nodes.
+    
     this.d3Path.attr("d", function(d) {
       var dx = d.target.x - d.source.x
         , dy = d.target.y - d.source.y
@@ -8921,20 +9066,33 @@ Graph.prototype = {
     });
   },
 
+  /**
+   * Handler for circle click event
+   *
+   * @api private
+   */
+
   onCircleClick: function(d) {
-    var self = this;
+    var self = this
+      , e = d3.event;
 
     // To avoid focusing hidden elements
     if (!self.isNodeVisible(d)) {
       return;
     } else {
-      d3.event.preventDefault();
-      d3.event.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
     }
 
     this.focus(d.id).update();
     this.emit("node:click", d);
   },
+
+  /**
+   * Handler for circle mouse over event
+   *
+   * @api private
+   */
 
   onMouseOver: function(d) {
     var focusedNode = this.state.focused;
@@ -8952,6 +9110,12 @@ Graph.prototype = {
     this.emit("node:mouseover", d, offset);
   },
 
+  /**
+   * Handler for circle mouse out event
+   *
+   * @api private
+   */
+
   onMouseOut: function(d) {
     this.hideTooltip();
 
@@ -8961,6 +9125,12 @@ Graph.prototype = {
 
     this.emit("node:mouseout", d);
   },
+
+  /**
+   * Finds the first node that matches the passed fn
+   *
+   * @api private
+   */
 
   findFocusedNode: function(fn) {
     var n, i, len
@@ -8974,6 +9144,12 @@ Graph.prototype = {
     }
   },
 
+  /**
+   * Sets the graph's state to focus on the passed node.
+   *
+   * @api private
+   */
+
   focusNode: function(node) {
     var adjacents = this.adjacents[node.id];
 
@@ -8986,41 +9162,93 @@ Graph.prototype = {
     return node;
   },
 
-  isSelected: function(node) {
+  /**
+   * Tells if a node passes the currently applied filters.
+   *
+   * @api private
+   */
+
+  passesFilters: function(node) {
     return node._selected;
   },
+
+  /**
+   * Tells if a node is currently focused.
+   *
+   * @api private
+   */
 
   isFocused: function(node) {
     return node._focused;
   },
 
+  /**
+   * Tells if a node is currently adjacent to the focused node
+   *
+   * @api private
+   */
+
   isAdjacent: function(node) {
     return node._adjacent;
   },
 
-  hasFilters: function() {
+  /**
+   * Tells if the graph has currently un-applied filters (filters that haven't
+   * been applied to the view)
+   *
+   * @api private
+   */
+
+  hasUnappliedFilters: function() {
     return !!this.filters.length;
   },
+
+  /**
+   * Tells if the graph has currently applied filters (filters that have been 
+   * applied to the view)
+   *
+   * @api private
+   */
 
   hasAppliedFilters: function() {
     return !!this.appliedFilters.length;
   },
   
+  /**
+   * Tells if the graph has a current focused node.
+   *
+   * @api private
+   */
+
   hasFocus:function() {
     return !!this.state.focused;
   },
+
+  /**
+   * Tells if the graph has been rendered.
+   *
+   * @api private
+   */
 
   isRendered: function() {
     return !!this.d3Circles;
   },
   
-  getFilters: function() {
-    return this.filters;
-  },
+  /**
+   * Updates the titles dom representation with the current state.
+   *
+   * @api private
+   */
 
   updateTitles: function() {
     this.d3TitleNodes.style("display", bind(this, this.titleDisplay));
   },
+
+  /**
+   * Updates the circles dom representation with the current state.
+   *
+   * @api private
+   */
 
   updateCircles: function() {
     var self = this
@@ -9041,7 +9269,7 @@ Graph.prototype = {
           el.parentNode.parentNode.appendChild(el.parentNode);
           $el.style("cursor", "pointer");
 
-          var stroke = DEFAULT_CIRCLE_STROKE;
+          var stroke = CIRCLE_STROKE;
           if (highlight) {
             stroke = d3.rgb(self.getClusterColor(e)).darker();
           } 
@@ -9070,6 +9298,12 @@ Graph.prototype = {
     this.visibleNodeCount = count;
   },
 
+  /**
+   * Updates the paths dom representation with the current state.
+   *
+   * @api private
+   */
+
   updatePaths: function() {
     var self = this;
 
@@ -9089,51 +9323,56 @@ Graph.prototype = {
           return SELECTED_PATH_STROKE_WIDTH;
         }
 
-        return DEFAULT_PATH_STROKE_WIDTH;
+        return PATH_STROKE_WIDTH;
       });
   },
 
   /**
-   * Updates the node's state.
+   * Updates the all nodes with the graph's current state. 
+   *
+   * @api public
    */
+
   update: function() {
-    // flushing filters
+
+    // store the currently applied filters
+    
     this.appliedFilters = this.filters;
+
+    // update the view: circles, paths and titles
 
     this.updateCircles();
     this.updatePaths();
     this.updateTitles();
 
+    // flushing filters
+    
     this.filters = [];
+
+    // With the currently applied filters we found no matching nodes
 
     if (!this.visibleNodeCount) {
       this.emit("no match");
     }
   },
 
-  //resetView: function() {
-  //  var circle = this.d3Circles;
-  //  var path = this.d3Path;
-
-  //  if (!this.isRendered()) return;
-
-  //  circle.style('fill', bind(this, this.getClusterColor))
-  //    .style("stroke", DEFAULT_CIRCLE_STROKE)
-  //    .style("cursor", "pointer");
-
-  //  path.attr("stroke-width", DEFAULT_PATH_STROKE_WIDTH)
-  //    .attr("stroke", bind(this, this.pathStroke))
-
-  //  this.updateTitles();
-
-  //  return this;
-  //},
+  /**
+   * Resets a nodes state ( flags applied to it )
+   *
+   * @api private
+   */
 
   resetNode: function(node) {
     delete node._selected; 
     delete node._focused;
     delete node._adjacent;
   },
+
+  /**
+   * Cleans the graph state ( filters and focus applied )
+   *
+   * @api private
+   */
 
   resetState: function() {
     this.filters = [];
@@ -9149,11 +9388,25 @@ Graph.prototype = {
     return this;
   },
 
+
+  /**
+   * Resets the graph and updates the view
+   *
+   * @api public
+   */
+
   reset: function() {
     this.resetState();
     this.update();
-    //this.resetView();
+
+    return this;
   },
+
+  /**
+   * Adds a filter to the graph
+   *
+   * @api private
+   */
 
   addFilter: function(fn) {
     this.filters.push(fn);
@@ -9161,14 +9414,21 @@ Graph.prototype = {
     return this;
   },
 
+  /**
+   * Given the current state of the graph (focus and filters), 
+   * tells if a node is visible.
+   *
+   * @api private
+   */
+
   isNodeVisible: function(node) {
     if (this.hasAppliedFilters()) {
       if (this.hasFocus()) {
-        if (this.isSelected(node) && (this.isAdjacent(node) 
+        if (this.passesFilters(node) && (this.isAdjacent(node) 
           || this.isFocused(node))) {
           return true;
         } 
-      } else if (this.isSelected(node)) {
+      } else if (this.passesFilters(node)) {
         return true;
       }
 
@@ -9184,6 +9444,12 @@ Graph.prototype = {
 
     return true;
   },
+
+  /**
+   * Tests if the node is visible with the currently applied filters
+   *
+   * @api private
+   */
 
   testFilters: function(node) {
     var res = true,
@@ -9202,19 +9468,39 @@ Graph.prototype = {
     return res;
   },
 
+  /**
+   * Tests if a node is focused
+   *
+   * @api private
+   */
+
   testFocused: function(node) {
     return this.state.focused && this.state.focused.id === node.id;
   },
 
+  /**
+   * Tests if a node is adjacent to the currently selected node
+   *
+   * @api private
+   */
+
   testAdjacent: function(node) {
     return !!this.state.adjacents[node.id]
   },
+
+  // Functions used to filter nodes by attr name
 
   fns: {
     text: 'filterByText',
     size: 'filterBySize',
     cluster: 'filterByCluster'
   },
+
+  /**
+   * Applies a filters for a given node's arg.
+   *
+   * @api private
+   */
 
   filterBy: function(key, val) {
     var fn = this[this.fns[key]];
@@ -9231,10 +9517,11 @@ Graph.prototype = {
   },
 
   /**
-   * Will show all the nodes that match fn's result.
+   * Will test and set the node's state that pass the filters.
    * 
    * @api public
    */
+
   filter: function(obj) {
     var type = ({}).toString.call(obj);
     
@@ -9256,31 +9543,35 @@ Graph.prototype = {
   },
 
   /**
-   * Will put focus in one node that matches the fn result
+   * Will put focus the graph on the node that matches the passed arg.
    * 
    * @api public
    *
-   * @param fn {Object|Function|Number|String}
-   * @param center {Boolean}
+   * @param {Object|Function|Number|String} fn
    */
+
   focus: function(fn) {
     var n, type = ({}).toString.call(fn);
 
     switch(type) {
       case '[object Function]':
+        n = this.findFocusedNode(fn);
         break;
       case '[object Object]':
         fn = toFunction(fn);
+        n = this.findFocusedNode(fn);
         break;
       case '[object Number]':
       case '[object String]':
-        fn = toFunction({id: fn});
+        //fn = toFunction({id: fn});
+        n = this.getNode(fn);
         break;
       default:
         throw new Error('invalid argument');
     }
 
-    n = this.findFocusedNode(fn);
+    // XXX : only do this when a fn is passed
+    //n = this.findFocusedNode(fn);
 
     if (n) {
       this.focusNode(n);
@@ -9288,6 +9579,10 @@ Graph.prototype = {
 
     return this;
   },
+
+  /**
+   * @api private
+   */
 
   filterByText: function(text) {
     var matchText = text.toLowerCase(),
@@ -9302,6 +9597,10 @@ Graph.prototype = {
 
     return this;
   },
+
+  /**
+   * @api private
+   */
 
   filterByCluster: function(cluster) {
     var getCluster = bind(this, this.getCluster);
@@ -9326,6 +9625,10 @@ Graph.prototype = {
     return this;
   },
 
+  /**
+   * @api private
+   */
+
   filterBySize: function(min, max) {
     var self = this;
 
@@ -9343,7 +9646,10 @@ Graph.prototype = {
 
   /**
    * Prevents nodes from sticking up together ( best effort )
+   *
+   * @api private
    */
+
   collide: function(node, alpha) {
     var self = this,
       r = node.radius + 16,
@@ -9373,6 +9679,10 @@ Graph.prototype = {
     }
   },
 
+  /**
+   * @api private
+   */
+
   location: function(p) {
     var translate = this.getTranslation()
       , scale = this.getScale();
@@ -9380,12 +9690,20 @@ Graph.prototype = {
     return [(p[0] - translate[0]) / scale, (p[1] - translate[1]) / scale];
   },
 
+  /**
+   * @api private
+   */
+
   point: function(l) {
     var translate = this.getTranslation()
       , scale = this.getScale();
 
     return [l[0] * scale + translate[0], l[1] * scale + translate[1]];
   },
+
+  /**
+   * @api private
+   */
 
   translateTo: function(p, l) {
     var translate = this.getTranslation();
@@ -9396,13 +9714,15 @@ Graph.prototype = {
 
     this._zoom.translate(translate);
   },
+
   /**
    * centers the graph on a point, if no point is passed, the mass center of
    * the graph is used.
    *
-   * @api public
+   * @api private
    *
    */
+
   _center: function(l) {
     var n;
 
@@ -9419,9 +9739,17 @@ Graph.prototype = {
       }
     }
 
-    this.translateTo([this.width/2, this.height/2], l);
+    this.translateTo([this.opts.width/2, this.opts.height/2], l);
     this.refreshZoom(true);
   },
+
+  /**
+   * centers the graph on a node by id, if no id is passed, the mass center of
+   * the graph is used.
+   *
+   * @api public
+   *
+   */
 
   center: function(nodeId) {
     var node;
@@ -9432,7 +9760,7 @@ Graph.prototype = {
     node = this.getNode(nodeId);
 
     if (node) {
-      this._center(node.x, node.y);
+      this._center([node.x, node.y]);
     } else {
       this._center();
     }
@@ -9465,7 +9793,7 @@ Graph.prototype = {
   },
 
   getClusters: function() {
-    return this.colors;
+    return this.clustersObj;
   },
 
   getClusterColor: function(cluster) {
@@ -9477,12 +9805,12 @@ Graph.prototype = {
       c = cluster;
     }
 
-    return this.colors[c];
+    return this.clustersObj[c].color;
   },
 
   tooltip: function(tmpl) {
     this._tooltip = new Tooltip({
-      template: typeof tmpl == "string" ? tmpl : TOOLTIP_TEMPLATE
+      template: typeof tmpl == "string" ? tmpl : defaults.tooltipTemplate
     }); 
 
     this.tooltipOn();
@@ -9512,7 +9840,7 @@ Graph.prototype = {
   },
 
   getNode: function(nodeId) {
-    return this.nodesHash[nodeId];
+    return this.nodesObj[nodeId];
   },
 
   getAdjacents: function(nodeId) {

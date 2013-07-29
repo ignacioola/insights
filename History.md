@@ -1,3 +1,9 @@
+# NEXT
+* Documented methods
+* Fixed bug: .center(id) not working.
+* Renamed constructor option `scaleExtent` for `zoomScaleExtent`.
+* Renamed constructor option `defaultColors` for `colors`.
+
 # 0.8
 * Cumulative selection filters.
     * added isFiltering, addFilter, testFilter methods.
