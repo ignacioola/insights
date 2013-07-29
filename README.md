@@ -78,14 +78,6 @@ graph.on("rendered", function() {
 * `node:mouseover`: when the mouse is over a node.
 * `node:mouseout`: when the mouse goes out from a node.
 
-## Adding a tooltip
-
-Using mustache synthax:
-
-```javascript
-graph.tooltip("<div>name: {{text}}</div><div>count: {{count}}</div>")
-```
-
 ## Filtering
 The filter function decides which nodes are visible and which are not. Always after applying filters the graph must be updated by calling `update()`.
 ```javascript
@@ -174,6 +166,14 @@ graph.focus({ id: 1 })
      .filter({ size: [ 50, 100 ] })
      .zoom(.2)
      .update()
+```
+
+## Adding a tooltip
+
+Using mustache synthax:
+
+```javascript
+graph.tooltip("<div>name: {{text}}</div><div>count: {{count}}</div>")
 ```
 
 ## API 
