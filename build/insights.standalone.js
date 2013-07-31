@@ -8615,7 +8615,7 @@ function Graph(el, nodes, links, options) {
   options.tooltip && this.tooltip(options.tooltip);
 }
 
-Graph.version = "0.8.1";
+Graph.version = "0.9";
 
 Graph.prototype = {
   constructor: Graph,
