@@ -20,7 +20,8 @@
             options = {
               width: screen.width,
               height: screen.height,
-              defaultColors: { "7": "blue" }
+              tooltip: true,
+              colors: { "7": "blue" }
             };
 
         graph = new Insights(el, nodes, links, options).render();
@@ -30,7 +31,11 @@
         var buttons = $("#buttons");
         for (var cluster in clusters) {
           btn = $("<button>").text(cluster).val(cluster).click(function(ev) {
+
+            // get clicked cluster
             val = $(ev.target).val();
+
+            // update graph to show cluster
             graph.reset().filter({ cluster: val }).update();
           });
 
