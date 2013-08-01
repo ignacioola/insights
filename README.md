@@ -1,7 +1,7 @@
 Insights.js
 ===========
 
-An interactive force graph written with d3. 
+A navigateable force graph written with d3. 
 
 <img src="http://ignacioola.github.com/insights/img/1.png" />
 
