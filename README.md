@@ -163,7 +163,7 @@ This will focus the graph on the first node that matches exactly the given text.
 You can apply filters even in the focused state.
 ```javascript
 graph.focus({ id: 1 })
-     .filter({ size: [ 50, 100 ] })
+     .filter({ size: [50, 100] })
      .zoom(.2)
      .update()
 ```
