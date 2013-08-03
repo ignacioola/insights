@@ -71,7 +71,7 @@ function Graph(el, nodes, links, options) {
   options.tooltip && this.tooltip(options.tooltip);
 }
 
-Graph.version = "0.9";
+Graph.version = "0.10";
 
 Graph.prototype = {
   constructor: Graph,
@@ -217,7 +217,7 @@ Graph.prototype = {
   /**
    * Tells which attribute to use to extract a standarized attribute's value.
    *
-   * @api public
+   * @api private
    */
 
   attr: function(key, fn) {

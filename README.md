@@ -189,11 +189,6 @@ Creates a new graph on the `el` element with the given nodes and links. Availabl
 * `tooltip`: adds a tooltip with the passed template if a string if passed. If you pass a truthy value, that's not a string it uses the default template.
 * `colors`: an object containing the colors for each cluster. For example: `{ "0": "blue", "1": "#FF0000" } `.
     
-
-### .attr(str, fn)
-
-Sets an accessor function for the desired node's attribute's value.
-
 ### .filter(fn|obj)
 
 Selects all the nodes that for which `fn` result evaluates to `true` or if an object passed by all of it's values.
