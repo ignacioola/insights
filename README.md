@@ -208,7 +208,7 @@ It returns the graph to it's original state.
     
 ### .center(id)
     
-Centers the graph. If there's a selected node it will be centered around it, if not it will center the graph on the mass center. If a node's id is passed, it centers the graph on it.
+Centers the graph. If there's a focused node it will be centered around it, if not it will center the graph on the mass center. If a node id is passed, it centers the graph around it.
 
 ### .zoom(scale)
 
