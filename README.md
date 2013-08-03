@@ -1,7 +1,7 @@
 Insights.js
 ===========
 
-A navigateable force graph written with d3. 
+Tool for creating navigateable graphs.
 
 <img src="http://ignacioola.github.com/insights/img/1.png" />
 
@@ -117,7 +117,7 @@ graph.filter({ size: [null, 15] });
 
 ### Filter by clusters
 ```javascript
-graph.filter({ cluster: 1})
+graph.filter({ cluster: 1 })
 
 //  or multi-cluster filter...
 
@@ -163,7 +163,7 @@ This will focus the graph on the first node that matches exactly the given text.
 You can apply filters even in the focused state.
 ```javascript
 graph.focus({ id: 1 })
-     .filter({ size: [ 50, 100 ] })
+     .filter({ size: [50, 100] })
      .zoom(.2)
      .update()
 ```
@@ -205,11 +205,15 @@ Focuses the graph on the first node that matches the passed parameters.
 ### .reset()
 
 It returns the graph to it's original state.
-
-### .tooltip(template:str)
-
-Adds a tooltip with the given template to the `node:mouseover` event.
     
+### .center(id)
+    
+Centers the graph. If there's a focused node it will be centered around it, if not it will center the graph on the mass center. If a node id is passed, it centers the graph around it.
+
+### .zoom(scale)
+
+Zooms the graph to the given `scale`.
+
 ### .zoomIn()
 
 Zooms in the graph.
@@ -217,18 +221,14 @@ Zooms in the graph.
 ### .zoomOut()
 
 Zooms out the graph.
-    
-### .zoom(scale)
-
-Zooms the graph to the given `scale`.
-    
-### .center(id)
-    
-Centers the graph. If there's a selected node it will be centered around it, if not it will center the graph on the mass center. If a node's id is passed, it centers the graph on it.
-    
+        
 ### .getClusters()
 
 Returns an object with the available clusters.
+
+### .tooltip(template:str)
+
+Adds a tooltip with the given template to the `node:mouseover` event.
 
 ## Used in
 
