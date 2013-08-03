@@ -1261,7 +1261,7 @@ Graph.prototype = {
       c = cluster;
     }
 
-    return this.clustersObj[c].color;
+    return (this.clustersObj[c] || {}).color;
   },
 
   tooltip: function(tmpl) {
