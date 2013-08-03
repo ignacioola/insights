@@ -35,15 +35,18 @@ describe('graph', function(){
         graph.on("rendered", done)
     });
 
-    it("it should put focus on a node.", function() {
+    it("it should put focus on a node.", function(done) {
         var graph = new Insights(el, nodes, links);
 
-        graph.focus(function(d) {
-            return d.id === 1;
-        });
+        graph.focus(1).render();
 
-        expect(graph.focusedNode.id).to.equal(1);
-        expect(graph.adjacentNodes[2]).to.equal(true);
+        graph.on("rendered", function() {
+
+          expect(graph.state.focused.id).to.equal(1);
+          expect(graph.state.adjacents[2]).to.equal(true);
+
+          done();
+        });
     });
 
     it("it should reset the graph when focus is put on a node", function() {
@@ -53,6 +56,17 @@ describe('graph', function(){
     it("it should reset a focused state.", function() {
 
     });
+
+    it("it should use an accessor function to get the id of the nodes", function() {
+        var graph = new Insights(el, nodes, links);
+          
+          graph.attr("id", function(d) {
+              return d.id;
+            });
+
+          graph.render();
+
+      });
 
     //it('it should put focus on a node when clicked.', function(done) {
     //    var graph = new Insights(el, nodes, links);

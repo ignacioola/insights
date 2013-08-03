@@ -8597,19 +8597,20 @@ function Graph(el, nodes, links, options) {
   this.opts.zoomScaleExtent = options.zoomScaleExtent || options.scaleExtent 
                               || defaults.zoomScaleExtent;
 
+  this.args = {
+    nodes: nodes,
+    links: links
+  };
+
   // attribute name mapping
-  this.attrs = {};
+  //this.attrs = {};
 
   // list of filters to apply
-  this.filters = [];
+  //this.filters = [];
 
-  // list of applied filters
-  this.appliedFilters = [];
+  //// list of applied filters
+  //this.appliedFilters = [];
 
-  this.resetState();
-  this.compute(nodes, links);
-  this.computeScales();
-  this.init();
 
   // activating tooltip
   options.tooltip && this.tooltip(options.tooltip);
@@ -8619,6 +8620,38 @@ Graph.version = "0.9";
 
 Graph.prototype = {
   constructor: Graph,
+
+  /**
+   * Initializes the graph
+   *
+   * @api public
+   */
+
+  init: function() {
+    var self = this;
+    var el = this.getElement();
+
+    this.resetState();
+    this.compute(this.args.nodes, this.args.links);
+    this.computeScales();
+    
+    // initializing zoom
+    this._zoom = d3.behavior.zoom().translate([0,0]);
+
+    el.html("");
+
+    var svg = el.attr("class", el.attr("class") + " " + BASE_ELEMENT_CLASS) 
+      .append("svg")
+        .attr("width", this.opts.width)
+        .attr("height", this.opts.height)
+        .attr("pointer-events", "all")
+        .call(this._zoom.on("zoom", bind(this, this.onZoom))
+                        .scaleExtent(this.opts.zoomScaleExtent))
+
+    this.parent = svg.append('svg:g').style('display','none');
+
+    el.on("click", function() { self.reset() });
+  },
 
   /**
    * Builds relevant data to render the graph
@@ -8730,33 +8763,6 @@ Graph.prototype = {
     this.massCenter = [this.xCenter, this.yCenter];
   },
 
-  /**
-   * Initializes the graph on the dom
-   *
-   * @api public
-   */
-
-  init: function() {
-    var self = this;
-    var el = this.getElement();
-    
-    // initializing zoom
-    this._zoom = d3.behavior.zoom().translate([0,0]);
-
-    el.html("");
-
-    var svg = el.attr("class", el.attr("class") + " " + BASE_ELEMENT_CLASS) 
-      .append("svg")
-        .attr("width", this.opts.width)
-        .attr("height", this.opts.height)
-        .attr("pointer-events", "all")
-        .call(this._zoom.on("zoom", bind(this, this.onZoom))
-                        .scaleExtent(this.opts.zoomScaleExtent))
-
-    this.parent = svg.append('svg:g').style('display','none');
-
-    el.on("click", function() { self.reset() });
-  },
 
   /**
    * Tells which attribute to use to extract a standarized attribute's value.
@@ -8929,6 +8935,8 @@ Graph.prototype = {
 
   render: function() {
     var self = this;
+
+    this.init();
     
     if (this.opts.initialScale) {
       this._zoom = this._zoom.scale(this.opts.initialScale);
@@ -9375,6 +9383,7 @@ Graph.prototype = {
    */
 
   resetState: function() {
+    this.attrs = {};
     this.filters = [];
     this.appliedFilters = [];
 
@@ -9805,7 +9814,7 @@ Graph.prototype = {
       c = cluster;
     }
 
-    return this.clustersObj[c].color;
+    return (this.clustersObj[c] || {}).color;
   },
 
   tooltip: function(tmpl) {
