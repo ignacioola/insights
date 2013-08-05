@@ -58,15 +58,8 @@ function Graph(el, nodes, links, options) {
     links: links
   };
 
-  // attribute name mapping
-  //this.attrs = {};
-
-  // list of filters to apply
-  //this.filters = [];
-
-  //// list of applied filters
-  //this.appliedFilters = [];
-
+  // initialize some attributes
+  this.resetState();
 
   // activating tooltip
   options.tooltip && this.tooltip(options.tooltip);
@@ -87,7 +80,6 @@ Graph.prototype = {
     var self = this;
     var el = this.getElement();
 
-    this.resetState();
     this.compute(this.args.nodes, this.args.links);
     this.computeScales();
     
@@ -454,8 +446,8 @@ Graph.prototype = {
         self.emit("rendered");
       }
     }
-
-    if (this.hasUnappliedFilters() || this.hasFocus()) { 
+    
+    if (this.hasUnappliedFilters() || this.hasUnappliedFocus()) { 
       this.update();
     }
 
@@ -548,7 +540,7 @@ Graph.prototype = {
       e.stopPropagation();
     }
 
-    this.focus(d.id).update();
+    this._focus(d.id).update();
     this.emit("node:click", d);
   },
 
@@ -687,6 +679,16 @@ Graph.prototype = {
   hasFocus:function() {
     return !!this.state.focused;
   },
+  
+  /**
+   * Tells if the graph has a pending focus.
+   *
+   * @api private
+   */
+
+  hasUnappliedFocus:function() {
+    return !!this.unappliedFocus;
+  },
 
   /**
    * Tells if the graph has been rendered.
@@ -799,8 +801,15 @@ Graph.prototype = {
 
   update: function() {
 
-    // store the currently applied filters
+    // try to apply focus
+    var focusFn = this.unappliedFocus;
     
+    if (focusFn) {
+      this._focus(focusFn);
+    }
+
+
+    // store the currently applied filters
     this.appliedFilters = this.filters;
 
     // update the view: circles, paths and titles
@@ -842,11 +851,9 @@ Graph.prototype = {
     this.attrs = {};
     this.filters = [];
     this.appliedFilters = [];
+    this.unappliedFocus = null;
 
-    this.state = {
-      adjacents: {},
-      focused: null
-    }
+    this.state = { adjacents: {}, focused: null };
 
     this.d3Nodes && this.d3Nodes.each(bind(this, this.resetNode));
 
@@ -1008,7 +1015,8 @@ Graph.prototype = {
   },
 
   /**
-   * Will put focus the graph on the node that matches the passed arg.
+   * Will set the graph to focus on the node that matches the passed arg, the 
+   * next time that `update()` is called.
    * 
    * @api public
    *
@@ -1016,6 +1024,20 @@ Graph.prototype = {
    */
 
   focus: function(fn) {
+    this.unappliedFocus = fn;
+
+    return this;
+  },
+
+  /**
+   * Actually focuses the graph on the node that matches the passed arg.
+   * 
+   * @api public
+   *
+   * @param {Object|Function|Number|String} fn
+   */
+
+  _focus: function(fn) {
     var n, type = ({}).toString.call(fn);
 
     switch(type) {
