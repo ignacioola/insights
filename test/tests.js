@@ -38,15 +38,10 @@ describe('graph', function(){
     it("it should put focus on a node.", function(done) {
         var graph = new Insights(el, nodes, links);
 
-        graph.focus(1).render();
+        graph.focus(1);
 
-        graph.on("rendered", function() {
-
-          expect(graph.state.focused.id).to.equal(1);
-          expect(graph.state.adjacents[2]).to.equal(true);
-
-          done();
-        });
+        expect(graph.state.focused.id).to.equal(1);
+        expect(graph.state.adjacents[2]).to.equal(true);
     });
 
     it("it should reset the graph when focus is put on a node", function() {
