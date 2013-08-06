@@ -1,7 +1,7 @@
 var bind = require("bind")
   , Emitter = require("emitter")
   , d3 = require("d3")
-  , toFunction = require('to-function')
+ , toFunction = require('to-function')
   , Tooltip = require("./tooltip");
 
 
@@ -963,6 +963,7 @@ Graph.prototype = {
   // Functions used to filter nodes by attr name
 
   fns: {
+    id: 'filterById',
     text: 'filterByText',
     size: 'filterBySize',
     cluster: 'filterByCluster'
@@ -1063,6 +1064,21 @@ Graph.prototype = {
     if (n) {
       this.focusNode(n);
     }
+
+    return this;
+  },
+
+  /**
+   * @api private
+   */
+
+  filterById: function(id) {
+
+    var fn = function(d) {
+      return id == d.id;
+    };
+
+    this.addFilter(fn);
 
     return this;
   },
