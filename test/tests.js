@@ -2,20 +2,12 @@ var Insights = require("insights");
 var expect = chai.expect;
 var el = document.getElementById("insights");
 
-jQuery.fn.d3Click = function () {
-  this.each(function (i, e) {
-    var evt = document.createEvent("MouseEvents");
-    evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-
-    e.dispatchEvent(evt);
-  });
-};
-
 describe('graph', function(){
+
     var nodes = [ 
-        { id: 1, text: "A", size: 10, cluster: 0 },
-        { id: 2, text: "B", size: 20, cluster: 1 },
-        { id: 3, text: "C", size: 30, cluster: 2 }
+        { id: 1, text: "Apples", size: 10, cluster: 0 },
+        { id: 2, text: "Bananas", size: 20, cluster: 1 },
+        { id: 3, text: "Carrot", size: 30, cluster: 2 }
     ];
     var links = [ [1,2] ];
 
@@ -35,36 +27,125 @@ describe('graph', function(){
         graph.on("rendered", done)
     });
 
-    it("it should put focus on a node.", function() {
+    it("it should put focus on a node.", function(done) {
         var graph = new Insights(el, nodes, links);
 
-        graph.focus(1);
+        graph.focus(1).render();
 
-        expect(graph.state.focused.id).to.equal(1);
-        expect(graph.state.adjacents[2]).to.equal(true);
+        graph.on('rendered', function() {
+          expect(graph.state.focused.id).to.equal(1);
+          expect(graph.state.adjacents[2]).to.equal(true);
+          done();
+        });
     });
 
-    it("it should reset the graph when focus is put on a node", function() {
+    it("it should trigger an event when no nodes are matched.", function(done) {
+        var graph = new Insights(el, nodes, links);
 
+        graph.on('no match', done);
+
+        graph.filter({ cluster: 'fakecluster' }).render();
     });
 
-    it("it should reset a focused state.", function() {
+    it("it should filter nodes by size.", function() {
+        var graph = new Insights(el, nodes, links);
 
+        graph.filter({size: [1, 11]}).render();
+
+        graph.on('rendered', function() {
+          expect(graph.visibleNodeCount).to.equal(1);
+          done();
+        });
     });
 
-    //it('it should put focus on a node when clicked.', function(done) {
-    //    var graph = new Insights(el, nodes, links);
+    it("it should filter nodes by size lower than.", function() {
+        var graph = new Insights(el, nodes, links);
 
-    //    graph.on("rendered", function() {
-    //        var $el = $("#insights .node", el).eq(0);
-    //        var spy = sinon.spy(graph, "onCircleClick");
+        graph.filter({size: [null, 21]}).render();
 
-    //        $el.d3Click();
+        graph.on('rendered', function() {
+          expect(graph.visibleNodeCount).to.equal(2);
+          done();
+        });
+    });
 
-    //        expect(spy.called).to.be.ok;
-    //        done();
-    //    });
+    it("it should filter nodes by size greater than.", function() {
+        var graph = new Insights(el, nodes, links);
 
-    //});
+        graph.filter({size: [19, null]}).render();
+
+        graph.on('rendered', function() {
+          expect(graph.visibleNodeCount).to.equal(2);
+          done();
+        });
+    });
+
+    it("it should filter nodes by cluster.", function() {
+        var graph = new Insights(el, nodes, links);
+
+        graph.filter({cluster: 0}).render();
+
+        graph.on('rendered', function() {
+          expect(graph.visibleNodeCount).to.equal(1);
+          done();
+        });
+    });
+
+    it("it should filter nodes by more than one cluster.", function() {
+        var graph = new Insights(el, nodes, links);
+
+        graph.filter({cluster: [0, 1]}).render();
+
+        graph.on('rendered', function() {
+          expect(graph.visibleNodeCount).to.equal(2);
+          done();
+        });
+    });
+
+    it("it should filter nodes by id.", function() {
+        var graph = new Insights(el, nodes, links);
+
+        graph.filter({id: 1}).render();
+
+        graph.on('rendered', function() {
+          expect(graph.visibleNodeCount).to.equal(1);
+          done();
+        });
+    });
+
+    it("it should filter nodes by partial text match.", function() {
+        var graph = new Insights(el, nodes, links);
+
+        graph.filter({text: "Appl"}).render();
+
+        graph.on('rendered', function() {
+          expect(graph.visibleNodeCount).to.equal(1);
+          done();
+        });
+    });
+
+    it("it should filter nodes by more than one filter.", function() {
+        var graph = new Insights(el, nodes, links);
+
+        graph.filter({size: [0, 21], cluster: [0, 1]}).render();
+
+        graph.on('rendered', function() {
+          expect(graph.visibleNodeCount).to.equal(2);
+          done();
+        });
+    });
+
+    it("it should combine focus and filters correctly.", function() {
+        var graph = new Insights(el, nodes, links);
+
+        graph.filter({size: [0, 21]}).focus(1).render();
+
+        graph.on('rendered', function() {
+          expect(graph.visibleNodeCount).to.equal(2);
+          expect(graph.state.focused.id).to.equal(1);
+          expect(graph.state.adjacents[2]).to.equal(true);
+          done();
+        });
+    });
 });
 
