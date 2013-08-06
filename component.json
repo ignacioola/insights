@@ -1,7 +1,7 @@
 {
   "name": "insights",
-  "version": "0.7.1",
-  "description": "An interactive d3 force graph.",
+  "version": "0.10.1",
+  "description": "A navigatable d3 graph.",
   "keywords": [
     "d3",
     "visualization",

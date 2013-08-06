@@ -1,3 +1,8 @@
+# 0.10.1
+* Fixed filter(id) bug.
+* Added tests.
+* Lazy focus.
+
 # 0.10
 * Documented methods
 * Fixed bug: .center(id) not working.
