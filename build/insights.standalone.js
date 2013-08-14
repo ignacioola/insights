@@ -8565,7 +8565,7 @@ var defaults = {
   linkStrength: 1,
   linkDistance: 60,
   graphCharge: -300,
-  zoomScaleExtent: [0.2, 2.2],
+  zoomScaleExtent: [0.3, 2.3],
   tooltipTemplate: "<div>text: {{text}}</div> <div>size: {{size}}</div>"
 };
 
@@ -8609,7 +8609,7 @@ function Graph(el, nodes, links, options) {
   options.tooltip && this.tooltip(options.tooltip);
 }
 
-Graph.version = "0.10";
+Graph.version = "0.10.1";
 
 Graph.prototype = {
   constructor: Graph,

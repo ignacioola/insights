@@ -21,7 +21,7 @@ var defaults = {
   linkStrength: 1,
   linkDistance: 60,
   graphCharge: -300,
-  zoomScaleExtent: [0.2, 2.2],
+  zoomScaleExtent: [0.3, 2.3],
   tooltipTemplate: "<div>text: {{text}}</div> <div>size: {{size}}</div>"
 };
 

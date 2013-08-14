@@ -1,3 +1,6 @@
+# Next
+* Changed scaleExtent option default value.
+
 # 0.10.1
 * Fixed filter(id) bug.
 * Added tests.
