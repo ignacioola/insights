@@ -173,7 +173,7 @@ graph.focus({ id: 1 })
 Using mustache synthax:
 
 ```javascript
-graph.tooltip("<div>name: {{text}}</div><div>count: {{count}}</div>")
+graph.tooltip("<div>name: {{text}}</div><div>count: {{size}}</div>")
 ```
 
 ## API 
