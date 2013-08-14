@@ -1,7 +1,7 @@
 var bind = require("bind")
   , Emitter = require("emitter")
   , d3 = require("d3")
-  , toFunction = require('to-function')
+ , toFunction = require('to-function')
   , Tooltip = require("./tooltip");
 
 
@@ -21,7 +21,7 @@ var defaults = {
   linkStrength: 1,
   linkDistance: 60,
   graphCharge: -300,
-  zoomScaleExtent: [0.2, 2.2],
+  zoomScaleExtent: [0.3, 2.3],
   tooltipTemplate: "<div>text: {{text}}</div> <div>size: {{size}}</div>"
 };
 
@@ -53,28 +53,53 @@ function Graph(el, nodes, links, options) {
   this.opts.zoomScaleExtent = options.zoomScaleExtent || options.scaleExtent 
                               || defaults.zoomScaleExtent;
 
-  // attribute name mapping
-  this.attrs = {};
+  this.args = {
+    nodes: nodes,
+    links: links
+  };
 
-  // list of filters to apply
-  this.filters = [];
-
-  // list of applied filters
-  this.appliedFilters = [];
-
+  // initialize some attributes
   this.resetState();
-  this.compute(nodes, links);
-  this.computeScales();
-  this.init();
 
   // activating tooltip
   options.tooltip && this.tooltip(options.tooltip);
 }
 
-Graph.version = "0.9";
+Graph.version = "0.10.1";
 
 Graph.prototype = {
   constructor: Graph,
+
+  /**
+   * Initializes the graph
+   *
+   * @api public
+   */
+
+  init: function() {
+    var self = this;
+    var el = this.getElement();
+
+    this.compute(this.args.nodes, this.args.links);
+    this.computeScales();
+    
+    // initializing zoom
+    this._zoom = d3.behavior.zoom().translate([0,0]);
+
+    el.html("");
+
+    var svg = el.attr("class", el.attr("class") + " " + BASE_ELEMENT_CLASS) 
+      .append("svg")
+        .attr("width", this.opts.width)
+        .attr("height", this.opts.height)
+        .attr("pointer-events", "all")
+        .call(this._zoom.on("zoom", bind(this, this.onZoom))
+                        .scaleExtent(this.opts.zoomScaleExtent))
+
+    this.parent = svg.append('svg:g').style('display','none');
+
+    el.on("click", function() { self.reset() });
+  },
 
   /**
    * Builds relevant data to render the graph
@@ -186,38 +211,11 @@ Graph.prototype = {
     this.massCenter = [this.xCenter, this.yCenter];
   },
 
-  /**
-   * Initializes the graph on the dom
-   *
-   * @api public
-   */
-
-  init: function() {
-    var self = this;
-    var el = this.getElement();
-    
-    // initializing zoom
-    this._zoom = d3.behavior.zoom().translate([0,0]);
-
-    el.html("");
-
-    var svg = el.attr("class", el.attr("class") + " " + BASE_ELEMENT_CLASS) 
-      .append("svg")
-        .attr("width", this.opts.width)
-        .attr("height", this.opts.height)
-        .attr("pointer-events", "all")
-        .call(this._zoom.on("zoom", bind(this, this.onZoom))
-                        .scaleExtent(this.opts.zoomScaleExtent))
-
-    this.parent = svg.append('svg:g').style('display','none');
-
-    el.on("click", function() { self.reset() });
-  },
 
   /**
    * Tells which attribute to use to extract a standarized attribute's value.
    *
-   * @api public
+   * @api private
    */
 
   attr: function(key, fn) {
@@ -385,6 +383,8 @@ Graph.prototype = {
 
   render: function() {
     var self = this;
+
+    this.init();
     
     if (this.opts.initialScale) {
       this._zoom = this._zoom.scale(this.opts.initialScale);
@@ -446,8 +446,8 @@ Graph.prototype = {
         self.emit("rendered");
       }
     }
-
-    if (this.hasUnappliedFilters() || this.hasFocus()) { 
+    
+    if (this.hasUnappliedFilters() || this.hasUnappliedFocus()) { 
       this.update();
     }
 
@@ -540,7 +540,7 @@ Graph.prototype = {
       e.stopPropagation();
     }
 
-    this.focus(d.id).update();
+    this._focus(d.id).update();
     this.emit("node:click", d);
   },
 
@@ -679,6 +679,16 @@ Graph.prototype = {
   hasFocus:function() {
     return !!this.state.focused;
   },
+  
+  /**
+   * Tells if the graph has a pending focus.
+   *
+   * @api private
+   */
+
+  hasUnappliedFocus:function() {
+    return !!this.unappliedFocus;
+  },
 
   /**
    * Tells if the graph has been rendered.
@@ -791,8 +801,15 @@ Graph.prototype = {
 
   update: function() {
 
-    // store the currently applied filters
+    // try to apply focus
+    var focusFn = this.unappliedFocus;
     
+    if (focusFn) {
+      this._focus(focusFn);
+    }
+
+
+    // store the currently applied filters
     this.appliedFilters = this.filters;
 
     // update the view: circles, paths and titles
@@ -831,13 +848,12 @@ Graph.prototype = {
    */
 
   resetState: function() {
+    this.attrs = {};
     this.filters = [];
     this.appliedFilters = [];
+    this.unappliedFocus = null;
 
-    this.state = {
-      adjacents: {},
-      focused: null
-    }
+    this.state = { adjacents: {}, focused: null };
 
     this.d3Nodes && this.d3Nodes.each(bind(this, this.resetNode));
 
@@ -947,6 +963,7 @@ Graph.prototype = {
   // Functions used to filter nodes by attr name
 
   fns: {
+    id: 'filterById',
     text: 'filterByText',
     size: 'filterBySize',
     cluster: 'filterByCluster'
@@ -999,7 +1016,8 @@ Graph.prototype = {
   },
 
   /**
-   * Will put focus the graph on the node that matches the passed arg.
+   * Will set the graph to focus on the node that matches the passed arg, the 
+   * next time that `update()` is called.
    * 
    * @api public
    *
@@ -1007,6 +1025,20 @@ Graph.prototype = {
    */
 
   focus: function(fn) {
+    this.unappliedFocus = fn;
+
+    return this;
+  },
+
+  /**
+   * Actually focuses the graph on the node that matches the passed arg.
+   * 
+   * @api public
+   *
+   * @param {Object|Function|Number|String} fn
+   */
+
+  _focus: function(fn) {
     var n, type = ({}).toString.call(fn);
 
     switch(type) {
@@ -1032,6 +1064,21 @@ Graph.prototype = {
     if (n) {
       this.focusNode(n);
     }
+
+    return this;
+  },
+
+  /**
+   * @api private
+   */
+
+  filterById: function(id) {
+
+    var fn = function(d) {
+      return id == d.id;
+    };
+
+    this.addFilter(fn);
 
     return this;
   },
@@ -1261,7 +1308,7 @@ Graph.prototype = {
       c = cluster;
     }
 
-    return this.clustersObj[c].color;
+    return (this.clustersObj[c] || {}).color;
   },
 
   tooltip: function(tmpl) {

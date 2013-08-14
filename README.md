@@ -1,7 +1,7 @@
 Insights.js
 ===========
 
-A navigateable force graph written with d3. 
+Tool for creating navigateable graphs.
 
 <img src="http://ignacioola.github.com/insights/img/1.png" />
 
@@ -117,7 +117,7 @@ graph.filter({ size: [null, 15] });
 
 ### Filter by clusters
 ```javascript
-graph.filter({ cluster: 1})
+graph.filter({ cluster: 1 })
 
 //  or multi-cluster filter...
 
@@ -163,7 +163,7 @@ This will focus the graph on the first node that matches exactly the given text.
 You can apply filters even in the focused state.
 ```javascript
 graph.focus({ id: 1 })
-     .filter({ size: [ 50, 100 ] })
+     .filter({ size: [50, 100] })
      .zoom(.2)
      .update()
 ```
@@ -189,11 +189,6 @@ Creates a new graph on the `el` element with the given nodes and links. Availabl
 * `tooltip`: adds a tooltip with the passed template if a string if passed. If you pass a truthy value, that's not a string it uses the default template.
 * `colors`: an object containing the colors for each cluster. For example: `{ "0": "blue", "1": "#FF0000" } `.
     
-
-### .attr(str, fn)
-
-Sets an accessor function for the desired node's attribute's value.
-
 ### .filter(fn|obj)
 
 Selects all the nodes that for which `fn` result evaluates to `true` or if an object passed by all of it's values.
@@ -205,11 +200,15 @@ Focuses the graph on the first node that matches the passed parameters.
 ### .reset()
 
 It returns the graph to it's original state.
-
-### .tooltip(template:str)
-
-Adds a tooltip with the given template to the `node:mouseover` event.
     
+### .center(id)
+    
+Centers the graph. If there's a focused node it will be centered around it, if not it will center the graph on the mass center. If a node id is passed, it centers the graph around it.
+
+### .zoom(scale)
+
+Zooms the graph to the given `scale`.
+
 ### .zoomIn()
 
 Zooms in the graph.
@@ -217,18 +216,14 @@ Zooms in the graph.
 ### .zoomOut()
 
 Zooms out the graph.
-    
-### .zoom(scale)
-
-Zooms the graph to the given `scale`.
-    
-### .center(id)
-    
-Centers the graph. If there's a selected node it will be centered around it, if not it will center the graph on the mass center. If a node's id is passed, it centers the graph on it.
-    
+        
 ### .getClusters()
 
 Returns an object with the available clusters.
+
+### .tooltip(template:str)
+
+Adds a tooltip with the given template to the `node:mouseover` event.
 
 ## Used in
 

@@ -1,8 +1,17 @@
-# NEXT
+# Next
+* Changed scaleExtent option default value.
+
+# 0.10.1
+* Fixed filter(id) bug.
+* Added tests.
+* Lazy focus.
+
+# 0.10
 * Documented methods
 * Fixed bug: .center(id) not working.
 * Renamed constructor option `scaleExtent` for `zoomScaleExtent`.
 * Renamed constructor option `defaultColors` for `colors`.
+* Removed `.attr()` from public api.
 
 # 0.8
 * Cumulative selection filters.
