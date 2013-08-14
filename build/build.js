@@ -1,11 +1,4 @@
 
-
-/**
- * hasOwnProperty.
- */
-
-var has = Object.prototype.hasOwnProperty;
-
 /**
  * Require the given path.
  *
@@ -69,7 +62,7 @@ require.aliases = {};
  */
 
 require.resolve = function(path) {
-  var index = path + '/index.js';
+  if (path.charAt(0) === '/') path = path.slice(1);
 
   var paths = [
     path,
@@ -81,11 +74,8 @@ require.resolve = function(path) {
 
   for (var i = 0; i < paths.length; i++) {
     var path = paths[i];
-    if (has.call(require.modules, path)) return path;
-  }
-
-  if (has.call(require.aliases, index)) {
-    return require.aliases[index];
+    if (require.modules.hasOwnProperty(path)) return path;
+    if (require.aliases.hasOwnProperty(path)) return require.aliases[path];
   }
 };
 
@@ -138,7 +128,7 @@ require.register = function(path, definition) {
  */
 
 require.alias = function(from, to) {
-  if (!has.call(require.modules, from)) {
+  if (!require.modules.hasOwnProperty(from)) {
     throw new Error('Failed to alias "' + from + '", it does not exist');
   }
   require.aliases[to] = from;
@@ -181,17 +171,18 @@ require.relative = function(parent) {
    */
 
   localRequire.resolve = function(path) {
+    var c = path.charAt(0);
+    if ('/' == c) return path.slice(1);
+    if ('.' == c) return require.normalize(p, path);
+
     // resolve deps by returning
     // the dep in the nearest "deps"
     // directory
-    if ('.' != path.charAt(0)) {
-      var segs = parent.split('/');
-      var i = lastIndexOf(segs, 'deps') + 1;
-      if (!i) i = 0;
-      path = segs.slice(0, i + 1).join('/') + '/deps/' + path;
-      return path;
-    }
-    return require.normalize(p, path);
+    var segs = parent.split('/');
+    var i = lastIndexOf(segs, 'deps') + 1;
+    if (!i) i = 0;
+    path = segs.slice(0, i + 1).join('/') + '/deps/' + path;
+    return path;
   };
 
   /**
@@ -199,11 +190,112 @@ require.relative = function(parent) {
    */
 
   localRequire.exists = function(path) {
-    return has.call(require.modules, localRequire.resolve(path));
+    return require.modules.hasOwnProperty(localRequire.resolve(path));
   };
 
   return localRequire;
 };
+require.register("component-to-function/index.js", function(exports, require, module){
+
+/**
+ * Expose `toFunction()`.
+ */
+
+module.exports = toFunction;
+
+/**
+ * Convert `obj` to a `Function`.
+ *
+ * @param {Mixed} obj
+ * @return {Function}
+ * @api private
+ */
+
+function toFunction(obj) {
+  switch ({}.toString.call(obj)) {
+    case '[object Object]':
+      return objectToFunction(obj);
+    case '[object Function]':
+      return obj;
+    case '[object String]':
+      return stringToFunction(obj);
+    case '[object RegExp]':
+      return regexpToFunction(obj);
+    default:
+      return defaultToFunction(obj);
+  }
+}
+
+/**
+ * Default to strict equality.
+ *
+ * @param {Mixed} val
+ * @return {Function}
+ * @api private
+ */
+
+function defaultToFunction(val) {
+  return function(obj){
+    return val === obj;
+  }
+}
+
+/**
+ * Convert `re` to a function.
+ *
+ * @param {RegExp} re
+ * @return {Function}
+ * @api private
+ */
+
+function regexpToFunction(re) {
+  return function(obj){
+    return re.test(obj);
+  }
+}
+
+/**
+ * Convert property `str` to a function.
+ *
+ * @param {String} str
+ * @return {Function}
+ * @api private
+ */
+
+function stringToFunction(str) {
+  // immediate such as "> 20"
+  if (/^ *\W+/.test(str)) return new Function('_', 'return _ ' + str);
+
+  // properties such as "name.first" or "age > 18"
+  return new Function('_', 'return _.' + str);
+}
+
+/**
+ * Convert `object` to a function.
+ *
+ * @param {Object} object
+ * @return {Function}
+ * @api private
+ */
+
+function objectToFunction(obj) {
+  var match = {}
+  for (var key in obj) {
+    match[key] = typeof obj[key] === 'string'
+      ? defaultToFunction(obj[key])
+      : toFunction(obj[key])
+  }
+  return function(val){
+    if (typeof val !== 'object') return false;
+    for (var key in match) {
+      if (!(key in val)) return false;
+      if (!match[key](val[key])) return false;
+    }
+    return true;
+  }
+}
+
+});
 require.register("ignacioola-d3/d3.js", function(exports, require, module){
 (function() {
   var d3_format_decimalPoint = ".", d3_format_thousandsSeparator = ",", d3_format_grouping = [ 3, 3 ];
@@ -8094,8 +8186,6 @@ function compile(str) {
     + indent(section.toString()) + ';\n\n'
     + '  return ' + js.join('').replace(/\n/g, '\\n');
 
-  js = normalize(js);
-
   return new Function('obj', js);
 }
 
@@ -8119,24 +8209,7 @@ function assertProperty(prop) {
  */
 
 function parse(str) {
-  return str
-    .replace(/\\\{/g, '__LBRACE__')
-    .replace(/\\\}/g, '__RBRACE__')
-    .split(/\{\{?|\}?\}/)
-}
-
-/**
- * Normalize `str`, adding back braces.
- *
- * @param {String} str
- * @return {String}
- * @api private
- */
-
-function normalize(str) {
-  return str
-    .replace(/__LBRACE__/g, '{')
-    .replace(/__RBRACE__/g, '}');
+  return str.split(/\{\{|\}\}/);
 }
 
 /**
@@ -8185,7 +8258,25 @@ function escape(html) {
     .replace(/>/g, '&gt;');
 }
 });
+require.register("component-indexof/index.js", function(exports, require, module){
+
+var indexOf = [].indexOf;
+
+module.exports = function(arr, obj){
+  if (indexOf) return arr.indexOf(obj);
+  for (var i = 0; i < arr.length; ++i) {
+    if (arr[i] === obj) return i;
+  }
+  return -1;
+};
+});
 require.register("component-emitter/index.js", function(exports, require, module){
+
+/**
+ * Module dependencies.
+ */
+
+var index = require('indexof');
 
 /**
  * Expose `Emitter`.
@@ -8195,7 +8286,7 @@ module.exports = Emitter;
 
 /**
  * Initialize a new `Emitter`.
- * 
+ *
  * @api public
  */
 
@@ -8268,8 +8359,18 @@ Emitter.prototype.once = function(event, fn){
  * @api public
  */
 
-Emitter.prototype.off = function(event, fn){
+Emitter.prototype.off =
+Emitter.prototype.removeListener =
+Emitter.prototype.removeAllListeners = function(event, fn){
   this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
   var callbacks = this._callbacks[event];
   if (!callbacks) return this;
 
@@ -8280,7 +8381,7 @@ Emitter.prototype.off = function(event, fn){
   }
 
   // remove specific handler
-  var i = callbacks.indexOf(fn._off || fn);
+  var i = index(callbacks, fn._off || fn);
   if (~i) callbacks.splice(i, 1);
   return this;
 };
@@ -8290,7 +8391,7 @@ Emitter.prototype.off = function(event, fn){
  *
  * @param {String} event
  * @param {Mixed} ...
- * @return {Emitter} 
+ * @return {Emitter}
  */
 
 Emitter.prototype.emit = function(event){
@@ -8332,7 +8433,6 @@ Emitter.prototype.listeners = function(event){
 Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
-
 
 });
 require.register("component-bind/index.js", function(exports, require, module){
@@ -8441,830 +8541,1384 @@ module.exports = Tooltip;
 
 });
 require.register("insights/src/graph.js", function(exports, require, module){
-var bind = require("bind"),
-    Emitter = require("emitter"),
-    d3 = require("d3"),
-    Tooltip = require("./tooltip");
+var bind = require("bind")
+  , Emitter = require("emitter")
+  , d3 = require("d3")
+ , toFunction = require('to-function')
+  , Tooltip = require("./tooltip");
 
-var UNSELECTED_COLOR = "transparent"; //"#EFEFEF";
-var DEFAULT_PATH_STROKE_WIDTH = .3;
+
+// Constants
+var UNSELECTED_COLOR = "transparent";
+var PATH_STROKE_WIDTH = .3;
 var SELECTED_PATH_STROKE_WIDTH = 1.5;
-var DEFAULT_CIRCLE_STROKE = "#FFF";
-var ZOOM_SCALE_EXTENT = [0.2, 2.3];
-
-var TOOLTIP_TEMPLATE = "<div>word: {{text}}</div> <div>count: {{count}}</div>";
+var CIRCLE_STROKE = "#FFF";
 var BASE_ELEMENT_CLASS = "insights-graph";
-var DEFAULT_WIDTH = 1200;
-var DEFAULT_HEIGHT = 700; 
-var DEFAULT_COLLISION_ALPHA = .5;
-var DEFAULT_FORCE_ALPHA_LIMIT = 0.007;
-var DEFAULT_SIZE_ATTR = "size";  // where to find size info
+
+// Defaults
+var defaults = {
+  width: 1200,
+  height: 700, 
+  collisionAlpha: .5,
+  forceAlphaLimit: 0.02,
+  linkStrength: 1,
+  linkDistance: 60,
+  graphCharge: -300,
+  zoomScaleExtent: [0.3, 2.3],
+  tooltipTemplate: "<div>text: {{text}}</div> <div>size: {{size}}</div>"
+};
+
+// Valid attribute keys for a node
+var VALID_ATTRS = ['id', 'size', 'cluster', 'text'];
+
+/**
+ * Creates a new `Graph` instance.
+ *
+ * @constructor Graph
+ */
 
 function Graph(el, nodes, links, options) {
-    options = options || {};
 
-    this.el = el;
-    this.links = links;
-    this.nodes = nodes;
-    this.width = options.width || DEFAULT_WIDTH;
-    this.height = options.height ||DEFAULT_HEIGHT;
-    this.color = d3.scale.category20();
-    this.collisionAlpha = options.collisionAlpha || DEFAULT_COLLISION_ALPHA;
-    this.scaleExtent = options.scaleExtent || ZOOM_SCALE_EXTENT;
-    this.sizeAttr = options.sizeAttr || DEFAULT_SIZE_ATTR;
-    
-    if (options.initialScale) {
-        this._initialScale = options.initialScale;
-    }
+  // main element
+  this.el = el;
 
-    this.max = {};
-    this.min = {};
+  // option cache
+  this.opts = {};
 
-    this.adjacentNodes = {};
-    this.processData();
-    this.processScales();
-    this.init();
+  options = options || {};
 
-    this.tooltipOn();
-    options.tooltipTemplate && this.tooltip(options.tooltipTemplate);
+  this.opts.width = options.width || defaults.width;
+  this.opts.height = options.height || defaults.height;
+  this.opts.color = d3.scale.category20();
+  this.opts.colors = options.colors || {};
+  this.opts.collisionAlpha = options.collisionAlpha || defaults.collisionAlpha;
+  this.opts.initialScale = options.initialScale;
+  this.opts.zoomScaleExtent = options.zoomScaleExtent || options.scaleExtent 
+                              || defaults.zoomScaleExtent;
 
-    this.render();
+  this.args = {
+    nodes: nodes,
+    links: links
+  };
+
+  // initialize some attributes
+  this.resetState();
+
+  // activating tooltip
+  options.tooltip && this.tooltip(options.tooltip);
 }
 
-Graph.version = "0.6.1";
+Graph.version = "0.10.1";
 
 Graph.prototype = {
-    constructor: Graph,
-
-    processData: function() {
-        var self = this,
-            nodesHash = {},
-            maxSize = 0,
-            maxWeight = 0,
-            adjacents= {},
-            linksList = [],
-            clusters = {},
-            getCluster = bind(this, this.getCluster),
-            getSize = bind(this, this.getSize);
-
-        this.nodes.forEach(function(n) {
-            var cluster = getCluster(n);
-
-            maxSize = Math.max(maxSize, getSize(n));
-            n.name = n.id;
-            nodesHash[n.id] = nodesHash[n.id] || n;
-
-            if (cluster != null) {
-                // caching cluster data
-                clusters[cluster] = self.color(cluster);
-            }
-        });
-
-        // Compute the distinct nodes from the links.
-        this.links.forEach(function(link) {
-            var source = nodesHash[link[0]],
-                target = nodesHash[link[1]];
-
-            if (!source ||!target) return;
-            
-            if (!(link[0] in adjacents)) {
-                adjacents[link[0]]= {};
-                adjacents[link[0]][link[0]]= true;
-            } 
-            if (!(link[1] in adjacents)) {
-                adjacents[link[1]]= {};
-                adjacents[link[1]][link[1]]= true;
-            }
-            adjacents[link[0]][link[1]]=true;
-            adjacents[link[1]][link[0]]= true;
-
-            linksList.push({
-                source: source,
-                target: target
-            });
-        });
-
-        this.linksList = linksList;
-        this.adjacents = adjacents;
-        this.nodesHash = nodesHash;
-
-        this.max.size = maxSize;
-        this.clusters = clusters;
-    },
-
-    processScales: function() {
-        this.radiusScale = d3.scale.sqrt().domain([1, this.max.size]).range([6, 40]);
-        this.titleScale = d3.scale.log().domain([1, this.max.size]).range([0, 1]);
-    },
-
-    processCenterCoords: function() {
-        var self = this;
-        var xMass=0, yMass=0, totalSize=0;
-
-        this.d3Nodes.each(function(d) { 
-            var size = self.getSize(d);
-            xMass += d.x * size;
-            yMass += d.y * size;
-            totalSize += size;
-        });
-
-        this.xCenter = xMass / totalSize;
-        this.yCenter = yMass / totalSize;
-        this.massCenter = [this.xCenter, this.yCenter];
-    },
-
-    init: function() {
-        var self = this;
-        
-        this._zoom = d3.behavior.zoom().translate([0,0]);
-
-        if (this._initialScale) {
-            this._zoom = this._zoom.scale(this._initialScale);
-        }
-
-        this.$el = this.getElement();
-
-        this.svg = this.$el
-            .attr("class", this.$el.attr("class") + " " + BASE_ELEMENT_CLASS) 
-            .append("svg")
-                .attr("width", this.width)
-                .attr("height", this.height)
-                .attr("pointer-events", "all")
-                .call(this._zoom.on("zoom", bind(this, this.onZoom))
-                               .scaleExtent(this.scaleExtent))
-
-        this.baseGroup = this.svg.append('svg:g')
-                              .style('display','none');
-
-        this.$el.on("click", function() { self._reset() });
-    },
-
-    onZoom: function() {
-        this.refreshZoom();
-    },
-
-    refreshZoom: function(animate) {
-        var zoom = this._zoom;
-        var trans = this.getTranslation();
-        var scale = this.getScale();
-
-        
-        if (animate) {
-            this.baseGroup.transition().duration(500).attr('transform', 
-                'translate(' + zoom.translate() + ') scale(' + zoom.scale() + ')');
-        } else {
-            this.baseGroup.attr("transform", "translate(" + trans + ")" + " scale(" + scale + ")");
-        }
-
-        this.displayTitle();
-    },
-
-    zoom: function(scale) {
-        var trans = this.getTranslation();
-        var zoom = this._zoom;
-
-        zoom.scale(scale);
-
-        this.refreshZoom(true);
-    },
-
-    zoomIn: function() {
-        var scale = this.getScale();
-        var k = Math.pow(2, Math.floor(Math.log(scale) / Math.LN2) + 1);
-
-        k = Math.min(k, this.scaleExtent[1]);
-            
-        this.zoom(k);
-    },
-
-    zoomOut: function() {
-        var scale = this.getScale();
-        var k = Math.pow(2, Math.ceil(Math.log(scale) / Math.LN2) - 1);
-
-        k = Math.max(k, this.scaleExtent[0]);
-            
-        this.zoom(k);
-    },
-
-    isTitleDisplayable: function(d) {
-        var scale = this.getScale();
-        var res = this.titleScale(this.getSize(d) || 1);
-
-        return (scale * res > .8 || scale > 2.2 );
-    },
-
-    displayTitle: function() {
-        var self = this;
-        var scale = this.getScale();
-        var adjacentNodes = this.adjacentNodes;
-        var selectedNode = this.selectedNode;
-        var hasSelection = !!this.selectedNode;
-        var isThereMatch = this.isThereMatch();
-
-        this.d3TitleNodes.style("display", function(d) {
-            var isDisplayable = self.isTitleDisplayable(d);
-
-            if (isDisplayable && self.isSelected(d)) {
-                if (isThereMatch && !isMatched(d)) {
-                    return "none";
-                } else {
-                    return "";
-                }
-            }
-
-            if (hasSelection && !adjacentNodes[d.id]) {
-                return "none"
-            }
-
-            if (isThereMatch && !isMatched(d)) {
-                return "none";
-            }
-
-            if (isDisplayable) {
-                return "";
-            } else {
-                return "none";
-            }
-        });
-    },
-
-    pathStroke: function(d) {
-        var source = d.source,
-            target = d.target;
-
-        if (this.getSize(target) > this.getSize(source)) {
-            return this.getClusterColor(target);
-        } else {
-            return this.getClusterColor(source);
-        }
-    },
-
-    render: function() {
-        var self = this;
-        var nodesHash = {};
-        var nodes = this.nodes;
-
-        function circleFill(d) { return self.getClusterColor(d); }
-        function circleRadius(d) { return self.radiusScale(self.getSize(d) ||1); }
-
-        var force = this.force = d3.layout.force()
-            .nodes(d3.values(this.nodesHash)) // turns {a:1, b:2} into [1, 2]
-            .links(this.linksList)
-            .size([this.width, this.height])
-            .linkDistance(60)
-            .linkStrength(1)
-            .gravity(0.2)
-            .charge(-240)
-            .on("tick", tick)
-            .start();
-
-        var path = this.d3Path = this.baseGroup.append("svg:g").selectAll("path")
-            .data(force.links())
-            .enter().append("svg:path")
-            .attr("stroke", bind(this, this.pathStroke))
-            .attr("stroke-width", DEFAULT_PATH_STROKE_WIDTH)
-            .attr("fill", "none");
-        
-        var node = this.d3Nodes = this.baseGroup.selectAll(".node")
-            .data(force.nodes())
-            .enter().append("g")
-            .attr("class", "node")
-            .on("mouseover", bind(this, this.onMouseOver))
-            .on("mouseout", bind(this, this.onMouseOut))
-            .on("click", bind(this, this.onCircleClick));
-
-        var circle = this.d3Circles = node.append("circle")
-            .style("fill", circleFill)
-            .attr("r", circleRadius)
-
-        var titleNodes = this.d3TitleNodes = node.append("text")
-            .attr("text-anchor", "middle")
-            .attr("dy", ".35em")
-            .style("display", "none")
-            .text(function(d) { return self.getText(d); });
-
-        function tick(e) {
-            if (force.alpha() < DEFAULT_FORCE_ALPHA_LIMIT) {
-                self.handleCollisions();
-
-                // to prevent the chart from moving after
-                force.stop();
-
-                self.positionNodes();
-                self.generateLinks();
-                self.center();
-
-                // showing canvas after finished rendering
-                self.show();
-
-                self.refreshZoom();
-                self.emit("rendered");
-            }
-        }
-    },
-
-    show: function() {
-        this.baseGroup.style('display','block')
-    },
-
-    hide: function() {
-        this.baseGroup.style('display','none')
-    },
-
-    handleCollisions: function() {
-        var nodes = this.nodes,
-            q = d3.geom.quadtree(nodes),
-            i = 0,
-            n = nodes.length;
-
-        while (++i < n) {
-            q.visit(this.collide(nodes[i], this.collisionAlpha));
-        }
-    },
-
-    // Updates the position of the nodes
-    positionNodes: function() {
-        this.d3Nodes.attr("transform", function(d) { 
-            return "translate(" + d.x + "," + d.y + ")"; 
-        });
-    },
-
-    // Updates the position of the links
-    generateLinks: function() {
-        // curve line between nodes
-        this.d3Path.attr("d", function(d) {
-            var dx = d.target.x - d.source.x,
-            dy = d.target.y - d.source.y,
-            dr = Math.sqrt(dx * dx + dy * dy);
-            return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
-        });
-    },
-
-    onCircleClick: function(d) {
-        var self = this;
-        var circle = this.d3Circles;
-        var path = this.d3Path;
-        var adjacentNodes;
-
-
-        if (self.selectedNode && !self.isSelected(d) && !self.isAdjacent(d)) {
-            return;
-        }
-
-        if (self.isThereMatch() && !isMatched(d)) {
-            return;
-        }
-
-        d3.event.preventDefault();
-        d3.event.stopPropagation();
-
-        this.focus(d);
-        this.emit("node:click", d);
-    },
-
-    onMouseOver: function(d) {
-        var selectedNode = this.selectedNode;
-
-        if (this.selectedNode && !this.isSelected(d) && !this.isAdjacent(d)) {
-            return;
-        }
-
-        if (this.isThereMatch() && !isMatched(d)) {
-            return;
-        }
-
-        var offset = { 
-            left: currentMousePos.x + 10, 
-            top: currentMousePos.y + 10 
-        };
-
-
-        this.showTooltip(offset, d);
-        this.emit("node:mouseover", d, offset);
-    },
-
-    onMouseOut: function(d) {
-        this.hideTooltip();
-
-        if (this.selectedNode && !this.isSelected(d) && !this.isAdjacent(d)) {
-            return;
-        }
-
-        if (this.isThereMatch() && !isMatched(d)) {
-            return;
-        }
-
-        this.emit("node:mouseout", d);
-    },
-
-    selectNode: function(d) {
-        var node, fn;
-        // In this case we want no match data, just the clicked circle data
-        if (this.isThereMatch()) {
-            this._reset();
-        }
-
-        if (typeof d === "function") {
-            fn = d;
-            this.d3Nodes.each(function(e) {
-                if (fn(e)) {
-                    node = e;
-                }
-            });
-        } else {
-            node = d;
-        }
-
-        if (!node) {
-            return;
-        }
-
-        this.selectedNode = node;
-
-        if (this.adjacents[node.id]) {
-            this.adjacentNodes = this.adjacents[node.id];
-        }
-
-        return node;
-    },
-
-    isSelected: function(node) {
-        return this.selectedNode && this.selectedNode.id === node.id;
-    },
-
-    isAdjacent: function(node) {
-        return !!this.adjacentNodes[node.id]
-    },
-
-    isThereMatch: function() {
-        return this.matching;
-    },
-
-    draw: function(fn) {
-        var self = this;
-        var circle = this.d3Circles;
-        var path = this.d3Path;
-        var titles = this.d3TitleNodes;
-        var adjacentNodes = this.adjacentNodes || {};
-        var selectedNode = this.selectedNode;
-
-        if (fn) {
-            this.matching = true;
-        }
-
-        var isThereMatch = this.isThereMatch();
-
-        circle.style('fill', function(e) {
-            if (fn) {
-                e._matched = fn(e);
-            }
-
-            var el = this;
-            var $el = d3.select(el);
-            var yes = function(e, highlight) {
-                // HACK: reordering for zindex
-                el.parentNode.parentNode.appendChild(el.parentNode);
-                $el.style("cursor", "pointer");
-
-                var stroke = DEFAULT_CIRCLE_STROKE;
-                if (highlight) {
-                    stroke = d3.rgb(self.getClusterColor(e)).darker();
-                } 
-                $el.style("stroke", stroke);
-                return self.getClusterColor(e);
-            }
-            var no = function(d) {
-                $el.style("cursor", "default");
-                $el.style("stroke", UNSELECTED_COLOR);
-                return UNSELECTED_COLOR;
-            }
-
-            if (self.isSelected(e)) {
-                return yes(e, true);
-            }
-            
-            if (isMatched(e) || selectedNode && self.isAdjacent(e)) {
-                return yes(e);
-            }
-
-            return no(e);
-        });
-
-        path.attr("stroke", function(e) {
-                var yes = function(e) { return self.pathStroke(e) },
-                    no = UNSELECTED_COLOR;
-
-                if (self.isSelected(e.source) || self.isSelected(e.target) || isMatched(e.source) && isMatched(e.target)) {
-                    return yes(e);
-                }
-
-                return no;
-            }).attr("stroke-width", function(e) {
-                if (self.isSelected(e.source) || self.isSelected(e.target)) {
-                    return SELECTED_PATH_STROKE_WIDTH;
-                }
-
-                return DEFAULT_PATH_STROKE_WIDTH;
-            });
-
-        this.displayTitle();
-    },
-
-    reset: function() {
-        var self = this;
-        var circle = this.d3Circles;
-        var path = this.d3Path;
-
-        this.adjacentNodes = {};
-        delete this.selectedNode;
-        delete this.matching;
-
-        circle.style('fill', function(e) {
-                // reseting selection
-                delete e._matched; 
-                return self.getClusterColor(e);
-            }).style("stroke", DEFAULT_CIRCLE_STROKE)
-              .style("cursor", "pointer");
-
-        path.attr("stroke-width", function(e, i) {
-                return DEFAULT_PATH_STROKE_WIDTH;
-            })
-        .attr("stroke", function(e, i) {
-                return self.pathStroke(e);
-            });
-
-        this.displayTitle();
-
-    },
-
-    _reset: function(preventTrigger) {
-        this.reset();
-
-        if (!preventTrigger) {
-            this.emit("reset");
-        }
-    },
-
-    /**
-     * Will show all the nodes that match fn's result.
-     * 
-     * @api public
-     */
-    select: function(fn) {
-        if (this.selectedNode) {
-            this.reset();
-        }
-
-        this.draw(fn);
-    },
-
-    /**
-     * Will put focus in one node that matches the fn result
-     * 
-     * @api public
-     *
-     * @param fn {Object|Function}
-     * @param center {Boolean}
-     */
-    focus: function(fn, center) {
-        var n = this.selectNode(fn);
-        if (n) {
-            center && this.center([n.x, n.y]);
-            this.draw();
-            this.emit("focus", n);
-        }
-    },
-
-    selectBy: function(fn, focus) {
-        var n;
-
-        if (focus) {
-            this.focus(fn);
-        } else {
-            this.select(fn);
-        }
-    },
-
-    selectByText: function(text, options) {
-        var fn, 
-            matchText = text.toLowerCase(),
-            getText = bind(this, this.getText);
-
-        options = options || {};
-            
-        if (options.exact) {
-            fn = function(d) {
-                return getText(d).toLowerCase() == matchText;
-            };
-            this.selectBy(fn, true);
-        } else {
-            fn = function(d) {
-                var nodeText = getText(d).toLowerCase();
-                return !!(~nodeText.indexOf(matchText));
-            };
-            this.selectBy(fn);
-        }
-    },
-
-    selectByTextExact: function(text) {
-        return this.selectByText(text, { exact: true } );
-    },
-
-    selectByCluster: function(cluster) {
-        var getCluster = bind(this, this.getCluster);
-
-        this.selectBy(function(e) {
-            var c = getCluster(e);
-
-            if (c != null) {
-                c = c.toString()
-            }
-
-            // if an array is passed
-            if (typeof cluster == "object" && cluster.indexOf) {
-                return ~cluster.indexOf(c);
-            }
-
-            // if a value is passed
-            return c == cluster;
-        });
-    },
-
-    selectBySize: function(min, max) {
-        var self = this;
-        this.selectBy(function(d) {
-            var s = self.getSize(d);
-            return min <= s && s <= max;
-        });
-    },
-
-    /**
-     * Prevents nodes from sticking up together ( best effort )
-     */
-    collide: function(node, alpha) {
-        var self = this,
-            r = node.radius + 16,
-            nx1 = node.x - r,
-            nx2 = node.x + r,
-            ny1 = node.y - r,
-            ny2 = node.y + r;
-
-        return function(quad, x1, y1, x2, y2) {
-            if (quad.point && (quad.point !== node)) {
-                var x = node.x - quad.point.x,
-                y = node.y - quad.point.y,
-                l = Math.sqrt(x * x + y * y),
-                r= self.radiusScale(self.getSize(quad.point) ||1)*2;
-                if (l < r) {
-                    l = (l - r) / l * alpha;
-                    node.x -= x *= l;
-                    node.y -= y *= l;
-                    quad.point.x += x;
-                    quad.point.y += y;
-                }
-            }
-            return x1 > nx2
-            || x2 < nx1
-            || y1 > ny2
-            || y2 < ny1;
-        }
-    },
-
-    location: function(p) {
-        var translate = this.getTranslation(),
-            scale = this.getScale();
-
-        return [(p[0] - translate[0]) / scale, (p[1] - translate[1]) / scale];
-    },
-
-    point: function(l) {
-        var translate = this.getTranslation(),
-            scale = this.getScale();
-
-        return [l[0] * scale + translate[0], l[1] * scale + translate[1]];
-    },
-
-    translateTo: function(p, l) {
-        var translate = this.getTranslation();
-
-        l = this.point(l);
-        translate[0] += p[0] - l[0];
-        translate[1] += p[1] - l[1];
-
-        this._zoom.translate(translate);
-    },
-    /**
-     * centers the graph on a point, if no point is passed, the mass center of
-     * the graph is used.
-     *
-     * @api public
-     *
-     */
-    center: function(l) {
-        var n;
-
-        if (!l) {
-            n = this.selectedNode;
-            if (n) {
-                l = [ n.x, n.y ];
-            } else {
-                if (!this.massCenter) {
-                    this.processCenterCoords();
-                }
-
-                l = this.massCenter;
-            }
-        }
-
-        this.translateTo([this.width/2, this.height/2], l);
-        this.refreshZoom(true);
-    },
-
-    getScale: function() {
-        return this._zoom.scale();
-    },
-
-    getTranslation: function() {
-        return this._zoom.translate();
-    },
-
-    getElement: function() {
-        return d3.select(this.el);
-    },
-
-    getSize: function(node) {
-        return node[this.sizeAttr] || 0;
-    },
-
-    getText: function(node) {
-        return node.text;
-    },
-
-    getCluster: function(node) {
-        return node.cluster;
-    },
-
-    getClusters: function() {
-        return this.clusters;
-    },
-
-    getClusterColor: function(cluster) {
-        var c;
-
-        if (typeof cluster === "object") {
-            c = this.getCluster(cluster);
-        } else {
-            c= cluster;
-        }
-
-        return this.clusters[c];
-    },
-
-    tooltip: function(tmpl) {
-        this._tooltip = new Tooltip({
-            template: tmpl || TOOLTIP_TEMPLATE
-        }); 
-    },
-
-    showTooltip: function(offset, d) {
-        this._tooltip && this._tooltipOn && this._tooltip.show(offset, d);
-    },
-
-    hideTooltip: function() {
-        this._tooltip && this._tooltip.hide();
-    },
-
-    tooltipOn: function() {
-        this._tooltipOn = true;
-    },
-
-    tooltipOff: function() {
-        this.hideTooltip();
-        this._tooltipOn = false;
-    },
-
-    getSelectedNode: function() {
-        return this.selectNode;
+  constructor: Graph,
+
+  /**
+   * Initializes the graph
+   *
+   * @api public
+   */
+
+  init: function() {
+    var self = this;
+    var el = this.getElement();
+
+    this.compute(this.args.nodes, this.args.links);
+    this.computeScales();
+    
+    // initializing zoom
+    this._zoom = d3.behavior.zoom().translate([0,0]);
+
+    el.html("");
+
+    var svg = el.attr("class", el.attr("class") + " " + BASE_ELEMENT_CLASS) 
+      .append("svg")
+        .attr("width", this.opts.width)
+        .attr("height", this.opts.height)
+        .attr("pointer-events", "all")
+        .call(this._zoom.on("zoom", bind(this, this.onZoom))
+                        .scaleExtent(this.opts.zoomScaleExtent))
+
+    this.parent = svg.append('svg:g').style('display','none');
+
+    el.on("click", function() { self.reset() });
+  },
+
+  /**
+   * Builds relevant data to render the graph
+   *
+   * @api private
+   */
+
+  compute: function(nodes, links) {
+    var self = this
+      , nodesObj = {}
+      , clustersObj = {}
+      , maxSize = 0
+      , maxWeight = 0
+      , adjacents= {}
+      , linksList = []
+      , getCluster = bind(this, this.getCluster)
+      , getSize = bind(this, this.getSize);
+
+    nodes.forEach(function(n) {
+      var cluster = getCluster(n);
+
+      maxSize = Math.max(maxSize, getSize(n));
+      nodesObj[n.id] = nodesObj[n.id] || n;
+
+      if (cluster != null && clustersObj[cluster] == null) {
+
+        // obtain color from options
+        var color = self.opts.colors[cluster];
+
+        // initialize cluster
+        clustersObj[cluster] = {};
+
+        // save color for cluster
+        clustersObj[cluster].color = color || self.opts.color(cluster);
+      }
+    });
+
+    // Compute the distinct nodes from the links.
+    links.forEach(function(link) {
+
+      // try to find the nodes in the relation.
+      var id0 = link[0]
+        , id1 = link[1]
+        , source = nodesObj[id0]
+        , target = nodesObj[id1];
+
+      // if we dont find one node of the relation, we dismiss it.
+      if (!source || !target) return;
+      
+      // We add the relations to the adjacents hash
+      if (!(id0 in adjacents)) {
+        adjacents[id0] = {};
+        adjacents[id0][id0] = true;
+      } 
+
+      if (!(id1 in adjacents)) {
+        adjacents[id1] = {};
+        adjacents[id1][id1] = true;
+      }
+
+      adjacents[id0][id1] = true;
+      adjacents[id1][id0] = true;
+
+      // build link list
+      linksList.push({
+        source: source,
+        target: target
+      });
+    });
+
+    this.nodes = nodes;
+    this.links = linksList;
+    this.maxSize = maxSize;
+    this.adjacents = adjacents;
+    this.nodesObj = nodesObj;
+    this.clustersObj = clustersObj;
+  },
+
+  /**
+   * Creates scales
+   *
+   * @api private
+   */
+
+  computeScales: function() {
+    this.radiusScale = d3.scale.sqrt().domain([1, this.maxSize]).range([6, 40]);
+    this.titleScale = d3.scale.log().domain([1, this.maxSize]).range([0, 1]);
+  },
+
+  /**
+   * Calculates the mass center of the graph
+   *
+   * @api private
+   */
+
+  computeCenterCoords: function() {
+    var self = this;
+    var xMass=0, yMass=0, totalSize=0;
+
+    this.d3Nodes.each(function(d) { 
+      var size = self.getSize(d);
+      xMass += d.x * size;
+      yMass += d.y * size;
+      totalSize += size;
+    });
+
+    this.xCenter = xMass / totalSize;
+    this.yCenter = yMass / totalSize;
+    this.massCenter = [this.xCenter, this.yCenter];
+  },
+
+
+  /**
+   * Tells which attribute to use to extract a standarized attribute's value.
+   *
+   * @api private
+   */
+
+  attr: function(key, fn) {
+
+    if (~VALID_ATTRS.indexOf(key)) {
+      this.attrs[key] = fn;
     }
+
+    return this;
+  },
+
+  /**
+   * Obtains a node's value for one of the standarized attribute names
+   *
+   * @api private
+   */
+
+  nodeVal: function(key, node) {
+    var val = this.attrs[key];
+    
+    if (val == null) {
+      return node[key];
+    } else if (typeof val === "function") {
+      return val(node);
+    }
+
+    return;
+  },
+
+  /**
+   * Handler for zoom event
+   *
+   * @api private
+   */
+
+  onZoom: function() {
+    this.refreshZoom();
+  },
+
+  /**
+   * Refresh the zoom in the view to the currently applied state
+   *
+   * @api private
+   */
+
+  refreshZoom: function(animate) {
+    var zoom = this._zoom
+      , trans = this.getTranslation()
+      , scale = this.getScale();
+    
+    if (animate) {
+      this.parent.transition().duration(500).attr('transform', 
+        'translate(' + zoom.translate() + ') scale(' + zoom.scale() + ')');
+    } else {
+      this.parent.attr("transform", "translate(" + trans + ")" + " scale(" + scale + ")");
+    }
+
+    this.updateTitles();
+  },
+
+  /**
+   * Applies zoom to a given scale between 0 and 1.
+   *
+   * @api public
+   */
+
+  zoom: function(scale) {
+    var trans, zoom;
+
+    if (!this.isRendered()) {
+      this.opts.initialScale = scale;
+      return this;
+    }
+
+    trans = this.getTranslation();
+    zoom = this._zoom;
+
+    zoom.scale(scale);
+
+    this.refreshZoom(true);
+
+    return this;
+  },
+
+  /**
+   * Applies zoom in
+   *
+   * @api public
+   */
+
+  zoomIn: function() {
+    var scale = this.getScale()
+      , k = Math.pow(2, Math.floor(Math.log(scale) / Math.LN2) + 1);
+
+    k = Math.min(k, this.opts.zoomScaleExtent[1]);
+      
+    return this.zoom(k);
+  },
+
+  /**
+   * Applies zoom out
+   *
+   * @api public
+   */
+
+  zoomOut: function() {
+    var scale = this.getScale();
+    var k = Math.pow(2, Math.ceil(Math.log(scale) / Math.LN2) - 1);
+
+    k = Math.max(k, this.opts.zoomScaleExtent[0]);
+      
+    return this.zoom(k);
+  },
+
+  /**
+   * Given, the current zoom and size of a node, tells if it's label should
+   * be displayed
+   *
+   * @api private
+   */
+
+  isTitleDisplayable: function(d) {
+    var scale = this.getScale();
+    var res = this.titleScale(this.getSize(d) || 1);
+
+    return (scale * res > .8 || scale > 2.2 );
+  },
+
+  /**
+   * Helper to determine the display attribute of for a node.
+   *
+   * @api private
+   */
+
+  titleDisplay: function(d) {
+    if (this.isTitleDisplayable(d) && this.isNodeVisible(d)) {
+      return "";
+    }
+
+    return "none";
+  },
+
+  /**
+   * Helper to determine the color of the path's stroke for a node.
+   *
+   * @api private
+   */
+
+  pathStroke: function(d) {
+    var source = d.source,
+      target = d.target;
+
+    if (this.getSize(target) > this.getSize(source)) {
+      return this.getClusterColor(target);
+    } else {
+      return this.getClusterColor(source);
+    }
+  },
+
+  /**
+   * Renders the graph
+   *
+   * @api public
+   */
+
+  render: function() {
+    var self = this;
+
+    this.init();
+    
+    if (this.opts.initialScale) {
+      this._zoom = this._zoom.scale(this.opts.initialScale);
+    }
+
+    function circleRadius(d) { return self.radiusScale(self.getSize(d) || 1); }
+
+    var force = this.force = d3.layout.force()
+      .nodes(this.nodes)
+      .links(this.links)
+      .size([this.opts.width, this.opts.height])
+      .linkDistance(defaults.linkDistance)
+      .charge(defaults.graphCharge)
+      .on("tick", tick)
+      .start();
+
+    this.d3Path = this.parent.append("svg:g").selectAll("path")
+      .data(force.links())
+      .enter().append("svg:path")
+      .attr("stroke", bind(this, this.pathStroke))
+      .attr("stroke-width", PATH_STROKE_WIDTH)
+      .attr("fill", "none");
+    
+    var node = this.d3Nodes = this.parent.selectAll(".node")
+      .data(force.nodes())
+      .enter().append("g")
+      .attr("class", "node")
+      .on("mouseover", bind(this, this.onMouseOver))
+      .on("mouseout", bind(this, this.onMouseOut))
+      .on("click", bind(this, this.onCircleClick));
+
+    this.d3Circles = node.append("circle")
+      .style("fill", bind(this, this.getClusterColor))
+      .attr("r", circleRadius)
+
+    this.d3TitleNodes = node.append("text")
+      .attr("text-anchor", "middle")
+      .attr("dy", ".35em")
+      .style("display", "none")
+      .text(function(d) { return self.getText(d); });
+
+    function tick(e) {
+      if (force.alpha() < defaults.forceAlphaLimit) {
+        self.handleCollisions();
+
+        // to prevent the chart from moving after
+        force.stop();
+
+        self.updateNodesPosition();
+        self.updateLinksPosition();
+
+        // center the graph
+        self.center();
+
+        // showing canvas after finished rendering
+        self.show();
+
+        self.refreshZoom();
+        self.emit("rendered");
+      }
+    }
+    
+    if (this.hasUnappliedFilters() || this.hasUnappliedFocus()) { 
+      this.update();
+    }
+
+    return this;
+  },
+
+  /**
+   * Shows the graph
+   *
+   * @api private
+   */
+
+  show: function() {
+    this.parent.style('display','block');
+  },
+
+  /**
+   * Hides the graph
+   *
+   * @api private
+   */
+
+  hide: function() {
+    this.parent.style('display','none');
+  },
+
+  /**
+   * Tries to prevent nodes to sticking to each other
+   *
+   * @api private
+   */
+
+  handleCollisions: function() {
+    var nodes = this.nodes
+      , q = d3.geom.quadtree(nodes)
+      , i = 0
+      , len = nodes.length;
+
+    while (++i < len) {
+      q.visit(this.collide(nodes[i], this.opts.collisionAlpha));
+    }
+  },
+
+  /** 
+   * Updates the position of the nodes.
+   *
+   * @api private
+   */
+
+  updateNodesPosition: function() {
+    this.d3Nodes.attr("transform", function(d) { 
+      return "translate(" + d.x + "," + d.y + ")"; 
+    });
+  },
+
+  /**
+   * Updates the position of the links.
+   *
+   * @api private
+   */
+
+  updateLinksPosition: function() {
+
+    // Render a curve line between nodes.
+    
+    this.d3Path.attr("d", function(d) {
+      var dx = d.target.x - d.source.x
+        , dy = d.target.y - d.source.y
+        , dr = Math.sqrt(dx * dx + dy * dy);
+
+      return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+    });
+  },
+
+  /**
+   * Handler for circle click event
+   *
+   * @api private
+   */
+
+  onCircleClick: function(d) {
+    var self = this
+      , e = d3.event;
+
+    // To avoid focusing hidden elements
+    if (!self.isNodeVisible(d)) {
+      return;
+    } else {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    this._focus(d.id).update();
+    this.emit("node:click", d);
+  },
+
+  /**
+   * Handler for circle mouse over event
+   *
+   * @api private
+   */
+
+  onMouseOver: function(d) {
+    var focusedNode = this.state.focused;
+
+    if (!this.isNodeVisible(d)) {
+      return;
+    }
+
+    var offset = { 
+      left: currentMousePos.x + 10, 
+      top: currentMousePos.y + 10 
+    };
+
+    this.showTooltip(offset, d);
+    this.emit("node:mouseover", d, offset);
+  },
+
+  /**
+   * Handler for circle mouse out event
+   *
+   * @api private
+   */
+
+  onMouseOut: function(d) {
+    this.hideTooltip();
+
+    if (!this.isNodeVisible(d)) {
+      return;
+    }
+
+    this.emit("node:mouseout", d);
+  },
+
+  /**
+   * Finds the first node that matches the passed fn
+   *
+   * @api private
+   */
+
+  findFocusedNode: function(fn) {
+    var n, i, len
+      , nodes = this.nodes;
+
+    for (var i=0, len=nodes.length; i<len; i++) {
+      n = nodes[i];
+      if (fn(n)) {
+        return n;
+      }
+    }
+  },
+
+  /**
+   * Sets the graph's state to focus on the passed node.
+   *
+   * @api private
+   */
+
+  focusNode: function(node) {
+    var adjacents = this.adjacents[node.id];
+
+    this.state.focused = node;
+
+    if (adjacents) {
+      this.state.adjacents = adjacents;
+    }
+
+    return node;
+  },
+
+  /**
+   * Tells if a node passes the currently applied filters.
+   *
+   * @api private
+   */
+
+  passesFilters: function(node) {
+    return node._selected;
+  },
+
+  /**
+   * Tells if a node is currently focused.
+   *
+   * @api private
+   */
+
+  isFocused: function(node) {
+    return node._focused;
+  },
+
+  /**
+   * Tells if a node is currently adjacent to the focused node
+   *
+   * @api private
+   */
+
+  isAdjacent: function(node) {
+    return node._adjacent;
+  },
+
+  /**
+   * Tells if the graph has currently un-applied filters (filters that haven't
+   * been applied to the view)
+   *
+   * @api private
+   */
+
+  hasUnappliedFilters: function() {
+    return !!this.filters.length;
+  },
+
+  /**
+   * Tells if the graph has currently applied filters (filters that have been 
+   * applied to the view)
+   *
+   * @api private
+   */
+
+  hasAppliedFilters: function() {
+    return !!this.appliedFilters.length;
+  },
+  
+  /**
+   * Tells if the graph has a current focused node.
+   *
+   * @api private
+   */
+
+  hasFocus:function() {
+    return !!this.state.focused;
+  },
+  
+  /**
+   * Tells if the graph has a pending focus.
+   *
+   * @api private
+   */
+
+  hasUnappliedFocus:function() {
+    return !!this.unappliedFocus;
+  },
+
+  /**
+   * Tells if the graph has been rendered.
+   *
+   * @api private
+   */
+
+  isRendered: function() {
+    return !!this.d3Circles;
+  },
+  
+  /**
+   * Updates the titles dom representation with the current state.
+   *
+   * @api private
+   */
+
+  updateTitles: function() {
+    this.d3TitleNodes.style("display", bind(this, this.titleDisplay));
+  },
+
+  /**
+   * Updates the circles dom representation with the current state.
+   *
+   * @api private
+   */
+
+  updateCircles: function() {
+    var self = this
+      , count = 0;
+
+    this.d3Circles
+      .style('fill', function(e) {
+        var el, $el, yes, no;
+
+        e._selected = self.testFilters(e);
+        e._focused = self.testFocused(e);
+        e._adjacent = self.testAdjacent(e);
+
+        el = this;
+        $el = d3.select(el);
+        yes = function(e, highlight) {
+          // HACK: reordering for zindex
+          el.parentNode.parentNode.appendChild(el.parentNode);
+          $el.style("cursor", "pointer");
+
+          var stroke = CIRCLE_STROKE;
+          if (highlight) {
+            stroke = d3.rgb(self.getClusterColor(e)).darker();
+          } 
+          $el.style("stroke", stroke);
+          return self.getClusterColor(e);
+        }
+        no = function(d) {
+          $el.style("cursor", "default");
+          $el.style("stroke", UNSELECTED_COLOR);
+          return UNSELECTED_COLOR;
+        }
+
+        if (self.isNodeVisible(e)) {
+          count += 1;
+
+          if (self.isFocused(e)) {
+            return yes(e, true);
+          }
+
+          return yes(e);
+        } else {
+          return no(e);
+        }
+      });
+
+    this.visibleNodeCount = count;
+  },
+
+  /**
+   * Updates the paths dom representation with the current state.
+   *
+   * @api private
+   */
+
+  updatePaths: function() {
+    var self = this;
+
+    this.d3Path
+      .attr("stroke", function(e) {
+        var yes = function(e) { return self.pathStroke(e) },
+          no = UNSELECTED_COLOR;
+
+        if (self.isNodeVisible(e.target) && self.isNodeVisible(e.source)) {
+          return yes(e);
+        } else {
+          return no;
+        }
+      })
+      .attr("stroke-width", function(e) {
+        if (self.isFocused(e.source) || self.isFocused(e.target)) {
+          return SELECTED_PATH_STROKE_WIDTH;
+        }
+
+        return PATH_STROKE_WIDTH;
+      });
+  },
+
+  /**
+   * Updates the all nodes with the graph's current state. 
+   *
+   * @api public
+   */
+
+  update: function() {
+
+    // try to apply focus
+    var focusFn = this.unappliedFocus;
+    
+    if (focusFn) {
+      this._focus(focusFn);
+    }
+
+
+    // store the currently applied filters
+    this.appliedFilters = this.filters;
+
+    // update the view: circles, paths and titles
+
+    this.updateCircles();
+    this.updatePaths();
+    this.updateTitles();
+
+    // flushing filters
+    
+    this.filters = [];
+
+    // With the currently applied filters we found no matching nodes
+
+    if (!this.visibleNodeCount) {
+      this.emit("no match");
+    }
+  },
+
+  /**
+   * Resets a nodes state ( flags applied to it )
+   *
+   * @api private
+   */
+
+  resetNode: function(node) {
+    delete node._selected; 
+    delete node._focused;
+    delete node._adjacent;
+  },
+
+  /**
+   * Cleans the graph state ( filters and focus applied )
+   *
+   * @api private
+   */
+
+  resetState: function() {
+    this.attrs = {};
+    this.filters = [];
+    this.appliedFilters = [];
+    this.unappliedFocus = null;
+
+    this.state = { adjacents: {}, focused: null };
+
+    this.d3Nodes && this.d3Nodes.each(bind(this, this.resetNode));
+
+    return this;
+  },
+
+
+  /**
+   * Resets the graph and updates the view
+   *
+   * @api public
+   */
+
+  reset: function() {
+    this.resetState();
+    this.update();
+
+    return this;
+  },
+
+  /**
+   * Adds a filter to the graph
+   *
+   * @api private
+   */
+
+  addFilter: function(fn) {
+    this.filters.push(fn);
+
+    return this;
+  },
+
+  /**
+   * Given the current state of the graph (focus and filters), 
+   * tells if a node is visible.
+   *
+   * @api private
+   */
+
+  isNodeVisible: function(node) {
+    if (this.hasAppliedFilters()) {
+      if (this.hasFocus()) {
+        if (this.passesFilters(node) && (this.isAdjacent(node) 
+          || this.isFocused(node))) {
+          return true;
+        } 
+      } else if (this.passesFilters(node)) {
+        return true;
+      }
+
+      return false;
+
+    } else if (this.hasFocus()) {
+      if (this.isAdjacent(node) || this.isFocused(node)) {
+        return true;
+      }
+
+      return false
+    }
+
+    return true;
+  },
+
+  /**
+   * Tests if the node is visible with the currently applied filters
+   *
+   * @api private
+   */
+
+  testFilters: function(node) {
+    var res = true,
+      filters = this.filters,
+      len=filters.length;
+
+    if (!len) return false;
+
+    for (var i=0; i<len; i++) {
+      if (!filters[i](node)) {
+        res = false;
+        break;
+      }
+    }
+
+    return res;
+  },
+
+  /**
+   * Tests if a node is focused
+   *
+   * @api private
+   */
+
+  testFocused: function(node) {
+    return this.state.focused && this.state.focused.id === node.id;
+  },
+
+  /**
+   * Tests if a node is adjacent to the currently selected node
+   *
+   * @api private
+   */
+
+  testAdjacent: function(node) {
+    return !!this.state.adjacents[node.id]
+  },
+
+  // Functions used to filter nodes by attr name
+
+  fns: {
+    id: 'filterById',
+    text: 'filterByText',
+    size: 'filterBySize',
+    cluster: 'filterByCluster'
+  },
+
+  /**
+   * Applies a filters for a given node's arg.
+   *
+   * @api private
+   */
+
+  filterBy: function(key, val) {
+    var fn = this[this.fns[key]];
+
+    if (fn == null) {
+      throw new Error("invalid key: " + key);
+    }
+
+    if (Array.isArray(val)) {
+      return fn.apply(this, val);
+    } else {
+      return fn.call(this, val);
+    }
+  },
+
+  /**
+   * Will test and set the node's state that pass the filters.
+   * 
+   * @api public
+   */
+
+  filter: function(obj) {
+    var type = ({}).toString.call(obj);
+    
+    switch (type) {
+      case "[object Function]":
+        this.addFilter(obj);
+      case "[object Object]":
+        for (var arg in obj) {
+          if (obj.hasOwnProperty(arg)) {
+            this.filterBy(arg, obj[arg]);
+          }
+        }
+        break;
+      default:
+        throw new Error("invalid argument");
+    }
+
+    return this;
+  },
+
+  /**
+   * Will set the graph to focus on the node that matches the passed arg, the 
+   * next time that `update()` is called.
+   * 
+   * @api public
+   *
+   * @param {Object|Function|Number|String} fn
+   */
+
+  focus: function(fn) {
+    this.unappliedFocus = fn;
+
+    return this;
+  },
+
+  /**
+   * Actually focuses the graph on the node that matches the passed arg.
+   * 
+   * @api public
+   *
+   * @param {Object|Function|Number|String} fn
+   */
+
+  _focus: function(fn) {
+    var n, type = ({}).toString.call(fn);
+
+    switch(type) {
+      case '[object Function]':
+        n = this.findFocusedNode(fn);
+        break;
+      case '[object Object]':
+        fn = toFunction(fn);
+        n = this.findFocusedNode(fn);
+        break;
+      case '[object Number]':
+      case '[object String]':
+        //fn = toFunction({id: fn});
+        n = this.getNode(fn);
+        break;
+      default:
+        throw new Error('invalid argument');
+    }
+
+    // XXX : only do this when a fn is passed
+    //n = this.findFocusedNode(fn);
+
+    if (n) {
+      this.focusNode(n);
+    }
+
+    return this;
+  },
+
+  /**
+   * @api private
+   */
+
+  filterById: function(id) {
+
+    var fn = function(d) {
+      return id == d.id;
+    };
+
+    this.addFilter(fn);
+
+    return this;
+  },
+
+  /**
+   * @api private
+   */
+
+  filterByText: function(text) {
+    var matchText = text.toLowerCase(),
+      getText = bind(this, this.getText);
+
+    var fn = function(d) {
+      var nodeText = getText(d).toLowerCase();
+      return !!(~nodeText.indexOf(matchText));
+    };
+
+    this.addFilter(fn);
+
+    return this;
+  },
+
+  /**
+   * @api private
+   */
+
+  filterByCluster: function(cluster) {
+    var getCluster = bind(this, this.getCluster);
+    var isArray = ({}).toString.apply(cluster) === '[object Array]';
+
+    var fn = function(e) {
+      var c = getCluster(e);
+
+      if (c != null) {
+        c = c.toString()
+      }
+
+      if (isArray) {
+        return ~cluster.indexOf(c);
+      }
+
+      return c == cluster;
+    };
+
+    this.addFilter(fn);
+
+    return this;
+  },
+
+  /**
+   * @api private
+   */
+
+  filterBySize: function(min, max) {
+    var self = this;
+
+    if (min == null) { min = -Infinity; }
+    if (max == null) { max = Infinity; }
+
+    var fn = function(d) {
+      var s = self.getSize(d);
+      return min <= s && s <= max;
+    }
+
+    this.addFilter(fn);
+    return this;
+  },
+
+  /**
+   * Prevents nodes from sticking up together ( best effort )
+   *
+   * @api private
+   */
+
+  collide: function(node, alpha) {
+    var self = this,
+      r = node.radius + 16,
+      nx1 = node.x - r,
+      nx2 = node.x + r,
+      ny1 = node.y - r,
+      ny2 = node.y + r;
+
+    return function(quad, x1, y1, x2, y2) {
+      if (quad.point && (quad.point !== node)) {
+        var x = node.x - quad.point.x,
+        y = node.y - quad.point.y,
+        l = Math.sqrt(x * x + y * y),
+        r= self.radiusScale(self.getSize(quad.point) ||1)*2;
+        if (l < r) {
+          l = (l - r) / l * alpha;
+          node.x -= x *= l;
+          node.y -= y *= l;
+          quad.point.x += x;
+          quad.point.y += y;
+        }
+      }
+      return x1 > nx2
+      || x2 < nx1
+      || y1 > ny2
+      || y2 < ny1;
+    }
+  },
+
+  /**
+   * @api private
+   */
+
+  location: function(p) {
+    var translate = this.getTranslation()
+      , scale = this.getScale();
+
+    return [(p[0] - translate[0]) / scale, (p[1] - translate[1]) / scale];
+  },
+
+  /**
+   * @api private
+   */
+
+  point: function(l) {
+    var translate = this.getTranslation()
+      , scale = this.getScale();
+
+    return [l[0] * scale + translate[0], l[1] * scale + translate[1]];
+  },
+
+  /**
+   * @api private
+   */
+
+  translateTo: function(p, l) {
+    var translate = this.getTranslation();
+
+    l = this.point(l);
+    translate[0] += p[0] - l[0];
+    translate[1] += p[1] - l[1];
+
+    this._zoom.translate(translate);
+  },
+
+  /**
+   * centers the graph on a point, if no point is passed, the mass center of
+   * the graph is used.
+   *
+   * @api private
+   *
+   */
+
+  _center: function(l) {
+    var n;
+
+    if (!l) {
+      n = this.state.focused;
+      if (n) {
+        l = [ n.x, n.y ];
+      } else {
+        if (!this.massCenter) {
+          this.computeCenterCoords();
+        }
+
+        l = this.massCenter;
+      }
+    }
+
+    this.translateTo([this.opts.width/2, this.opts.height/2], l);
+    this.refreshZoom(true);
+  },
+
+  /**
+   * centers the graph on a node by id, if no id is passed, the mass center of
+   * the graph is used.
+   *
+   * @api public
+   *
+   */
+
+  center: function(nodeId) {
+    var node;
+    if (!this.isRendered()) {
+      return;
+    }
+
+    node = this.getNode(nodeId);
+
+    if (node) {
+      this._center([node.x, node.y]);
+    } else {
+      this._center();
+    }
+
+    return this;
+  },
+
+  getScale: function() {
+    return this._zoom.scale();
+  },
+
+  getTranslation: function() {
+    return this._zoom.translate();
+  },
+
+  getElement: function() {
+    return d3.select(this.el);
+  },
+
+  getSize: function(node) {
+    return this.nodeVal('size', node) || 0;
+  },
+
+  getText: function(node) {
+    return this.nodeVal('text', node);
+  },
+
+  getCluster: function(node) {
+    return this.nodeVal('cluster', node);
+  },
+
+  getClusters: function() {
+    return this.clustersObj;
+  },
+
+  getClusterColor: function(cluster) {
+    var c;
+
+    if (typeof cluster === "object") {
+      c = this.getCluster(cluster);
+    } else {
+      c = cluster;
+    }
+
+    return (this.clustersObj[c] || {}).color;
+  },
+
+  tooltip: function(tmpl) {
+    this._tooltip = new Tooltip({
+      template: typeof tmpl == "string" ? tmpl : defaults.tooltipTemplate
+    }); 
+
+    this.tooltipOn();
+
+    return this;
+  },
+
+  showTooltip: function(offset, d) {
+    this._tooltip && this._tooltipOn && this._tooltip.show(offset, d);
+  },
+
+  hideTooltip: function() {
+    this._tooltip && this._tooltip.hide();
+  },
+
+  tooltipOn: function() {
+    this._tooltipOn = true;
+  },
+
+  tooltipOff: function() {
+    this.hideTooltip();
+    this._tooltipOn = false;
+  },
+
+  getFocusedNode: function() {
+    return this.state.focused;
+  },
+
+  getNode: function(nodeId) {
+    return this.nodesObj[nodeId];
+  },
+
+  getAdjacents: function(nodeId) {
+    var ret = []
+      , adjacents = []; 
+
+    if (nodeId == null) {
+      adjacents = this.state.adjacents;
+    } else {
+      adjacents = this.adjacents[nodeId];
+    }
+
+    adjacents = adjacents || [];
+
+    for (var id in adjacents) {
+      ret.push(this.getNode(id));
+    }
+
+    return ret;
+  }
 }
+
+Graph.fn = Graph.prototype;
 
 Emitter(Graph.prototype);
 
 var currentMousePos = { x: -1, y: -1 };
 d3.select(window).on("mousemove", function(d) {
-    var ev = d3.event;
-    currentMousePos.x = ev.pageX;
-    currentMousePos.y = ev.pageY;
+  var ev = d3.event;
+  currentMousePos.x = ev.pageX;
+  currentMousePos.y = ev.pageY;
 });
-
-// helpers 
-function isMatched(d) {
-    return hasMatchData(d) && d._matched;
-}
-
-function hasMatchData(d) {
-    return d._matched != null;
-}
 
 module.exports = Graph;
 
@@ -9274,12 +9928,21 @@ var graph = require("./src/graph");
 module.exports = graph;
 
 });
+require.alias("component-to-function/index.js", "insights/deps/to-function/index.js");
+require.alias("component-to-function/index.js", "to-function/index.js");
+
 require.alias("ignacioola-d3/d3.js", "insights/deps/d3/d3.js");
 require.alias("ignacioola-d3/d3.js", "insights/deps/d3/index.js");
+require.alias("ignacioola-d3/d3.js", "d3/index.js");
+require.alias("ignacioola-d3/d3.js", "ignacioola-d3/index.js");
 
 require.alias("visionmedia-minstache/index.js", "insights/deps/minstache/index.js");
+require.alias("visionmedia-minstache/index.js", "minstache/index.js");
 
 require.alias("component-emitter/index.js", "insights/deps/emitter/index.js");
+require.alias("component-emitter/index.js", "emitter/index.js");
+require.alias("component-indexof/index.js", "component-emitter/deps/indexof/index.js");
 
 require.alias("component-bind/index.js", "insights/deps/bind/index.js");
+require.alias("component-bind/index.js", "bind/index.js");
 
