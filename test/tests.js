@@ -47,7 +47,7 @@ describe('graph', function(){
         graph.filter({ cluster: 'fakecluster' }).render();
     });
 
-    it("it should filter nodes by size.", function() {
+    it("it should filter nodes by size.", function(done) {
         var graph = new Insights(el, nodes, links);
 
         graph.filter({size: [1, 11]}).render();
@@ -58,7 +58,7 @@ describe('graph', function(){
         });
     });
 
-    it("it should filter nodes by size lower than.", function() {
+    it("it should filter nodes by size lower than.", function(done) {
         var graph = new Insights(el, nodes, links);
 
         graph.filter({size: [null, 21]}).render();
@@ -69,7 +69,7 @@ describe('graph', function(){
         });
     });
 
-    it("it should filter nodes by size greater than.", function() {
+    it("it should filter nodes by size greater than.", function(done) {
         var graph = new Insights(el, nodes, links);
 
         graph.filter({size: [19, null]}).render();
@@ -80,7 +80,7 @@ describe('graph', function(){
         });
     });
 
-    it("it should filter nodes by cluster.", function() {
+    it("it should filter nodes by cluster.", function(done) {
         var graph = new Insights(el, nodes, links);
 
         graph.filter({cluster: 0}).render();
@@ -91,7 +91,7 @@ describe('graph', function(){
         });
     });
 
-    it("it should filter nodes by more than one cluster.", function() {
+    it("it should filter nodes by more than one cluster.", function(done) {
         var graph = new Insights(el, nodes, links);
 
         graph.filter({cluster: [0, 1]}).render();
@@ -102,7 +102,7 @@ describe('graph', function(){
         });
     });
 
-    it("it should filter nodes by id.", function() {
+    it("it should filter nodes by id.", function(done) {
         var graph = new Insights(el, nodes, links);
 
         graph.filter({id: 1}).render();
@@ -113,7 +113,7 @@ describe('graph', function(){
         });
     });
 
-    it("it should filter nodes by partial text match.", function() {
+    it("it should filter nodes by partial text match.", function(done) {
         var graph = new Insights(el, nodes, links);
 
         graph.filter({text: "Appl"}).render();
@@ -124,7 +124,7 @@ describe('graph', function(){
         });
     });
 
-    it("it should filter nodes by more than one filter.", function() {
+    it("it should filter nodes by more than one filter.", function(done) {
         var graph = new Insights(el, nodes, links);
 
         graph.filter({size: [0, 21], cluster: [0, 1]}).render();
@@ -135,7 +135,7 @@ describe('graph', function(){
         });
     });
 
-    it("it should combine focus and filters correctly.", function() {
+    it("it should combine focus and filters correctly.", function(done) {
         var graph = new Insights(el, nodes, links);
 
         graph.filter({size: [0, 21]}).focus(1).render();
@@ -144,6 +144,17 @@ describe('graph', function(){
           expect(graph.visibleNodeCount).to.equal(2);
           expect(graph.state.focused.id).to.equal(1);
           expect(graph.state.adjacents[2]).to.equal(true);
+          done();
+        });
+    });
+
+    it("it should return a node's adjacent nodes", function(done) {
+        var graph = new Insights(el, nodes, links);
+
+        graph.render();
+
+        graph.on('rendered', function() {
+          expect((graph.getAdjacents(1))['2']).to.equal(true);
           done();
         });
     });

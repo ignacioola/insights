@@ -1,9 +1,8 @@
 var bind = require("bind")
   , Emitter = require("emitter")
   , d3 = require("d3")
- , toFunction = require('to-function')
+  , toFunction = require('to-function')
   , Tooltip = require("./tooltip");
-
 
 // Constants
 var UNSELECTED_COLOR = "transparent";
@@ -113,7 +112,8 @@ Graph.prototype = {
       , clustersObj = {}
       , maxSize = 0
       , maxWeight = 0
-      , adjacents= {}
+      , incoming = {}
+      , outgoing = {}
       , linksList = []
       , getCluster = bind(this, this.getCluster)
       , getSize = bind(this, this.getSize);
@@ -149,19 +149,18 @@ Graph.prototype = {
       // if we dont find one node of the relation, we dismiss it.
       if (!source || !target) return;
       
-      // We add the relations to the adjacents hash
-      if (!(id0 in adjacents)) {
-        adjacents[id0] = {};
-        adjacents[id0][id0] = true;
+      // We add the relations to the outgoing hash
+      if (!(id0 in outgoing)) {
+        outgoing[id0] = {};
       } 
 
-      if (!(id1 in adjacents)) {
-        adjacents[id1] = {};
-        adjacents[id1][id1] = true;
+      // We add the relations to the incoming hash
+      if (!(id1 in incoming)) {
+        incoming[id1] = {};
       }
 
-      adjacents[id0][id1] = true;
-      adjacents[id1][id0] = true;
+      outgoing[id0][id1] = true;
+      incoming[id1][id0] = true;
 
       // build link list
       linksList.push({
@@ -173,7 +172,8 @@ Graph.prototype = {
     this.nodes = nodes;
     this.links = linksList;
     this.maxSize = maxSize;
-    this.adjacents = adjacents;
+    this.incoming = incoming;
+    this.outgoing = outgoing;
     this.nodesObj = nodesObj;
     this.clustersObj = clustersObj;
   },
@@ -540,7 +540,7 @@ Graph.prototype = {
       e.stopPropagation();
     }
 
-    this._focus(d.id).update();
+    this.focus(d.id).update();
     this.emit("node:click", d);
   },
 
@@ -606,8 +606,9 @@ Graph.prototype = {
    * @api private
    */
 
-  focusNode: function(node) {
-    var adjacents = this.adjacents[node.id];
+  setFocus: function(node) {
+    var dir = this.getFocusDir();
+    var adjacents = this.getAdjacents(node.id, dir);
 
     this.state.focused = node;
 
@@ -645,7 +646,8 @@ Graph.prototype = {
    */
 
   isAdjacent: function(node) {
-    return node._adjacent;
+    return this.state.adjacents[node.id];
+    //return node._adjacent;
   },
 
   /**
@@ -765,6 +767,25 @@ Graph.prototype = {
   },
 
   /**
+   * Returns focus dir
+   *
+   * @api private
+   */
+
+  getFocusDir: function() {
+    var opts = this.focusOptions || {};
+
+    if (opts.out) { 
+      return 'out';
+    }
+
+    if (opts.in) { 
+      return 'in';
+    }
+
+  },
+
+  /**
    * Updates the paths dom representation with the current state.
    *
    * @api private
@@ -772,13 +793,14 @@ Graph.prototype = {
 
   updatePaths: function() {
     var self = this;
+    var focusDir = this.getFocusDir();
 
     this.d3Path
       .attr("stroke", function(e) {
         var yes = function(e) { return self.pathStroke(e) },
           no = UNSELECTED_COLOR;
 
-        if (self.isNodeVisible(e.target) && self.isNodeVisible(e.source)) {
+        if (self.isPathVisible(e.source, e.target)) {
           return yes(e);
         } else {
           return no;
@@ -804,7 +826,7 @@ Graph.prototype = {
     // try to apply focus
     var focusFn = this.unappliedFocus;
     
-    if (focusFn) {
+    if (focusFn != null) {
       this._focus(focusFn);
     }
 
@@ -852,6 +874,7 @@ Graph.prototype = {
     this.filters = [];
     this.appliedFilters = [];
     this.unappliedFocus = null;
+    this.focusOptions = null;
 
     this.state = { adjacents: {}, focused: null };
 
@@ -912,6 +935,35 @@ Graph.prototype = {
       }
 
       return false
+    }
+
+    return true;
+  },
+
+  /**
+   * Tells if a path is visible
+   */
+
+  isPathVisible: function(source, target) {
+
+    if (!this.isNodeVisible(target) || !this.isNodeVisible(source)) {
+      return false
+    }
+
+    var adjacents = this.state.adjacents;
+    var dir = this.getFocusDir();
+
+    if (this.hasFocus()) {
+
+      if (dir == 'out' && this.isFocused(source) && adjacents[target.id]) {
+          return true;
+      } else if (dir == 'in' && this.isFocused(target) && adjacents[source.id]) {
+          return true;
+      } else if (!dir) {
+        return true;
+      } else {
+        return false;
+      }
     }
 
     return true;
@@ -982,11 +1034,7 @@ Graph.prototype = {
       throw new Error("invalid key: " + key);
     }
 
-    if (Array.isArray(val)) {
-      return fn.apply(this, val);
-    } else {
-      return fn.call(this, val);
-    }
+    return fn.call(this, val);
   },
 
   /**
@@ -1024,8 +1072,9 @@ Graph.prototype = {
    * @param {Object|Function|Number|String} fn
    */
 
-  focus: function(fn) {
+  focus: function(fn, options) {
     this.unappliedFocus = fn;
+    this.focusOptions = options;
 
     return this;
   },
@@ -1062,13 +1111,15 @@ Graph.prototype = {
     //n = this.findFocusedNode(fn);
 
     if (n) {
-      this.focusNode(n);
+      this.setFocus(n);
     }
 
     return this;
   },
 
   /**
+   * Adds an id filter to be applied
+   *
    * @api private
    */
 
@@ -1084,6 +1135,8 @@ Graph.prototype = {
   },
 
   /**
+   * Adds a text filter to be applied
+   *
    * @api private
    */
 
@@ -1102,12 +1155,21 @@ Graph.prototype = {
   },
 
   /**
+   * Adds a cluster filter to be applied
+   *
    * @api private
    */
 
   filterByCluster: function(cluster) {
     var getCluster = bind(this, this.getCluster);
-    var isArray = ({}).toString.apply(cluster) === '[object Array]';
+    var isArray = Array.isArray(cluster);
+
+    // we need clusters as strings
+    if (isArray) {
+      cluster = cluster.map(function(c) { return c + "" });
+    } else {
+      cluster = cluster + ""
+    }
 
     var fn = function(e) {
       var c = getCluster(e);
@@ -1129,11 +1191,15 @@ Graph.prototype = {
   },
 
   /**
+   * Adds a size filter to be applied
+   *
    * @api private
    */
 
-  filterBySize: function(min, max) {
+  filterBySize: function(bounds) {
     var self = this;
+    var min = bounds[0];
+    var max = bounds[1];
 
     if (min == null) { min = -Infinity; }
     if (max == null) { max = Infinity; }
@@ -1346,23 +1412,45 @@ Graph.prototype = {
     return this.nodesObj[nodeId];
   },
 
-  getAdjacents: function(nodeId) {
-    var ret = []
-      , adjacents = []; 
+  /**
+   * Returns the nodes adjacent to the received node id
+   *
+   * @api private
+   */
 
-    if (nodeId == null) {
-      adjacents = this.state.adjacents;
-    } else {
-      adjacents = this.adjacents[nodeId];
+  getAdjacents: function(nodeId, dir) {
+    var obj = {};
+    var i = this.incoming[nodeId] || {};
+    var o = this.outgoing[nodeId] || {};
+
+    var k;
+
+    if (dir == 'in' || !dir) {
+      for (k in i) {
+        obj[k] = i[k];
+      }
     }
 
-    adjacents = adjacents || [];
-
-    for (var id in adjacents) {
-      ret.push(this.getNode(id));
+    if (dir == 'out' || !dir) {
+      for (k in o) {
+        obj[k] = o[k];
+      }
     }
 
-    return ret;
+    // XXX dont do this
+    obj[nodeId] = true;
+
+    return obj;
+  },
+
+  getIncoming: function(nodeId) {
+
+    return this.getAdjacents(nodeId, 'in');
+  },
+
+  getOutgoing: function(nodeId) {
+
+    return this.getAdjacents(nodeId, 'out');
   }
 }
 

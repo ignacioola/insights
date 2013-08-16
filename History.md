@@ -1,5 +1,9 @@
 # Next
 * Changed scaleExtent option default value.
+* Fixed tests.
+* Fixed cluster filter.
+* Splitted adjacent data into incoming and outgoing
+* Added `isPathVisible`.
 
 # 0.10.1
 * Fixed filter(id) bug.
