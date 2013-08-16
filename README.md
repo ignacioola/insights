@@ -1,7 +1,7 @@
 Insights.js
 ===========
 
-Tool for creating navigateable graphs.
+Javascript library for creating navigateable graphs.
 
 <img src="http://ignacioola.github.com/insights/img/1.png" />
 
@@ -153,6 +153,18 @@ graph.focus(1);
 graph.focus({ id: 1 });
 ```
 
+### Focus a node and it's incoming relations
+
+```javascript
+graph.focus(1, { in: true })
+```
+
+### Focus a node and it's outgoing relations
+
+```javascript
+graph.focus(1, { out: true })
+```
+
 ### Focusing by exact text match
 ```javascript
 graph.focus({ text: "Apple" })
@@ -173,14 +185,16 @@ graph.focus({ id: 1 })
 Using mustache synthax:
 
 ```javascript
-graph.tooltip("<div>name: {{text}}</div><div>count: {{count}}</div>")
+graph.tooltip("<div>name: {{text}}</div><div>count: {{size}}</div>")
 ```
 
 ## API 
 
-### Insights(el, nodes, links, options)
+### Insights(el, nodes:array, links:array, options:obj)
 
-Creates a new graph on the `el` element with the given nodes and links. Available options include:
+Creates a new graph on the `el` element with the given nodes and links. 
+
+Available `options` include:
 
 * `width`: the graph width.
 * `height`: the graph height.
@@ -193,9 +207,14 @@ Creates a new graph on the `el` element with the given nodes and links. Availabl
 
 Selects all the nodes that for which `fn` result evaluates to `true` or if an object passed by all of it's values.
     
-### .focus(fn|obj|id)
+### .focus(fn|obj|id, options:obj)
 
-Focuses the graph on the first node that matches the passed parameters.
+Focuses the graph on the first node that matches the passed parameters. 
+
+Available `options` include:
+
+* `in`: highlight incoming relations.
+* `out`: highlight outgoing relations.
 
 ### .reset()
 

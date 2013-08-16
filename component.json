@@ -1,6 +1,6 @@
 {
   "name": "insights",
-  "version": "0.10.1",
+  "version": "0.11",
   "description": "A navigatable d3 graph.",
   "keywords": [
     "d3",

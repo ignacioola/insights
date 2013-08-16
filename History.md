@@ -1,5 +1,8 @@
-# Next
+# 0.11
+* Added `focus()` with incoming/outgoing relations.
 * Changed scaleExtent option default value.
+* Fixed tests.
+* Fixed cluster filter.
 
 # 0.10.1
 * Fixed filter(id) bug.
