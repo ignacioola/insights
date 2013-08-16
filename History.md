@@ -1,4 +1,4 @@
-# Next
+# 0.11
 * Added `focus()` with incoming/outgoing relations.
 * Changed scaleExtent option default value.
 * Fixed tests.
