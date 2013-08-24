@@ -10,6 +10,8 @@ var PATH_STROKE_WIDTH = .3;
 var SELECTED_PATH_STROKE_WIDTH = 1.5;
 var CIRCLE_STROKE = "#FFF";
 var BASE_ELEMENT_CLASS = "insights-graph";
+var RADIUS_RANGE = [6, 40];
+var TITLE_RANGE = [0, 1];
 
 // Defaults
 var defaults = {
@@ -20,6 +22,7 @@ var defaults = {
   linkStrength: 1,
   linkDistance: 60,
   graphCharge: -300,
+  gravity: 0.1,
   zoomScaleExtent: [0.3, 2.3],
   tooltipTemplate: "<div>text: {{text}}</div> <div>size: {{size}}</div>"
 };
@@ -82,8 +85,7 @@ Graph.prototype = {
     this.compute(this.args.nodes, this.args.links);
     this.computeScales();
     
-    // initializing zoom
-    this._zoom = d3.behavior.zoom().translate([0,0]);
+    this.initZoom();
 
     el.html("");
 
@@ -93,11 +95,43 @@ Graph.prototype = {
         .attr("height", this.opts.height)
         .attr("pointer-events", "all")
         .call(this._zoom.on("zoom", bind(this, this.onZoom))
-                        .scaleExtent(this.opts.zoomScaleExtent))
+                        .scaleExtent(this.opts.zoomScaleExtent));
+
+    //var markerWidth = 6,
+    //    markerHeight = 6,
+    //    cRadius = 30, // play with the cRadius value
+    //    refX = cRadius + (markerWidth * 2),
+    //    refY = -Math.sqrt(cRadius),
+    //    drSub = cRadius + refY;
+
+    //// Per-type markers, as they don't inherit styles.
+    //svg.append("svg:defs").selectAll("marker")
+    //    .data(["arrow"])
+    //    .enter().append("svg:marker")
+    //    .attr("id", String)
+    //    .attr("viewBox", "0 -5 10 10")
+    //    .attr("refX", refX)
+    //    .attr("refY", refY)
+    //    .attr("markerWidth", markerWidth)
+    //    .attr("markerHeight", markerHeight)
+    //    .attr("orient", "auto")
+    //    .append("svg:path")
+    //    .attr("d", "M0,-5L10,0L0,5");
 
     this.parent = svg.append('svg:g').style('display','none');
 
     el.on("click", function() { self.reset() });
+  },
+
+  /**
+   * Initializes zoom
+   *
+   * @api private
+   */
+
+  initZoom: function() {
+    this._zoom = d3.behavior.zoom()
+      .center([this.opts.width/2, this.opts.height/2]);
   },
 
   /**
@@ -185,8 +219,8 @@ Graph.prototype = {
    */
 
   computeScales: function() {
-    this.radiusScale = d3.scale.sqrt().domain([1, this.maxSize]).range([6, 40]);
-    this.titleScale = d3.scale.log().domain([1, this.maxSize]).range([0, 1]);
+    this.radiusScale = d3.scale.sqrt().domain([1, this.maxSize]).range(RADIUS_RANGE);
+    this.titleScale = d3.scale.log().domain([1, this.maxSize]).range(TITLE_RANGE);
   },
 
   /**
@@ -283,21 +317,34 @@ Graph.prototype = {
    */
 
   zoom: function(scale) {
-    var trans, zoom;
+    var zoom , point , loc;
 
     if (!this.isRendered()) {
+      // keep the scale for when render() is called & exit
       this.opts.initialScale = scale;
       return this;
     }
 
-    trans = this.getTranslation();
     zoom = this._zoom;
-
+    point = [this.opts.width/2, this.opts.height/2];
+    loc = this.location(point);
+    
+    // scale zoom
     zoom.scale(scale);
 
+    // mantain position of the graph
+    this.translateTo(point, loc);
+
+    // applies zoom to the view with an animation
     this.refreshZoom(true);
 
     return this;
+  },
+
+  getCurrentCenter: function() {
+    var point = [this.opts.width/2, this.opts.height/2];
+
+    return this.location(point);
   },
 
   /**
@@ -398,6 +445,7 @@ Graph.prototype = {
       .size([this.opts.width, this.opts.height])
       .linkDistance(defaults.linkDistance)
       .charge(defaults.graphCharge)
+      .gravity(defaults.gravity)
       .on("tick", tick)
       .start();
 
@@ -407,6 +455,7 @@ Graph.prototype = {
       .attr("stroke", bind(this, this.pathStroke))
       .attr("stroke-width", PATH_STROKE_WIDTH)
       .attr("fill", "none");
+      //.attr("marker-end", "url(#arrow)");
     
     var node = this.d3Nodes = this.parent.selectAll(".node")
       .data(force.nodes())
@@ -427,9 +476,11 @@ Graph.prototype = {
       .text(function(d) { return self.getText(d); });
 
     function tick(e) {
+      //var progress = Math.round((1 - (e.alpha * 10 - 0.1)) * 100);
+
       if (force.alpha() < defaults.forceAlphaLimit) {
         self.handleCollisions();
-
+        
         // to prevent the chart from moving after
         force.stop();
 
@@ -844,6 +895,12 @@ Graph.prototype = {
     
     this.filters = [];
 
+    // pending center
+    if (this.unappliedCenter) {
+      this.unappliedCenter = false;
+      this.center();
+    }
+
     // With the currently applied filters we found no matching nodes
 
     if (!this.visibleNodeCount) {
@@ -874,6 +931,7 @@ Graph.prototype = {
     this.filters = [];
     this.appliedFilters = [];
     this.unappliedFocus = null;
+    this.unappliedCenter = null;
     this.focusOptions = null;
 
     this.state = { adjacents: {}, focused: null };
@@ -1221,7 +1279,7 @@ Graph.prototype = {
 
   collide: function(node, alpha) {
     var self = this,
-      r = node.radius + 16,
+      r = node.radius + 15,
       nx1 = node.x - r,
       nx2 = node.x + r,
       ny1 = node.y - r,
@@ -1309,7 +1367,7 @@ Graph.prototype = {
     }
 
     this.translateTo([this.opts.width/2, this.opts.height/2], l);
-    this.refreshZoom(true);
+    //this.refreshZoom(true);
   },
 
   /**
@@ -1322,8 +1380,14 @@ Graph.prototype = {
 
   center: function(nodeId) {
     var node;
+
+    if (this.hasUnappliedFilters() || this.hasUnappliedFocus()) { 
+      this.unappliedCenter = true;
+      return this;
+    }
+
     if (!this.isRendered()) {
-      return;
+      return this;
     }
 
     node = this.getNode(nodeId);
@@ -1333,6 +1397,8 @@ Graph.prototype = {
     } else {
       this._center();
     }
+
+    this.refreshZoom(true);
 
     return this;
   },

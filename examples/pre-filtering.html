@@ -8,10 +8,11 @@
   <body>
     <div id="parent"></div>
 
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script src="../build/insights.standalone.js"></script>
     <script>
       !function() {
-        d3.json("data.json", function(data) {
+        $.getJSON("data.json", function(data) {
           var nodes = data[0],
               links = data[1],
               el = document.getElementById("parent"),

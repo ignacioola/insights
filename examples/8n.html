@@ -8,11 +8,12 @@
   <body>
     <div id="parent"></div>
 
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script src="../build/insights.standalone.js"></script>
 
     <script>
       !function() {
-        d3.json("8N.json", function(data) {
+        $.getJSON("8N.json", function(data) {
           var nodes = data[0],
               links = data[1],
               el = document.getElementById("parent");
@@ -21,10 +22,10 @@
             width: screen.width,
             height: screen.height,
             tooltip: true,
-            collisionAlpha: 15
+            collisionAlpha: 30
           });
 
-          graph.render();
+          graph.zoom(.4).render();
         });
       }();
     </script>

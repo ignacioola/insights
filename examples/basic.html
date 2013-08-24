@@ -9,11 +9,12 @@
     <div id="loader">rendering...</div>
     <div id="parent"></div>
 
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script src="../build/insights.standalone.js"></script>
     <script>
       loader = document.getElementById('loader');
 
-      d3.json("data.json", function(data) {
+      $.getJSON("data.json", function(data) {
         var nodes = data[0]
           , links = data[1]
           , el = document.getElementById("parent")
@@ -25,7 +26,9 @@
 
         graph = new Insights(el, nodes, links, options)
           .filter({ cluster: 0, size: [500, null] })
+          .zoom(.85)
           .focus({ text: "color" }, { in: 1 })
+          .center()
           .render();
 
         graph.on('rendered', function() {
