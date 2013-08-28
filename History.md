@@ -1,4 +1,4 @@
-# NEXT
+# 0.12
 * Changed d3 dependency to mbostock/d3.
 * Improved `zoom()` centering.
 * Fixed bug: `center()` return value.
