@@ -9791,12 +9791,11 @@ Graph.prototype = {
 
     this.compute(this.args.nodes, this.args.links);
     this.computeScales();
-    
     this.initZoom();
 
     el.html("");
 
-    var svg = el.attr("class", el.attr("class") + " " + BASE_ELEMENT_CLASS) 
+    var svg = el.attr("class", BASE_ELEMENT_CLASS) 
       .append("svg")
         .attr("width", this.opts.width)
         .attr("height", this.opts.height)
@@ -9804,30 +9803,25 @@ Graph.prototype = {
         .call(this._zoom.on("zoom", bind(this, this.onZoom))
                         .scaleExtent(this.opts.zoomScaleExtent));
 
-    //var markerWidth = 6,
-    //    markerHeight = 6,
-    //    cRadius = 30, // play with the cRadius value
-    //    refX = cRadius + (markerWidth * 2),
-    //    refY = -Math.sqrt(cRadius),
-    //    drSub = cRadius + refY;
-
-    //// Per-type markers, as they don't inherit styles.
-    //svg.append("svg:defs").selectAll("marker")
-    //    .data(["arrow"])
-    //    .enter().append("svg:marker")
-    //    .attr("id", String)
-    //    .attr("viewBox", "0 -5 10 10")
-    //    .attr("refX", refX)
-    //    .attr("refY", refY)
-    //    .attr("markerWidth", markerWidth)
-    //    .attr("markerHeight", markerHeight)
-    //    .attr("orient", "auto")
-    //    .append("svg:path")
-    //    .attr("d", "M0,-5L10,0L0,5");
-
     this.parent = svg.append('svg:g').style('display','none');
 
-    el.on("click", function() { self.reset() });
+    var clickedX, clickedY;
+
+    el.on("mousedown", function() { 
+      clickedX = d3.event.x; 
+      clickedY = d3.event.y; 
+    });
+
+    el.on("click", function() { 
+
+        // avoid reset when dragging
+        if (d3.event.x != clickedX || d3.event.y != clickedY) { 
+          return;
+        }
+        
+        self.reset() 
+      });
+
   },
 
   /**
@@ -9837,8 +9831,11 @@ Graph.prototype = {
    */
 
   initZoom: function() {
-    this._zoom = d3.behavior.zoom()
-      .center([this.opts.width/2, this.opts.height/2]);
+    this._zoom = d3.behavior.zoom();
+
+    if (this.opts.initialScale) {
+      this._zoom = this._zoom.scale(this.opts.initialScale);
+    }
   },
 
   /**
@@ -10048,12 +10045,6 @@ Graph.prototype = {
     return this;
   },
 
-  getCurrentCenter: function() {
-    var point = [this.opts.width/2, this.opts.height/2];
-
-    return this.location(point);
-  },
-
   /**
    * Applies zoom in
    *
@@ -10085,7 +10076,7 @@ Graph.prototype = {
   },
 
   /**
-   * Given, the current zoom and size of a node, tells if it's label should
+   * Given the current zoom and size of a node, tells if it's label should
    * be displayed
    *
    * @api private
@@ -10140,10 +10131,6 @@ Graph.prototype = {
 
     this.init();
     
-    if (this.opts.initialScale) {
-      this._zoom = this._zoom.scale(this.opts.initialScale);
-    }
-
     function circleRadius(d) { return self.radiusScale(self.getSize(d) || 1); }
 
     var force = this.force = d3.layout.force()
@@ -10162,7 +10149,6 @@ Graph.prototype = {
       .attr("stroke", bind(this, this.pathStroke))
       .attr("stroke-width", PATH_STROKE_WIDTH)
       .attr("fill", "none");
-      //.attr("marker-end", "url(#arrow)");
     
     var node = this.d3Nodes = this.parent.selectAll(".node")
       .data(force.nodes())
@@ -10195,7 +10181,7 @@ Graph.prototype = {
         self.updateLinksPosition();
 
         // center the graph
-        self.center();
+        self._center();
 
         // showing canvas after finished rendering
         self.show();
@@ -10588,7 +10574,6 @@ Graph.prototype = {
       this._focus(focusFn);
     }
 
-
     // store the currently applied filters
     this.appliedFilters = this.filters;
 
@@ -10599,13 +10584,13 @@ Graph.prototype = {
     this.updateTitles();
 
     // flushing filters
-    
     this.filters = [];
 
     // pending center
     if (this.unappliedCenter) {
       this.unappliedCenter = false;
-      this.center();
+      this._center();
+      this.refreshZoom(true);
     }
 
     // With the currently applied filters we found no matching nodes
@@ -10872,12 +10857,11 @@ Graph.prototype = {
         throw new Error('invalid argument');
     }
 
-    // XXX : only do this when a fn is passed
-    //n = this.findFocusedNode(fn);
-
     if (n) {
       this.setFocus(n);
     }
+
+    this.unappliedFocus = null;
 
     return this;
   },
@@ -11074,7 +11058,6 @@ Graph.prototype = {
     }
 
     this.translateTo([this.opts.width/2, this.opts.height/2], l);
-    //this.refreshZoom(true);
   },
 
   /**
