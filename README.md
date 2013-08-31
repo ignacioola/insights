@@ -1,7 +1,7 @@
 Insights.js
 ===========
 
-Javascript library for creating navigateable graphs.
+A JavaScript library to visualize and navigate graphs.
 
 <img src="http://ignacioola.github.com/insights/img/1.png" />
 
