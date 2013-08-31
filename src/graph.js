@@ -10,6 +10,8 @@ var PATH_STROKE_WIDTH = .3;
 var SELECTED_PATH_STROKE_WIDTH = 1.5;
 var CIRCLE_STROKE = "#FFF";
 var BASE_ELEMENT_CLASS = "insights-graph";
+var RADIUS_RANGE = [6, 40];
+var TITLE_RANGE = [0, 1];
 
 // Defaults
 var defaults = {
@@ -20,6 +22,7 @@ var defaults = {
   linkStrength: 1,
   linkDistance: 60,
   graphCharge: -300,
+  gravity: 0.1,
   zoomScaleExtent: [0.3, 2.3],
   tooltipTemplate: "<div>text: {{text}}</div> <div>size: {{size}}</div>"
 };
@@ -64,7 +67,7 @@ function Graph(el, nodes, links, options) {
   options.tooltip && this.tooltip(options.tooltip);
 }
 
-Graph.version = "0.11";
+Graph.version = "0.12";
 
 Graph.prototype = {
   constructor: Graph,
@@ -81,23 +84,51 @@ Graph.prototype = {
 
     this.compute(this.args.nodes, this.args.links);
     this.computeScales();
-    
-    // initializing zoom
-    this._zoom = d3.behavior.zoom().translate([0,0]);
+    this.initZoom();
 
     el.html("");
 
-    var svg = el.attr("class", el.attr("class") + " " + BASE_ELEMENT_CLASS) 
+    var svg = el.attr("class", BASE_ELEMENT_CLASS) 
       .append("svg")
         .attr("width", this.opts.width)
         .attr("height", this.opts.height)
         .attr("pointer-events", "all")
         .call(this._zoom.on("zoom", bind(this, this.onZoom))
-                        .scaleExtent(this.opts.zoomScaleExtent))
+                        .scaleExtent(this.opts.zoomScaleExtent));
 
     this.parent = svg.append('svg:g').style('display','none');
 
-    el.on("click", function() { self.reset() });
+    var clickedX, clickedY;
+
+    el.on("mousedown", function() { 
+      clickedX = d3.event.x; 
+      clickedY = d3.event.y; 
+    });
+
+    el.on("click", function() { 
+
+        // avoid reset when dragging
+        if (d3.event.x != clickedX || d3.event.y != clickedY) { 
+          return;
+        }
+        
+        self.reset() 
+      });
+
+  },
+
+  /**
+   * Initializes zoom
+   *
+   * @api private
+   */
+
+  initZoom: function() {
+    this._zoom = d3.behavior.zoom();
+
+    if (this.opts.initialScale) {
+      this._zoom = this._zoom.scale(this.opts.initialScale);
+    }
   },
 
   /**
@@ -185,8 +216,8 @@ Graph.prototype = {
    */
 
   computeScales: function() {
-    this.radiusScale = d3.scale.sqrt().domain([1, this.maxSize]).range([6, 40]);
-    this.titleScale = d3.scale.log().domain([1, this.maxSize]).range([0, 1]);
+    this.radiusScale = d3.scale.sqrt().domain([1, this.maxSize]).range(RADIUS_RANGE);
+    this.titleScale = d3.scale.log().domain([1, this.maxSize]).range(TITLE_RANGE);
   },
 
   /**
@@ -283,18 +314,25 @@ Graph.prototype = {
    */
 
   zoom: function(scale) {
-    var trans, zoom;
+    var zoom , point , loc;
 
     if (!this.isRendered()) {
+      // keep the scale for when render() is called & exit
       this.opts.initialScale = scale;
       return this;
     }
 
-    trans = this.getTranslation();
     zoom = this._zoom;
-
+    point = [this.opts.width/2, this.opts.height/2];
+    loc = this.location(point);
+    
+    // scale zoom
     zoom.scale(scale);
 
+    // mantain position of the graph
+    this.translateTo(point, loc);
+
+    // applies zoom to the view with an animation
     this.refreshZoom(true);
 
     return this;
@@ -331,7 +369,7 @@ Graph.prototype = {
   },
 
   /**
-   * Given, the current zoom and size of a node, tells if it's label should
+   * Given the current zoom and size of a node, tells if it's label should
    * be displayed
    *
    * @api private
@@ -386,10 +424,6 @@ Graph.prototype = {
 
     this.init();
     
-    if (this.opts.initialScale) {
-      this._zoom = this._zoom.scale(this.opts.initialScale);
-    }
-
     function circleRadius(d) { return self.radiusScale(self.getSize(d) || 1); }
 
     var force = this.force = d3.layout.force()
@@ -398,6 +432,7 @@ Graph.prototype = {
       .size([this.opts.width, this.opts.height])
       .linkDistance(defaults.linkDistance)
       .charge(defaults.graphCharge)
+      .gravity(defaults.gravity)
       .on("tick", tick)
       .start();
 
@@ -427,9 +462,11 @@ Graph.prototype = {
       .text(function(d) { return self.getText(d); });
 
     function tick(e) {
+      //var progress = Math.round((1 - (e.alpha * 10 - 0.1)) * 100);
+
       if (force.alpha() < defaults.forceAlphaLimit) {
         self.handleCollisions();
-
+        
         // to prevent the chart from moving after
         force.stop();
 
@@ -437,7 +474,7 @@ Graph.prototype = {
         self.updateLinksPosition();
 
         // center the graph
-        self.center();
+        self._center();
 
         // showing canvas after finished rendering
         self.show();
@@ -830,7 +867,6 @@ Graph.prototype = {
       this._focus(focusFn);
     }
 
-
     // store the currently applied filters
     this.appliedFilters = this.filters;
 
@@ -841,8 +877,14 @@ Graph.prototype = {
     this.updateTitles();
 
     // flushing filters
-    
     this.filters = [];
+
+    // pending center
+    if (this.unappliedCenter) {
+      this.unappliedCenter = false;
+      this._center();
+      this.refreshZoom(true);
+    }
 
     // With the currently applied filters we found no matching nodes
 
@@ -874,6 +916,7 @@ Graph.prototype = {
     this.filters = [];
     this.appliedFilters = [];
     this.unappliedFocus = null;
+    this.unappliedCenter = null;
     this.focusOptions = null;
 
     this.state = { adjacents: {}, focused: null };
@@ -1107,12 +1150,11 @@ Graph.prototype = {
         throw new Error('invalid argument');
     }
 
-    // XXX : only do this when a fn is passed
-    //n = this.findFocusedNode(fn);
-
     if (n) {
       this.setFocus(n);
     }
+
+    this.unappliedFocus = null;
 
     return this;
   },
@@ -1221,7 +1263,7 @@ Graph.prototype = {
 
   collide: function(node, alpha) {
     var self = this,
-      r = node.radius + 16,
+      r = node.radius + 15,
       nx1 = node.x - r,
       nx2 = node.x + r,
       ny1 = node.y - r,
@@ -1309,7 +1351,6 @@ Graph.prototype = {
     }
 
     this.translateTo([this.opts.width/2, this.opts.height/2], l);
-    this.refreshZoom(true);
   },
 
   /**
@@ -1322,8 +1363,14 @@ Graph.prototype = {
 
   center: function(nodeId) {
     var node;
+
+    if (this.hasUnappliedFilters() || this.hasUnappliedFocus()) { 
+      this.unappliedCenter = true;
+      return this;
+    }
+
     if (!this.isRendered()) {
-      return;
+      return this;
     }
 
     node = this.getNode(nodeId);
@@ -1333,6 +1380,8 @@ Graph.prototype = {
     } else {
       this._center();
     }
+
+    this.refreshZoom(true);
 
     return this;
   },

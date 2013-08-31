@@ -1,3 +1,10 @@
+# 0.12
+* Changed d3 dependency to mbostock/d3.
+* Improved `zoom()` centering.
+* Fixed bug: `center()` return value.
+* Fixed bug: apply center if called before rendering.
+* Fixed bug: avoid reset when dragging.
+
 # 0.11
 * Added `focus()` with incoming/outgoing relations.
 * Changed scaleExtent option default value.
