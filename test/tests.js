@@ -1,4 +1,3 @@
-var Insights = require("insights");
 var expect = chai.expect;
 var el = document.getElementById("insights");
 
