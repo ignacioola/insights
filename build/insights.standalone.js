@@ -9808,14 +9808,14 @@ Graph.prototype = {
     var clickedX, clickedY;
 
     el.on("mousedown", function() { 
-      clickedX = d3.event.x; 
-      clickedY = d3.event.y; 
+      clickedX = d3.mouse(this)[0];
+      clickedY = d3.mouse(this)[1];
     });
 
     el.on("click", function() { 
 
         // avoid reset when dragging
-        if (d3.event.x != clickedX || d3.event.y != clickedY) { 
+        if (d3.mouse(this)[0] != clickedX || d3.mouse(this)[1] != clickedY) {
           return;
         }
         
