@@ -10152,7 +10152,7 @@ Graph.prototype = {
       .attr("stroke", bind(this, this.pathStroke))
       .attr("stroke-width", PATH_STROKE_WIDTH)
       .attr("marker-end", function(d) {
-        return "url(#marker-" + d.source.id.replace(" ","") + "-" + d.target.id.replace(" ","") + ")";
+        return "url(#marker-" + d.source.id.replace(/\s+/g,"") + "-" + d.target.id.replace(/\s+/g,"") + ")";
       })
       .attr("fill", "none");
     
@@ -10161,7 +10161,7 @@ Graph.prototype = {
         .data(force.links())
         .enter().append("svg:marker")
         .attr("id", function(d) {
-          return "marker-" + d.source.id.replace(" ","") + "-" + d.target.id.replace(" ","");
+          return "marker-" + d.source.id.replace(/\s+/g,"") + "-" + d.target.id.replace(/\s+/g,"");
         })
         .attr("viewBox", "0 -5 10 10")
         .attr("refX", 8.5)
