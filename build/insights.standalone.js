@@ -9808,14 +9808,14 @@ Graph.prototype = {
     var clickedX, clickedY;
 
     el.on("mousedown", function() { 
-      clickedX = d3.event.x; 
-      clickedY = d3.event.y; 
+      clickedX = d3.mouse(this)[0];
+      clickedY = d3.mouse(this)[1];
     });
 
     el.on("click", function() { 
 
         // avoid reset when dragging
-        if (d3.event.x != clickedX || d3.event.y != clickedY) { 
+        if (d3.mouse(this)[0] != clickedX || d3.mouse(this)[1] != clickedY) {
           return;
         }
         
@@ -10129,6 +10129,9 @@ Graph.prototype = {
   render: function() {
     var self = this;
 
+    var markerWidth = 6,
+        markerHeight = 6;
+
     this.init();
     
     function circleRadius(d) { return self.radiusScale(self.getSize(d) || 1); }
@@ -10148,8 +10151,28 @@ Graph.prototype = {
       .enter().append("svg:path")
       .attr("stroke", bind(this, this.pathStroke))
       .attr("stroke-width", PATH_STROKE_WIDTH)
+      .attr("marker-end", function(d) {
+        return "url(#marker-" + d.source.id.replace(/\s+/g,"") + "-" + d.target.id.replace(/\s+/g,"") + ")";
+      })
       .attr("fill", "none");
     
+    // Per-type markers, as they don't inherit styles.
+    this.d3Arrows = this.parent.append("svg:defs").selectAll("marker")
+        .data(force.links())
+        .enter().append("svg:marker")
+        .attr("id", function(d) {
+          return "marker-" + d.source.id.replace(/\s+/g,"") + "-" + d.target.id.replace(/\s+/g,"");
+        })
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 8.5)
+        .attr("refY", 0)
+        .attr("markerWidth", markerWidth)
+        .attr("markerHeight", markerHeight)
+        .attr("orient", "auto")
+        .append("svg:polyline")
+        .attr("points", "0,-5 10,0 0,5 1,0")
+        .attr("fill", bind(this, this.pathStroke));
+
     var node = this.d3Nodes = this.parent.selectAll(".node")
       .data(force.nodes())
       .enter().append("g")
@@ -10254,15 +10277,40 @@ Graph.prototype = {
    */
 
   updateLinksPosition: function() {
-
+    var self = this;
     // Render a curve line between nodes.
     
+    function circleRadius(d) { return self.radiusScale(self.getSize(d) || 1); }
+
     this.d3Path.attr("d", function(d) {
       var dx = d.target.x - d.source.x
         , dy = d.target.y - d.source.y
-        , dr = Math.sqrt(dx * dx + dy * dy);
+        , dr = Math.sqrt(dx * dx + dy * dy)
+        , r1 = circleRadius(d.target) + 1.5;
 
-      return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+      var x1 = d.source.x
+        , y1 = d.source.y
+        , x2 = d.target.x
+        , y2 = d.target.y;
+
+
+      // http://www.w3.org/TR/SVG/implnote.html#ArcConversionEndpointToCenter
+      var x11 = (x1 - x2) / 2.0
+        , y11 = (y1 - y2) / 2.0
+        , cx00 = Math.sqrt((dr * dr * dr * dr - dr * dr * y11 * y11 - dr * dr *x11 * x11) / (dr*dr*y11*y11 + dr*dr*x11*x11)) * y11
+        , cy00 = Math.sqrt((dr * dr * dr * dr - dr * dr * y11 * y11 - dr * dr *x11 * x11) / (dr*dr*y11*y11 + dr*dr*x11*x11)) * (-x11)
+        , cx = cx00 + (x1 + x2) / 2.0
+        , cy = cy00 + (y1 + y2) / 2.0;
+
+      // http://www.ambrsoft.com/TrigoCalc/Circles2/Circle2.htm
+      var sigma = Math.sqrt((dr + dr + r1) * (dr + dr - r1) *(r1 * r1)) / 4.0
+        , ex1 = (cx + x2) / 2.0 + (x2 - cx) * (dr * dr - r1 * r1) / (2 * dr * dr) - 2 * (cy - y2) * sigma / ( dr * dr )
+        , ey1 = (cy + y2) / 2.0 + (y2 - cy) * (dr * dr - r1 * r1) / (2 * dr * dr) + 2 * (cx - x2) * sigma / ( dr * dr )
+        , dx1 = ex1 - d.source.x
+        , dy1 = ey1 - d.source.y;
+      //return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+      return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + ex1 + "," + ey1;
+      //return "M" + d.source.x + "," + d.source.y + "L" + ex1 + "," + ey1;
     });
   },
 
@@ -10556,6 +10604,18 @@ Graph.prototype = {
         }
 
         return PATH_STROKE_WIDTH;
+      });
+
+    this.d3Arrows
+      .attr("fill", function(e) {
+        var yes = function(e) { return self.pathStroke(e) },
+          no = UNSELECTED_COLOR;
+
+        if (self.isPathVisible(e.source, e.target)) {
+          return yes(e);
+        } else {
+          return no;
+        }
       });
   },
 
