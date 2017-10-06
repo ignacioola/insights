@@ -1,7 +1,7 @@
 Insights.js
 ===========
 
-**IMPORTANT: THIS PROJECT IS NO LONGER MAINAINED**
+**IMPORTANT: THIS PROJECT IS NO LONGER MAINTAINED**
 
 A JavaScript library to visualize and navigate graphs.
 
