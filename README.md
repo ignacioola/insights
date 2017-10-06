@@ -1,6 +1,8 @@
 Insights.js
 ===========
 
+**IMPORTANT: THIS PROJECT IS NO LONGER MAINAINED**
+
 A JavaScript library to visualize and navigate graphs.
 
 <img src="http://ignacioola.github.com/insights/img/1.png" />
